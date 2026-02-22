@@ -1,562 +1,955 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>StILL | 宁静如初</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --sky-top: #080e1a;
-            --sky-mid: #0d1f35;
-            --sky-bottom: #1a3a52;
-            --glass: rgba(255,255,255,0.05);
-            --glass-border: rgba(255,255,255,0.09);
-            --glass-hover: rgba(255,255,255,0.10);
-            --amber: rgba(255,160,80,0.22);
-            --amber-border: rgba(255,160,80,0.32);
-        }
+<meta charset="UTF-8">
+<title>StILL | 宁静如初</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky-top:#080e1a;--sky-mid:#0d1f35;--sky-bottom:#1a3a52;
+  --glass:rgba(255,255,255,0.05);--glass-b:rgba(255,255,255,0.09);
+  --glass-h:rgba(255,255,255,0.10);--amber:rgba(255,160,80,0.22);
+  --amber-b:rgba(255,160,80,0.32);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-serif}
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* SKY */
+.sky{position:relative;width:100%;height:100vh;background:linear-gradient(170deg,var(--sky-top) 0%,var(--sky-mid) 55%,var(--sky-bottom) 100%);display:flex;align-items:center;justify-content:center;gap:20px}
+.city-glow{position:absolute;bottom:0;left:0;right:0;height:35%;background:radial-gradient(ellipse at 50% 110%,rgba(255,120,50,0.18) 0%,transparent 70%);pointer-events:none;z-index:0}
+.rain-container{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;transition:opacity 0.8s}
+.rain-drop{position:absolute;top:-80px;width:1px;background:linear-gradient(to bottom,transparent,rgba(180,210,255,0.4));animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(115vh)}}
 
-        body, html {
-            height: 100%; overflow: hidden; color: white;
-            font-family: 'DM Sans', sans-serif;
-        }
+/* TOP-LEFT CORNER */
+.corner-tl{position:absolute;top:18px;left:22px;z-index:20;display:flex;align-items:center;gap:10px}
+.app-title{font-family:'DM Serif Display',serif;font-size:1.1rem;letter-spacing:6px;opacity:0.6}
+.btn-topbar{background:var(--glass);border:1px solid var(--glass-b);color:rgba(255,255,255,0.42);border-radius:9px;padding:4px 11px;font-size:0.7rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-topbar:hover{background:var(--glass-h);color:white}
 
-        /* ── SKY ── */
-        .sky {
-            position: relative; width: 100%; height: 100vh;
-            background: linear-gradient(170deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-bottom) 100%);
-            display: flex; align-items: center; justify-content: center; gap: 20px;
-        }
-        .city-glow {
-            position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
-            background: radial-gradient(ellipse at 50% 110%, rgba(255,120,50,0.18) 0%, transparent 70%);
-            pointer-events: none; z-index: 0;
-        }
+/* TOP-CENTER: clock + focus stats */
+.top-center{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;z-index:20;pointer-events:none}
+.live-clock{font-family:'DM Serif Display',serif;font-size:2.2rem;letter-spacing:4px;opacity:0.75;line-height:1}
+.focus-stat{font-size:0.68rem;opacity:0.35;letter-spacing:2px;margin-top:4px}
 
-        /* ── RAIN ── */
-        .rain-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-        .rain-drop {
-            position: absolute; top: -60px; width: 1px;
-            background: linear-gradient(to bottom, transparent, rgba(180,210,255,0.4));
-            animation: fall linear infinite;
-        }
-        @keyframes fall { to { transform: translateY(110vh); } }
+/* LAYOUT */
+.layout{position:relative;z-index:10;display:flex;gap:20px;align-items:center;margin-top:44px}
 
-        /* ── TOP BAR ── */
-        .top-bar {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 20; display: flex; align-items: center; gap: 16px;
-        }
-        .app-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.3rem; letter-spacing: 7px; opacity: 0.7;
-        }
-        .btn-settings {
-            background: var(--glass); border: 1px solid var(--glass-border);
-            color: rgba(255,255,255,0.45); border-radius: 9px;
-            padding: 5px 12px; font-size: 0.73rem; cursor: pointer;
-            font-family: inherit; transition: 0.2s;
-        }
-        .btn-settings:hover { background: var(--glass-hover); color: white; }
+/* CHAT CARD */
+.chat-card{width:720px;height:68vh;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);display:flex;overflow:hidden}
+.topics-sidebar{width:190px;flex-shrink:0;border-right:1px solid var(--glass-b);display:flex;flex-direction:column;padding:18px 12px;gap:8px}
+.sidebar-label{font-size:0.65rem;letter-spacing:2.5px;text-transform:uppercase;opacity:0.38;padding:0 4px 10px;border-bottom:1px solid var(--glass-b);flex-shrink:0}
+.topic-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.topic-list::-webkit-scrollbar{width:2px}
+.topic-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+.topic-item{padding:9px 10px;border-radius:10px;font-size:0.82rem;cursor:pointer;opacity:0.6;transition:background 0.2s,opacity 0.2s;border:1px solid transparent;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.topic-item:hover{background:var(--glass-h);opacity:0.9}
+.topic-item.active{background:rgba(255,255,255,0.1);border-color:var(--glass-b);opacity:1}
+.topic-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topic-del{opacity:0;flex-shrink:0;background:transparent;border:none;color:rgba(255,100,80,0.7);font-size:0.85rem;cursor:pointer;padding:0 2px;line-height:1;transition:opacity 0.15s}
+.topic-item:hover .topic-del{opacity:1}
+.btn-new-topic{background:transparent;border:1px dashed rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);border-radius:10px;padding:8px;font-size:0.78rem;cursor:pointer;font-family:inherit;transition:0.2s;flex-shrink:0}
+.btn-new-topic:hover{border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.8)}
 
-        /* ── MAIN LAYOUT: unified chat card + task panel ── */
-        .layout {
-            position: relative; z-index: 10;
-            display: flex; gap: 20px; align-items: center;
-            margin-top: 20px; /* offset for title */
-        }
+.chat-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-header{padding:12px 18px;border-bottom:1px solid var(--glass-b);font-size:0.85rem;opacity:0.55;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.header-right{display:flex;align-items:center;gap:8px}
+.api-status{font-size:0.7rem;padding:3px 10px;border-radius:20px}
+.api-status.set{background:rgba(80,200,120,0.15);color:rgba(130,230,160,0.9)}
+.api-status.unset{background:rgba(255,100,80,0.12);color:rgba(255,140,120,0.8)}
+.ai-badge{font-size:0.68rem;padding:2px 8px;border-radius:20px;background:rgba(255,160,80,0.15);color:rgba(255,200,120,0.85);border:1px solid rgba(255,160,80,0.2)}
+.chat-display{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.chat-display::-webkit-scrollbar{width:3px}
+.chat-display::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.87rem;line-height:1.6}
+.msg.ai{background:rgba(255,255,255,0.07);align-self:flex-start;border-radius:4px 14px 14px 14px}
+.msg.user{background:var(--amber);align-self:flex-end;border-radius:14px 4px 14px 14px;text-align:right}
+.msg-label{font-size:0.65rem;opacity:0.38;margin-bottom:4px}
+.msg.milestone{background:rgba(255,200,80,0.1);border:1px solid rgba(255,200,80,0.2);align-self:center;text-align:center;border-radius:14px;max-width:78%;font-size:0.83rem;color:rgba(255,220,140,0.95);padding:10px 16px}
+.typing-indicator{display:flex;gap:5px;align-self:flex-start;padding:12px 14px}
+.typing-indicator span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.35);animation:blink 1.2s infinite}
+.typing-indicator span:nth-child(2){animation-delay:0.2s}
+.typing-indicator span:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,100%{opacity:0.25}50%{opacity:1}}
+.input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--glass-b);flex-shrink:0}
+.input-row input{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--glass-b);border-radius:11px;color:white;padding:9px 14px;font-size:0.87rem;outline:none;font-family:inherit;transition:border-color 0.2s}
+.input-row input:focus{border-color:rgba(255,160,80,0.4)}
+.input-row input::placeholder{color:rgba(255,255,255,0.22)}
+.btn-send{background:var(--amber);border:1px solid var(--amber-b);color:white;border-radius:11px;padding:9px 18px;font-size:0.84rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-send:hover{background:rgba(255,160,80,0.35)}
+.btn-send:disabled{opacity:0.35;cursor:not-allowed}
 
-        /* ── UNIFIED CHAT CARD ── */
-        .chat-card {
-            width: 720px; height: 72vh;
-            background: var(--glass);
-            backdrop-filter: blur(28px) saturate(150%);
-            -webkit-backdrop-filter: blur(28px) saturate(150%);
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            display: flex; overflow: hidden;
-        }
+/* TASK PANEL */
+.task-panel{width:210px;height:68vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);padding:16px 14px;display:flex;flex-direction:column;gap:10px}
+.task-header-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--glass-b);flex-shrink:0}
+.task-header{font-size:0.65rem;letter-spacing:2.5px;text-transform:uppercase;opacity:0.38}
+.task-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.task-list::-webkit-scrollbar{width:3px}
+.task-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+.task-item{padding:10px 12px;border-radius:12px;font-size:0.83rem;position:relative;overflow:hidden;border:1px solid transparent;transition:border-color 0.2s,background 0.2s;cursor:default}
+.task-item:hover{border-color:var(--glass-b)}
+.task-item.completed{opacity:0.35;text-decoration:line-through}
+.task-item.active-task{border-color:rgba(255,160,80,0.3);background:rgba(255,160,80,0.05)}
+.progress-fill{position:absolute;top:0;left:0;height:100%;background:rgba(255,160,80,0.17);z-index:0;transition:width 0.7s cubic-bezier(.4,0,.2,1)}
+.task-inner{position:relative;z-index:1;display:flex;align-items:center;gap:6px}
+.task-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-pct{font-size:0.68rem;opacity:0.5;flex-shrink:0}
+.task-actions{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:none;gap:3px;z-index:2;align-items:center}
+.task-item:hover .task-actions{display:flex}
+.task-btn{background:rgba(8,14,26,0.6);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);border-radius:6px;padding:2px 6px;font-size:0.65rem;cursor:pointer;font-family:inherit;transition:0.15s;white-space:nowrap}
+.task-btn.timer-btn:hover{background:rgba(255,160,80,0.25);border-color:rgba(255,160,80,0.4);color:rgba(255,210,130,0.95)}
+.task-btn.done-btn:hover{background:rgba(80,200,120,0.25);border-color:rgba(80,200,120,0.3);color:rgba(130,230,160,0.9)}
+.task-btn.del-btn:hover{background:rgba(255,80,60,0.2);border-color:rgba(255,80,60,0.3);color:rgba(255,120,100,0.9)}
+.btn-add-task{background:transparent;border:1px dashed rgba(255,255,255,0.18);color:rgba(255,255,255,0.4);border-radius:10px;padding:7px;font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-add-task:hover{border-color:rgba(255,255,255,0.38);color:rgba(255,255,255,0.75)}
+.btn-audio{background:transparent;border:1px solid var(--glass-b);color:rgba(255,255,255,0.45);border-radius:10px;padding:7px;font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-audio:hover{background:var(--glass-h);color:white}
 
-        /* LEFT: topic sidebar */
-        .topics-sidebar {
-            width: 190px; flex-shrink: 0;
-            border-right: 1px solid var(--glass-border);
-            display: flex; flex-direction: column;
-            padding: 18px 12px; gap: 8px;
-        }
-        .sidebar-label {
-            font-size: 0.65rem; letter-spacing: 2.5px; text-transform: uppercase;
-            opacity: 0.38; padding: 0 4px 10px; border-bottom: 1px solid var(--glass-border);
-            flex-shrink: 0;
-        }
-        .topic-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-        .topic-list::-webkit-scrollbar { width: 2px; }
-        .topic-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+/* ═══ TIMER PICKER MODAL ═══ */
+.timer-picker{position:fixed;inset:0;z-index:200;background:rgba(5,10,20,0.88);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity 0.3s}
+.timer-picker.hidden{opacity:0;pointer-events:none}
+.timer-card{background:rgba(12,22,42,0.97);border:1px solid rgba(255,255,255,0.1);border-radius:28px;padding:40px 36px;width:360px;display:flex;flex-direction:column;gap:20px;align-items:center;box-shadow:0 30px 90px rgba(0,0,0,0.7)}
+.timer-card h3{font-family:'DM Serif Display',serif;font-size:1.4rem;letter-spacing:3px;opacity:0.85}
+.timer-card p{font-size:0.78rem;opacity:0.4;text-align:center}
+.timer-task-label{font-size:0.8rem;opacity:0.55;background:var(--glass);border:1px solid var(--glass-b);border-radius:10px;padding:8px 16px;text-align:center;width:100%}
+.duration-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.dur-btn{background:var(--glass);border:1px solid var(--glass-b);color:rgba(255,255,255,0.6);border-radius:12px;padding:10px 18px;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.dur-btn:hover,.dur-btn.active{background:var(--amber);border-color:var(--amber-b);color:white}
+.custom-dur{display:flex;align-items:center;gap:8px;font-size:0.82rem;opacity:0.55}
+.custom-dur input{width:52px;background:rgba(255,255,255,0.07);border:1px solid var(--glass-b);border-radius:8px;color:white;padding:6px 8px;font-size:0.85rem;text-align:center;outline:none;font-family:inherit}
+.timer-actions{display:flex;gap:10px;width:100%}
+.btn-start-timer{flex:1;background:var(--amber);border:1px solid var(--amber-b);color:white;border-radius:14px;padding:13px;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-start-timer:hover{background:rgba(255,160,80,0.4)}
+.btn-cancel-timer{background:var(--glass);border:1px solid var(--glass-b);color:rgba(255,255,255,0.45);border-radius:14px;padding:13px 18px;font-size:0.9rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-cancel-timer:hover{background:var(--glass-h);color:white}
 
-        .topic-item {
-            padding: 9px 10px; border-radius: 10px;
-            font-size: 0.82rem; cursor: pointer; opacity: 0.6;
-            transition: background 0.2s, opacity 0.2s;
-            border: 1px solid transparent; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis;
-        }
-        .topic-item:hover { background: var(--glass-hover); opacity: 0.9; }
-        .topic-item.active { background: rgba(255,255,255,0.1); border-color: var(--glass-border); opacity: 1; }
+/* ═══ IMMERSIVE MODE ═══ */
+.immersive{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;opacity:0;pointer-events:none;transition:opacity 0.6s}
+.immersive.active{opacity:1;pointer-events:all}
+/* Clock wrapper: transitions between center and upper position */
+.imm-clock-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  transition:top 0.5s cubic-bezier(.4,0,.2,1), transform 0.5s cubic-bezier(.4,0,.2,1);
+}
+.imm-clock-wrap.shifted{
+  top:22%;
+  transform:translate(-50%,-50%);
+}
 
-        .btn-new-topic {
-            background: transparent; border: 1px dashed rgba(255,255,255,0.2);
-            color: rgba(255,255,255,0.45); border-radius: 10px;
-            padding: 8px; font-size: 0.78rem; cursor: pointer;
-            font-family: inherit; transition: 0.2s; flex-shrink: 0;
-        }
-        .btn-new-topic:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.8); }
+/* Flip clock */
+.flip-clock{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.flip-digit-group{display:flex;gap:4px}
+.flip-digit{position:relative;width:72px;height:96px;perspective:400px}
+.flip-face{position:absolute;inset:0;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:3.5rem;backface-visibility:hidden;transform-origin:center bottom}
+.flip-face.front{transform:rotateX(0deg)}
+.flip-face.back{transform:rotateX(-180deg)}
+.flip-digit.flipping .flip-face.front{animation:flipDown 0.35s ease-in forwards}
+.flip-digit.flipping .flip-face.back{animation:flipUp 0.35s ease-out forwards}
+@keyframes flipDown{to{transform:rotateX(-180deg)}}
+@keyframes flipUp{from{transform:rotateX(180deg)}to{transform:rotateX(0deg)}}
+.flip-sep{font-family:'DM Serif Display',serif;font-size:3.5rem;opacity:0.5;margin:0 2px;line-height:96px}
 
-        /* RIGHT: chat area */
-        .chat-area {
-            flex: 1; display: flex; flex-direction: column; min-width: 0;
-        }
+.imm-clock{font-size:0.95rem;opacity:0.35;letter-spacing:4px;margin-top:8px;font-family:'DM Serif Display',serif}
+.imm-task-label{font-size:0.78rem;opacity:0.35;letter-spacing:2px;margin-top:16px}
 
-        .chat-header {
-            padding: 14px 18px; border-bottom: 1px solid var(--glass-border);
-            font-size: 0.85rem; opacity: 0.55; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .api-status { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; }
-        .api-status.set { background: rgba(80,200,120,0.15); color: rgba(130,230,160,0.9); }
-        .api-status.unset { background: rgba(255,100,80,0.12); color: rgba(255,140,120,0.8); }
+/* Immersive controls */
+.imm-controls{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center}
+.imm-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);border-radius:14px;padding:10px 20px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:0.2s;white-space:nowrap}
+.imm-btn:hover{background:rgba(255,255,255,0.13);color:white}
+.imm-btn.danger:hover{background:rgba(255,60,60,0.2);border-color:rgba(255,60,60,0.3);color:rgba(255,120,100,0.9)}
 
-        .chat-display {
-            flex: 1; overflow-y: auto; padding: 16px 18px;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .chat-display::-webkit-scrollbar { width: 3px; }
-        .chat-display::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+/* Slide-up chat panel in immersive */
+.imm-chat-panel{position:absolute;bottom:0;left:50%;transform:translate(-50%,100%);width:580px;height:48vh;background:rgba(8,14,28,0.96);border:1px solid var(--glass-b);border-bottom:none;border-radius:20px 20px 0 0;display:flex;flex-direction:column;transition:transform 0.46s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(28px)}
+.imm-chat-panel.open{transform:translate(-50%,0)}
+.imm-chat-header{padding:14px 18px;border-bottom:1px solid var(--glass-b);font-size:0.8rem;opacity:0.45;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.imm-chat-display{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:8px;min-height:140px}
+.imm-chat-display::-webkit-scrollbar{width:3px}
+.imm-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--glass-b);flex-shrink:0}
+.imm-input-row input{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--glass-b);border-radius:11px;color:white;padding:9px 14px;font-size:0.87rem;outline:none;font-family:inherit}
+.imm-input-row input:focus{border-color:rgba(255,160,80,0.4)}
+.imm-input-row input::placeholder{color:rgba(255,255,255,0.22)}
 
-        .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 0.87rem; line-height: 1.6; }
-        .msg.ai {
-            background: rgba(255,255,255,0.07);
-            align-self: flex-start; border-radius: 4px 14px 14px 14px;
-        }
-        .msg.user {
-            background: var(--amber); align-self: flex-end;
-            border-radius: 14px 4px 14px 14px; text-align: right;
-        }
-        .msg-label { font-size: 0.65rem; opacity: 0.38; margin-bottom: 4px; }
+/* HISTORY DRAWER */
+.history-drawer{position:fixed;left:0;top:0;height:100vh;width:320px;background:rgba(8,14,26,0.97);border-right:1px solid var(--glass-b);backdrop-filter:blur(30px);z-index:50;transform:translateX(-100%);transition:transform 0.38s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding:30px 24px;gap:20px}
+.history-drawer.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between}
+.drawer-title{font-family:'DM Serif Display',serif;font-size:1.1rem;letter-spacing:3px;opacity:0.75}
+.btn-close-drawer{background:transparent;border:1px solid var(--glass-b);color:rgba(255,255,255,0.4);border-radius:8px;padding:5px 10px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-close-drawer:hover{color:white;background:var(--glass-h)}
+.calendar-legend{display:flex;align-items:center;gap:8px;font-size:0.7rem;opacity:0.35}
+.legend-boxes{display:flex;gap:3px}
+.legend-box{width:10px;height:10px;border-radius:2px}
+.calendar-grid-wrap{overflow-y:auto;flex:1}
+.calendar-grid-wrap::-webkit-scrollbar{width:3px}
+.calendar-grid-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+.cal-month-label{font-size:0.68rem;opacity:0.35;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
+.cal-week-row{display:flex;gap:3px;flex-wrap:wrap}
+.cal-day{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,0.06);cursor:default;transition:transform 0.15s;position:relative}
+.cal-day:hover{transform:scale(1.4);z-index:2}
+.cal-day[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;top:-28px;transform:translateX(-50%);background:rgba(10,20,40,0.95);border:1px solid var(--glass-b);border-radius:6px;padding:3px 8px;font-size:0.65rem;white-space:nowrap;pointer-events:none;color:rgba(255,255,255,0.8);z-index:10}
+.drawer-overlay{position:fixed;inset:0;z-index:49;background:transparent;display:none}
+.drawer-overlay.show{display:block}
 
-        .typing-indicator { display: flex; gap: 5px; align-self: flex-start; padding: 12px 14px; }
-        .typing-indicator span {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: rgba(255,255,255,0.35); animation: blink 1.2s infinite;
-        }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes blink { 0%,100%{opacity:0.25} 50%{opacity:1} }
-
-        .input-row {
-            display: flex; gap: 8px; padding: 12px 14px;
-            border-top: 1px solid var(--glass-border); flex-shrink: 0;
-        }
-        .input-row input {
-            flex: 1; background: rgba(255,255,255,0.06);
-            border: 1px solid var(--glass-border); border-radius: 11px;
-            color: white; padding: 9px 14px; font-size: 0.87rem;
-            outline: none; font-family: inherit; transition: border-color 0.2s;
-        }
-        .input-row input:focus { border-color: rgba(255,160,80,0.4); }
-        .input-row input::placeholder { color: rgba(255,255,255,0.22); }
-        .btn-send {
-            background: var(--amber); border: 1px solid var(--amber-border);
-            color: white; border-radius: 11px; padding: 9px 18px;
-            font-size: 0.84rem; cursor: pointer; font-family: inherit; transition: 0.2s;
-        }
-        .btn-send:hover { background: rgba(255,160,80,0.35); }
-        .btn-send:disabled { opacity: 0.35; cursor: not-allowed; }
-
-        /* ── TASK PANEL ── */
-        .task-panel {
-            width: 200px; height: 72vh; flex-shrink: 0;
-            background: var(--glass);
-            backdrop-filter: blur(28px) saturate(150%);
-            -webkit-backdrop-filter: blur(28px) saturate(150%);
-            border-radius: 24px; border: 1px solid var(--glass-border);
-            padding: 18px 14px; display: flex; flex-direction: column; gap: 10px;
-        }
-        .task-header {
-            font-size: 0.65rem; letter-spacing: 2.5px; text-transform: uppercase;
-            opacity: 0.38; text-align: center; padding-bottom: 10px;
-            border-bottom: 1px solid var(--glass-border); flex-shrink: 0;
-        }
-        .task-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-        .task-item {
-            padding: 10px 12px; border-radius: 12px;
-            font-size: 0.83rem; position: relative; overflow: hidden;
-            border: 1px solid transparent; transition: 0.2s;
-        }
-        .task-item:hover { border-color: var(--glass-border); }
-        .task-item.completed { opacity: 0.35; text-decoration: line-through; }
-        .progress-fill {
-            position: absolute; top: 0; left: 0; height: 100%;
-            background: rgba(255,160,80,0.17); z-index: 0;
-            transition: width 0.7s cubic-bezier(.4,0,.2,1);
-        }
-        .task-inner { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; }
-        .task-pct { font-size: 0.68rem; opacity: 0.5; }
-
-        .btn-add-task {
-            background: transparent; border: 1px dashed rgba(255,255,255,0.18);
-            color: rgba(255,255,255,0.4); border-radius: 10px; padding: 7px;
-            font-size: 0.76rem; cursor: pointer; font-family: inherit; transition: 0.2s;
-        }
-        .btn-add-task:hover { border-color: rgba(255,255,255,0.38); color: rgba(255,255,255,0.75); }
-
-        .btn-audio {
-            background: transparent; border: 1px solid var(--glass-border);
-            color: rgba(255,255,255,0.45); border-radius: 10px; padding: 7px;
-            font-size: 0.76rem; cursor: pointer; font-family: inherit; transition: 0.2s;
-        }
-        .btn-audio:hover { background: var(--glass-hover); color: white; }
-
-        /* ── API KEY MODAL ── */
-        .modal-overlay {
-            position: fixed; inset: 0; z-index: 100;
-            background: rgba(5,10,20,0.85); backdrop-filter: blur(14px);
-            display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.35s;
-        }
-        .modal-overlay.hidden { opacity: 0; pointer-events: none; }
-
-        .modal {
-            background: rgba(12,22,42,0.97); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px; padding: 38px 32px; width: 360px;
-            display: flex; flex-direction: column; gap: 14px;
-            box-shadow: 0 30px 90px rgba(0,0,0,0.7);
-        }
-        .modal h2 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.6rem; letter-spacing: 4px; text-align: center; opacity: 0.9;
-        }
-        .modal p { font-size: 0.8rem; opacity: 0.45; text-align: center; line-height: 1.65; }
-        .modal label { font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; }
-        .modal input {
-            width: 100%; background: rgba(255,255,255,0.06);
-            border: 1px solid var(--glass-border); border-radius: 10px;
-            color: white; padding: 10px 14px; font-size: 0.87rem;
-            outline: none; font-family: inherit; transition: border-color 0.2s;
-        }
-        .modal input:focus { border-color: rgba(255,160,80,0.45); }
-        .btn-confirm {
-            background: var(--amber); border: 1px solid var(--amber-border);
-            color: white; border-radius: 12px; padding: 12px;
-            font-size: 0.88rem; cursor: pointer; font-family: inherit; transition: 0.2s;
-        }
-        .btn-confirm:hover { background: rgba(255,160,80,0.38); }
-        .error-msg { color: rgba(255,120,100,0.85); font-size: 0.76rem; text-align: center; }
-        .hint { font-size: 0.68rem !important; opacity: 0.25 !important; }
-    </style>
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(5,10,20,0.85);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;transition:opacity 0.35s}
+.modal-overlay.hidden{opacity:0;pointer-events:none}
+.modal{background:rgba(12,22,42,0.97);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:36px 30px;width:380px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 90px rgba(0,0,0,0.7)}
+.modal.hidden{display:none}
+.modal h2{font-family:'DM Serif Display',serif;font-size:1.55rem;letter-spacing:4px;text-align:center;opacity:0.9}
+.modal p{font-size:0.8rem;opacity:0.45;text-align:center;line-height:1.65}
+.modal label{font-size:0.7rem;opacity:0.5;letter-spacing:1px}
+.modal input[type="password"]{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--glass-b);border-radius:10px;color:white;padding:10px 14px;font-size:0.87rem;outline:none;font-family:inherit;transition:border-color 0.2s}
+.modal input[type="password"]:focus{border-color:rgba(255,160,80,0.45)}
+.key-detect-row{display:flex;align-items:center;gap:8px;min-height:24px}
+.key-badge{font-size:0.72rem;padding:3px 10px;border-radius:20px;background:rgba(80,200,120,0.15);color:rgba(130,230,160,0.9);border:1px solid rgba(80,200,120,0.2);transition:0.2s}
+.btn-confirm{background:var(--amber);border:1px solid var(--amber-b);color:white;border-radius:12px;padding:12px;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-confirm:hover{background:rgba(255,160,80,0.38)}
+.btn-help-link{background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:0.75rem;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:3px;transition:0.2s;padding:0}
+.btn-help-link:hover{color:rgba(255,255,255,0.65)}
+.error-msg{color:rgba(255,120,100,0.85);font-size:0.76rem;text-align:center}
+.modal-help{width:420px}
+.btn-back{background:transparent;border:1px solid var(--glass-b);color:rgba(255,255,255,0.45);border-radius:9px;padding:7px 14px;font-size:0.78rem;cursor:pointer;font-family:inherit;transition:0.2s;align-self:flex-start}
+.btn-back:hover{background:var(--glass-h);color:white}
+.platform-list{display:flex;flex-direction:column;gap:8px}
+.platform-item{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:13px;text-decoration:none;background:var(--glass);border:1px solid var(--glass-b);color:white;transition:0.2s}
+.platform-item:hover{background:var(--glass-h);border-color:rgba(255,160,80,0.25)}
+.platform-icon{font-size:1.3rem;width:28px;text-align:center;flex-shrink:0}
+.platform-name{font-size:0.88rem;font-weight:500;margin-bottom:2px}
+.platform-desc{font-size:0.72rem;opacity:0.4}
+</style>
 </head>
 <body>
 
+<!-- HISTORY DRAWER -->
+<div class="drawer-overlay" id="js-drawer-overlay"></div>
+<div class="history-drawer" id="js-history-drawer">
+  <div class="drawer-header">
+    <div class="drawer-title">专注日历</div>
+    <button class="btn-close-drawer" id="js-close-drawer">关闭</button>
+  </div>
+  <div class="calendar-legend">
+    <span>少</span>
+    <div class="legend-boxes">
+      <div class="legend-box" style="background:rgba(255,255,255,0.06)"></div>
+      <div class="legend-box" style="background:rgba(255,160,80,0.2)"></div>
+      <div class="legend-box" style="background:rgba(255,160,80,0.45)"></div>
+      <div class="legend-box" style="background:rgba(255,160,80,0.72)"></div>
+      <div class="legend-box" style="background:rgba(255,200,120,0.95)"></div>
+    </div>
+    <span>多</span>
+  </div>
+  <div class="calendar-grid-wrap" id="js-calendar"></div>
+</div>
+
+<!-- TIMER PICKER -->
+<div class="timer-picker hidden" id="js-timer-picker">
+  <div class="timer-card">
+    <h3>专注计时</h3>
+    <div class="timer-task-label" id="js-picker-task-name">全局专注</div>
+    <p>选择专注时长</p>
+    <div class="duration-btns">
+      <button class="dur-btn" data-min="15">15 分钟</button>
+      <button class="dur-btn active" data-min="25">25 分钟</button>
+      <button class="dur-btn" data-min="45">45 分钟</button>
+      <button class="dur-btn" data-min="60">60 分钟</button>
+    </div>
+    <div class="custom-dur">
+      <span>自定义：</span>
+      <input type="number" id="js-custom-min" min="1" max="180" placeholder="分钟">
+      <span>分钟</span>
+    </div>
+    <div class="timer-actions">
+      <button class="btn-cancel-timer" id="js-cancel-timer-picker">取消</button>
+      <button class="btn-start-timer" id="js-start-timer">进入沉浸模式</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMMERSIVE MODE -->
+<div class="immersive" id="js-immersive">
+  <!-- Clock wrapper (shifts up when chat opens) -->
+  <div class="imm-clock-wrap" id="js-clock-wrap">
+    <div class="flip-clock" id="js-flip-clock">
+      <div class="flip-digit-group">
+        <div class="flip-digit" id="fd-m0"><div class="flip-face front">2</div><div class="flip-face back">2</div></div>
+        <div class="flip-digit" id="fd-m1"><div class="flip-face front">5</div><div class="flip-face back">5</div></div>
+      </div>
+      <span class="flip-sep">:</span>
+      <div class="flip-digit-group">
+        <div class="flip-digit" id="fd-s0"><div class="flip-face front">0</div><div class="flip-face back">0</div></div>
+        <div class="flip-digit" id="fd-s1"><div class="flip-face front">0</div><div class="flip-face back">0</div></div>
+      </div>
+    </div>
+    <div class="imm-clock" id="js-imm-realclock">00:00</div>
+    <div class="imm-task-label" id="js-imm-task-label">专注中</div>
+  </div>
+
+  <!-- Controls bar -->
+  <div class="imm-controls">
+    <button class="imm-btn" id="js-imm-audio">🌧 开启雨声</button>
+    <button class="imm-btn" id="js-imm-chat-toggle">💬 呼出助手</button>
+    <button class="imm-btn danger" id="js-imm-exit">✕ 退出专注</button>
+  </div>
+
+  <!-- Slide-up chat panel -->
+  <div class="imm-chat-panel" id="js-imm-chat-panel">
+    <div class="imm-chat-header">
+      <span>StILL 助手 · 计时继续中</span>
+      <button class="task-btn" id="js-imm-chat-close" style="font-size:0.75rem;padding:3px 8px">收起</button>
+    </div>
+    <div class="chat-display imm-chat-display" id="js-imm-chat-display"></div>
+    <div class="imm-input-row">
+      <input type="text" id="js-imm-input" placeholder="问助手…">
+      <button class="btn-send" id="js-imm-send">发送</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-overlay hidden" id="js-modal">
-    <div class="modal">
-        <h2>StILL</h2>
-        <p>输入你的 DeepSeek API Key<br>Key 仅保存在本地浏览器，不会上传</p>
-        <div style="display:flex;flex-direction:column;gap:6px">
-            <label>DEEPSEEK API KEY</label>
-            <input type="password" id="js-key-input" placeholder="sk-..." autocomplete="off">
-        </div>
-        <p id="js-modal-err" class="error-msg" style="display:none"></p>
-        <button class="btn-confirm" id="js-save-key">进入 StILL</button>
-        <p class="hint">没有 Key？前往 platform.deepseek.com 获取</p>
+  <div class="modal" id="js-screen-key">
+    <h2>StILL</h2>
+    <p>粘贴你的 API Key 开始使用<br><span style="font-size:0.73rem">Key 仅保存在本地浏览器，不会上传</span></p>
+    <div class="key-detect-row" id="js-detect-row" style="display:none"><span class="key-badge" id="js-key-badge"></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <label>API KEY</label>
+      <input type="password" id="js-key-input" placeholder="粘贴你的 Key…" autocomplete="off">
     </div>
+    <p id="js-modal-err" class="error-msg" style="display:none"></p>
+    <button class="btn-confirm" id="js-save-key">进入 StILL</button>
+    <button class="btn-help-link" id="js-open-help">不知道如何获得 API Key？点击这里</button>
+  </div>
+  <div class="modal modal-help hidden" id="js-screen-help">
+    <button class="btn-back" id="js-back-btn">← 返回填写</button>
+    <h2 style="font-size:1.15rem;letter-spacing:2px;text-align:center">选择你的 AI 平台</h2>
+    <p>点击平台获取 Key，回来粘贴即可使用</p>
+    <div class="platform-list">
+      <a class="platform-item" href="https://platform.deepseek.com/api-keys" target="_blank"><span class="platform-icon">🌊</span><div><div class="platform-name">DeepSeek</div><div class="platform-desc">国产高性价比，免费额度充足，推荐</div></div></a>
+      <a class="platform-item" href="https://aistudio.google.com/app/apikey" target="_blank"><span class="platform-icon">✦</span><div><div class="platform-name">Google Gemini</div><div class="platform-desc">每日免费额度大，无需绑卡</div></div></a>
+      <a class="platform-item" href="https://platform.openai.com/api-keys" target="_blank"><span class="platform-icon">◎</span><div><div class="platform-name">OpenAI (ChatGPT)</div><div class="platform-desc">GPT-4o，需充值信用卡</div></div></a>
+      <a class="platform-item" href="https://console.anthropic.com/settings/keys" target="_blank"><span class="platform-icon">◈</span><div><div class="platform-name">Anthropic (Claude)</div><div class="platform-desc">理解力强，需充值</div></div></a>
+      <a class="platform-item" href="https://bailian.console.aliyun.com/" target="_blank"><span class="platform-icon">☁</span><div><div class="platform-name">阿里云百炼（通义千问）</div><div class="platform-desc">国内访问稳定，免费额度</div></div></a>
+    </div>
+  </div>
 </div>
 
 <!-- APP -->
-<div class="sky">
-    <div class="rain-container" id="js-rain"></div>
-    <div class="city-glow"></div>
+<div class="sky" id="js-sky">
+  <div class="rain-container" id="js-rain"></div>
+  <div class="city-glow"></div>
 
-    <div class="top-bar">
-        <div class="app-title">StILL</div>
-        <button class="btn-settings" id="js-open-settings">⚙ API Key</button>
-    </div>
+  <!-- Top-left -->
+  <div class="corner-tl">
+    <div class="app-title">StILL</div>
+    <button class="btn-topbar" id="js-open-history">📅</button>
+    <button class="btn-topbar" id="js-open-settings">⚙</button>
+  </div>
 
-    <div class="layout">
-        <!-- UNIFIED CHAT CARD -->
-        <div class="chat-card">
-            <!-- Sidebar -->
-            <div class="topics-sidebar">
-                <div class="sidebar-label">历史对话</div>
-                <div class="topic-list" id="js-topic-list"></div>
-                <button class="btn-new-topic" id="js-new-topic">＋ 新建话题</button>
-            </div>
-            <!-- Chat -->
-            <div class="chat-area">
-                <div class="chat-header">
-                    <span id="js-current-topic-name">默认话题</span>
-                    <span class="api-status unset" id="js-api-status">未设置 Key</span>
-                </div>
-                <div class="chat-display" id="js-chat-display"></div>
-                <div class="input-row">
-                    <input type="text" id="js-msg-input" placeholder="和我说说你在做什么…" />
-                    <button class="btn-send" id="js-send-btn">发送</button>
-                </div>
-            </div>
+  <!-- Top-center -->
+  <div class="top-center">
+    <div class="live-clock" id="js-live-clock">00:00:00</div>
+    <div class="focus-stat" id="js-focus-stat">今日已专注 · 0 分钟</div>
+  </div>
+
+  <div class="layout">
+    <div class="chat-card">
+      <div class="topics-sidebar">
+        <div class="sidebar-label">历史对话</div>
+        <div class="topic-list" id="js-topic-list"></div>
+        <button class="btn-new-topic" id="js-new-topic">＋ 新建话题</button>
+      </div>
+      <div class="chat-area">
+        <div class="chat-header">
+          <span id="js-topic-name">默认话题</span>
+          <div class="header-right">
+            <span class="ai-badge" id="js-ai-badge" style="display:none"></span>
+            <span class="api-status unset" id="js-api-status">未设置 Key</span>
+          </div>
         </div>
-
-        <!-- TASK PANEL -->
-        <div class="task-panel">
-            <div class="task-header">进度清单</div>
-            <div class="task-list" id="js-task-list"></div>
-            <button class="btn-add-task" id="js-add-task">＋ 添加任务</button>
-            <button class="btn-audio" id="js-audio-btn">🌧 开启雨声</button>
+        <div class="chat-display" id="js-chat-display"></div>
+        <div class="input-row">
+          <input type="text" id="js-msg-input" placeholder="和我说说你在做什么…">
+          <button class="btn-send" id="js-send-btn">发送</button>
         </div>
+      </div>
     </div>
+    <div class="task-panel">
+      <div class="task-header-row">
+        <div class="task-header">进度清单</div>
+      </div>
+      <div class="task-list" id="js-task-list"></div>
+      <button class="btn-add-task" id="js-add-task">＋ 添加任务</button>
+      <button class="btn-audio" id="js-audio-btn">🌧 开启雨声</button>
+    </div>
+  </div>
 </div>
 
 <script>
-// ── STATE ──
-let appData = JSON.parse(localStorage.getItem('StILL_DATA')) || {
-    activeTopicId: 't1',
-    topics: {
-        't1': { name: '默认话题', messages: [{ role: 'assistant', content: '你好，我是 StILL。告诉我今天你想完成什么？' }] }
-    },
-    todos: [
-        { id: 'todo-1', title: '论文选题', progress: 0, isCompleted: false },
-        { id: 'todo-2', title: '背单词',   progress: 0, isCompleted: false }
-    ]
-};
-let apiKey = localStorage.getItem('StILL_API_KEY') || '';
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+const PROXY_URL = 'https://still.v0111capt.workers.dev';
 
-function save() { localStorage.setItem('StILL_DATA', JSON.stringify(appData)); }
-
-// ── API STATUS ──
-function refreshStatus() {
-    const el = document.getElementById('js-api-status');
-    el.textContent = apiKey ? '✓ Key 已设置' : '⚠ 未设置 Key';
-    el.className = 'api-status ' + (apiKey ? 'set' : 'unset');
+function detectPlatform(key) {
+  if (!key) return null;
+  if (key.startsWith('sk-ant-')) return {id:'anthropic',name:'Claude',model:'claude-3-5-haiku-20241022'};
+  if (key.startsWith('AIza'))   return {id:'gemini',name:'Gemini',model:'gemini-2.0-flash'};
+  if (key.startsWith('sk-') && key.length >= 48) return {id:'openai',name:'OpenAI',model:'gpt-4o-mini'};
+  if (key.startsWith('sk-'))    return {id:'deepseek',name:'DeepSeek',model:'deepseek-chat'};
+  return null;
 }
 
-// ── MODAL ──
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+function defaultState() {
+  return {
+    activeTopicId:'t1',
+    topics:{'t1':{name:'新对话',named:false,messages:[{role:'assistant',content:'你好，我是 StILL。告诉我今天你想完成什么？'}]}},
+    todos:[
+      {id:'todo-1',title:'论文选题',progress:0,isCompleted:false,lastMilestone:0,isActive:false},
+      {id:'todo-2',title:'背单词',progress:0,isCompleted:false,lastMilestone:0,isActive:false}
+    ],
+    history:{} // { 'YYYY-MM-DD': { progress: avg%, focusMin: N } }
+  };
+}
+
+let appData = (() => {
+  try {
+    const d = JSON.parse(localStorage.getItem('StILL_DATA'));
+    if (!d) return defaultState();
+    if (!d.history) d.history = {};
+    d.todos = d.todos.map(t=>({...t,lastMilestone:t.lastMilestone||0,isActive:t.isActive||false}));
+    return d;
+  } catch(e) { return defaultState(); }
+})();
+
+let apiKey = localStorage.getItem('StILL_API_KEY') || '';
+let currentPlatform = detectPlatform(apiKey);
+
+function todayKey() { return new Date().toISOString().slice(0,10); }
+
+function recordTodayHistory() {
+  const todos = appData.todos;
+  const avg = todos.length ? Math.round(todos.reduce((s,t)=>s+t.progress,0)/todos.length) : 0;
+  const tk = todayKey();
+  if (!appData.history[tk]) appData.history[tk] = {progress:0,focusMin:0};
+  appData.history[tk].progress = avg;
+}
+
+function save() { recordTodayHistory(); localStorage.setItem('StILL_DATA',JSON.stringify(appData)); }
+
+// ══════════════════════════════════════════════
+// LIVE CLOCK
+// ══════════════════════════════════════════════
+function updateLiveClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const str = `${h}:${m}:${s}`;
+  document.getElementById('js-live-clock').textContent = str;
+  document.getElementById('js-imm-realclock').textContent = `${h}:${m}`;
+}
+setInterval(updateLiveClock, 1000);
+updateLiveClock();
+
+function updateFocusStat() {
+  const tk = todayKey();
+  const min = appData.history[tk]?.focusMin || 0;
+  document.getElementById('js-focus-stat').textContent = `今日已专注 · ${min} 分钟`;
+}
+updateFocusStat();
+
+// ══════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════
 const modal = document.getElementById('js-modal');
+const screenKey = document.getElementById('js-screen-key');
+const screenHelp = document.getElementById('js-screen-help');
 const keyInput = document.getElementById('js-key-input');
 
-function openModal() {
-    keyInput.value = apiKey;
-    document.getElementById('js-modal-err').style.display = 'none';
-    modal.classList.remove('hidden');
-    keyInput.focus();
+function showModal(screen) {
+  modal.classList.remove('hidden');
+  if (screen==='help') { screenKey.classList.add('hidden'); screenHelp.classList.remove('hidden'); }
+  else { screenHelp.classList.add('hidden'); screenKey.classList.remove('hidden'); keyInput.value=apiKey; document.getElementById('js-modal-err').style.display='none'; updateDetect(apiKey); setTimeout(()=>keyInput.focus(),50); }
 }
-if (!apiKey) openModal();
+function hideModal() { modal.classList.add('hidden'); }
 
-document.getElementById('js-open-settings').onclick = openModal;
-
+function updateDetect(val) {
+  const row=document.getElementById('js-detect-row'), badge=document.getElementById('js-key-badge');
+  if (!val) { row.style.display='none'; return; }
+  const p = detectPlatform(val);
+  row.style.display='flex';
+  badge.textContent = p ? `✓ 识别为 ${p.name}` : '? 未知平台（仍可尝试）';
+  badge.style.background = p ? 'rgba(80,200,120,0.15)' : 'rgba(255,160,80,0.15)';
+  badge.style.color = p ? 'rgba(130,230,160,0.9)' : 'rgba(255,200,120,0.9)';
+  badge.style.borderColor = p ? 'rgba(80,200,120,0.2)' : 'rgba(255,160,80,0.2)';
+}
+keyInput.addEventListener('input',()=>updateDetect(keyInput.value.trim()));
+keyInput.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('js-save-key').click(); });
 document.getElementById('js-save-key').onclick = () => {
-    const val = keyInput.value.trim();
-    const errEl = document.getElementById('js-modal-err');
-    if (!val) { errEl.style.display = 'block'; errEl.textContent = '请输入 API Key'; return; }
-    if (!val.startsWith('sk-')) { errEl.style.display = 'block'; errEl.textContent = 'Key 格式不正确，应以 sk- 开头'; return; }
-    apiKey = val;
-    localStorage.setItem('StILL_API_KEY', apiKey);
-    modal.classList.add('hidden');
-    refreshStatus();
+  const val=keyInput.value.trim(), errEl=document.getElementById('js-modal-err');
+  if (!val) { errEl.style.display='block'; errEl.textContent='请输入 API Key'; return; }
+  apiKey=val; currentPlatform=detectPlatform(apiKey);
+  localStorage.setItem('StILL_API_KEY',apiKey); hideModal(); refreshStatus();
 };
-keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('js-save-key').click(); });
+document.getElementById('js-open-help').onclick = ()=>showModal('help');
+document.getElementById('js-back-btn').onclick = ()=>showModal('key');
+document.getElementById('js-open-settings').onclick = ()=>showModal('key');
+if (!apiKey) showModal('key');
 
-// ── 填入你的 Cloudflare Worker 地址 ──
-const PROXY_URL = 'https://your-worker-name.your-name.workers.dev';
+function refreshStatus() {
+  const s=document.getElementById('js-api-status'), b=document.getElementById('js-ai-badge');
+  if (apiKey) {
+    s.textContent='✓ Key 已设置'; s.className='api-status set';
+    if (currentPlatform) { b.textContent=currentPlatform.name; b.style.display='inline'; } else b.style.display='none';
+  } else { s.textContent='⚠ 未设置 Key'; s.className='api-status unset'; b.style.display='none'; }
+}
 
-// ── DEEPSEEK via Cloudflare Worker ──
-async function callAI(messages) {
-    const SYSTEM = `你是 StILL，一个沉浸式专注助手，语气简洁温和。
-用户当前任务列表（JSON）：${JSON.stringify(appData.todos)}
+// ══════════════════════════════════════════════
+// AUDIO (shared)
+// ══════════════════════════════════════════════
+const audio = new Audio('https://cdn.pixabay.com/audio/2022/10/13/audio_347f8b3b5a.mp3');
+audio.loop=true; audio.volume=0; let audioPlaying=false;
+function fadeAudio(target,cb) {
+  const step=audio.volume<target?0.03:-0.03;
+  const t=setInterval(()=>{
+    let next=audio.volume+step;
+    if((step>0&&next>=target)||(step<0&&next<=target)){audio.volume=Math.max(0,Math.min(1,target));clearInterval(t);if(cb)cb();}
+    else{audio.volume=Math.max(0,Math.min(1,next));}
+  },50);
+}
+function toggleAudio(btn) {
+  if (!audioPlaying) { audio.play().catch(()=>{}); audioPlaying=true; btn.textContent='⏸ 关闭雨声'; fadeAudio(0.5); }
+  else { fadeAudio(0,()=>{audio.pause();audioPlaying=false;}); btn.textContent='🌧 开启雨声'; }
+}
+document.getElementById('js-audio-btn').onclick = function(){ toggleAudio(this); };
+document.getElementById('js-imm-audio').onclick = function(){ toggleAudio(this); };
 
-当你判断用户说的话影响了某个任务的进度时，在回复末尾附上：
-[TASK_UPDATE]{"id":"todo-x","progress":数字0-100,"isCompleted":true或false}[/TASK_UPDATE]
-仅在确有变化时才输出这个块，其余时间正常回复。`;
+// ══════════════════════════════════════════════
+// RAIN
+// ══════════════════════════════════════════════
+const rc=document.getElementById('js-rain');
+let rainDrops=[];
+function buildRain(count,opacity,speed) {
+  rc.innerHTML='';
+  rainDrops=[];
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div'); d.className='rain-drop';
+    const h=Math.random()*60+30;
+    d.style.cssText=`left:${Math.random()*100}vw;height:${h}px;opacity:${Math.random()*opacity+0.03};animation-duration:${Math.random()*speed+0.3}s;animation-delay:${Math.random()*2}s`;
+    rc.appendChild(d); rainDrops.push(d);
+  }
+}
+buildRain(70,0.3,0.5);
 
-    const res = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            apiKey,
-            model: 'deepseek-chat',
-            messages: [
-                { role: 'system', content: SYSTEM },
-                ...messages.map(m => ({ role: m.role, content: m.content }))
-            ],
-            temperature: 0.7,
-            max_tokens: 500
-        })
-    });
+// ══════════════════════════════════════════════
+// DRAWER / CALENDAR
+// ══════════════════════════════════════════════
+function openDrawer() { renderCalendar(); document.getElementById('js-history-drawer').classList.add('open'); document.getElementById('js-drawer-overlay').classList.add('show'); }
+function closeDrawer() { document.getElementById('js-history-drawer').classList.remove('open'); document.getElementById('js-drawer-overlay').classList.remove('show'); }
+document.getElementById('js-open-history').onclick=openDrawer;
+document.getElementById('js-close-drawer').onclick=closeDrawer;
+document.getElementById('js-drawer-overlay').onclick=closeDrawer;
 
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || `HTTP ${res.status}`);
+function progressToColor(pct) {
+  if (!pct||pct===0) return 'rgba(255,255,255,0.06)';
+  if (pct<20) return 'rgba(255,160,80,0.18)';
+  if (pct<40) return 'rgba(255,160,80,0.35)';
+  if (pct<60) return 'rgba(255,160,80,0.55)';
+  if (pct<80) return 'rgba(255,160,80,0.75)';
+  return 'rgba(255,200,120,0.95)';
+}
+
+function renderCalendar() {
+  const container=document.getElementById('js-calendar');
+  container.innerHTML='';
+  const today=new Date();
+  for(let mi=5;mi>=0;mi--) {
+    const d=new Date(today.getFullYear(),today.getMonth()-mi,1);
+    const year=d.getFullYear(),month=d.getMonth();
+    const label=document.createElement('div'); label.className='cal-month-label';
+    label.textContent=`${year}年 ${month+1}月`; container.appendChild(label);
+    const row=document.createElement('div'); row.className='cal-week-row';
+    const days=new Date(year,month+1,0).getDate();
+    for(let day=1;day<=days;day++){
+      const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const entry=appData.history[ds]||{};
+      const pct=entry.progress||0; const focusMin=entry.focusMin||0;
+      const cell=document.createElement('div'); cell.className='cal-day';
+      cell.style.background=progressToColor(pct);
+      if(new Date(ds)>today) cell.style.opacity='0.25';
+      cell.setAttribute('data-tip',`${month+1}/${day}  进度${pct}%  专注${focusMin}min`);
+      row.appendChild(cell);
     }
-    const data = await res.json();
-    return data.choices[0].message.content;
+    container.appendChild(row);
+  }
+}
+
+// ══════════════════════════════════════════════
+// TIMER & IMMERSIVE
+// ══════════════════════════════════════════════
+let timerState = { running:false, totalSec:0, remainSec:0, interval:null, targetTaskId:null, accSec:0 };
+let pickerTargetTaskId = null;
+
+// Digit display tracking for flip animation
+let prevDigits = {m0:'2',m1:'5',s0:'0',s1:'0'};
+
+function secToDisplay(sec) {
+  const m=Math.floor(sec/60), s=sec%60;
+  return {
+    m0:String(Math.floor(m/10)),
+    m1:String(m%10),
+    s0:String(Math.floor(s/10)),
+    s1:String(s%10)
+  };
+}
+
+function updateFlipClock(sec) {
+  const digits=secToDisplay(sec);
+  const keys=['m0','m1','s0','s1'];
+  keys.forEach(k=>{
+    if(digits[k]!==prevDigits[k]){
+      const el=document.getElementById('fd-'+k);
+      const front=el.querySelector('.front');
+      const back=el.querySelector('.back');
+      back.textContent=digits[k];
+      el.classList.remove('flipping');
+      void el.offsetWidth; // reflow
+      el.classList.add('flipping');
+      setTimeout(()=>{ front.textContent=digits[k]; el.classList.remove('flipping'); },370);
+      prevDigits[k]=digits[k];
+    }
+  });
+}
+
+function openTimerPicker(taskId) {
+  pickerTargetTaskId=taskId;
+  const taskName=taskId ? appData.todos.find(t=>t.id===taskId)?.title||'全局专注' : '全局专注';
+  document.getElementById('js-picker-task-name').textContent=taskName;
+  document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.dur-btn[data-min="25"]').classList.add('active');
+  document.getElementById('js-custom-min').value='';
+  document.getElementById('js-timer-picker').classList.remove('hidden');
+}
+
+document.querySelectorAll('.dur-btn').forEach(btn=>{
+  btn.onclick=()=>{ document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.getElementById('js-custom-min').value=''; };
+});
+document.getElementById('js-cancel-timer-picker').onclick=()=>document.getElementById('js-timer-picker').classList.add('hidden');
+
+document.getElementById('js-start-timer').onclick=()=>{
+  const customVal=parseInt(document.getElementById('js-custom-min').value);
+  let minutes;
+  if(!isNaN(customVal)&&customVal>0) minutes=Math.min(180,customVal);
+  else {
+    const active=document.querySelector('.dur-btn.active');
+    minutes=active?parseInt(active.dataset.min):25;
+  }
+  document.getElementById('js-timer-picker').classList.add('hidden');
+  startImmersive(minutes*60, pickerTargetTaskId);
+};
+
+function startImmersive(totalSec, taskId) {
+  timerState.running=true;
+  timerState.totalSec=totalSec;
+  timerState.remainSec=totalSec;
+  timerState.targetTaskId=taskId;
+  timerState.accSec=0;
+
+  const imm=document.getElementById('js-immersive');
+  imm.classList.add('active');
+
+  // Hide main UI, keep rain + glow visible
+  document.querySelector('.layout').style.opacity='0';
+  document.querySelector('.layout').style.pointerEvents='none';
+  document.querySelector('.top-center').style.opacity='0';
+  document.querySelector('.corner-tl').style.opacity='0';
+
+  // Enhance rain
+  buildRain(140,0.55,0.35);
+
+  const taskLabel=taskId ? appData.todos.find(t=>t.id===taskId)?.title||'专注中' : '专注中';
+  document.getElementById('js-imm-task-label').textContent=taskLabel;
+
+  // Sync immersive chat display with current topic
+  syncImmChatDisplay();
+
+  const d=secToDisplay(totalSec);
+  ['m0','m1','s0','s1'].forEach(k=>{ prevDigits[k]='?'; }); // force redraw
+  updateFlipClock(totalSec);
+
+  timerState.interval=setInterval(()=>{
+    timerState.remainSec--;
+    timerState.accSec++;
+    updateFlipClock(timerState.remainSec);
+    if(timerState.remainSec<=0) finishTimer();
+  },1000);
+}
+
+function finishTimer(exitEarly) {
+  clearInterval(timerState.interval);
+  timerState.running=false;
+  // Record focus minutes
+  const focusedMin=Math.round(timerState.accSec/60);
+  const tk=todayKey();
+  if(!appData.history[tk]) appData.history[tk]={progress:0,focusMin:0};
+  appData.history[tk].focusMin=(appData.history[tk].focusMin||0)+focusedMin;
+  save();
+  updateFocusStat();
+  exitImmersive();
+  if(!exitEarly&&focusedMin>0){
+    const topic=appData.topics[appData.activeTopicId];
+    topic.messages.push({role:'milestone',content:`⏱ 专注了 ${focusedMin} 分钟！今日累计专注 ${appData.history[tk].focusMin} 分钟，很棒！`});
+    UI.render();
+  }
+}
+
+function exitImmersive() {
+  const imm=document.getElementById('js-immersive');
+  imm.classList.remove('active');
+  document.getElementById('js-imm-chat-panel').classList.remove('open');
+  document.getElementById('js-clock-wrap').classList.remove('shifted');
+  immChatOpen=false;
+  document.getElementById('js-imm-chat-toggle').textContent='💬 呼出助手';
+  // Restore main UI
+  document.querySelector('.layout').style.opacity='';
+  document.querySelector('.layout').style.pointerEvents='';
+  document.querySelector('.top-center').style.opacity='';
+  document.querySelector('.corner-tl').style.opacity='';
+  buildRain(70,0.3,0.5);
+}
+
+document.getElementById('js-imm-exit').onclick=()=>finishTimer(true);
+
+// Immersive chat toggle
+let immChatOpen=false;
+document.getElementById('js-imm-chat-toggle').onclick=()=>{
+  immChatOpen=!immChatOpen;
+  document.getElementById('js-imm-chat-panel').classList.toggle('open',immChatOpen);
+  document.getElementById('js-clock-wrap').classList.toggle('shifted',immChatOpen);
+  document.getElementById('js-imm-chat-toggle').textContent=immChatOpen?'💬 收起助手':'💬 呼出助手';
+  if(immChatOpen) setTimeout(()=>document.getElementById('js-imm-input').focus(),440);
+};
+document.getElementById('js-imm-chat-close').onclick=()=>{
+  immChatOpen=false;
+  document.getElementById('js-imm-chat-panel').classList.remove('open');
+  document.getElementById('js-clock-wrap').classList.remove('shifted');
+  document.getElementById('js-imm-chat-toggle').textContent='💬 呼出助手';
+};
+
+function syncImmChatDisplay() {
+  const msgs=appData.topics[appData.activeTopicId]?.messages||[];
+  const d=document.getElementById('js-imm-chat-display');
+  d.innerHTML=msgs.map(m=>{
+    if(m.role==='milestone') return `<div class="msg milestone">${m.content}</div>`;
+    return `<div class="msg ${m.role==='assistant'?'ai':'user'}"><div class="msg-label">${m.role==='assistant'?'StILL':'你'}</div>${m.content}</div>`;
+  }).join('');
+  d.scrollTop=d.scrollHeight;
+}
+
+// Immersive send (same AI call, same topic)
+document.getElementById('js-imm-send').onclick=()=>handleSend(true);
+document.getElementById('js-imm-input').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend(true);} });
+
+// ══════════════════════════════════════════════
+// AI CALL
+// ══════════════════════════════════════════════
+function getSystem() {
+  return `你是 StILL，温和专注的 AI 陪伴助手。
+
+用户任务（JSON）：${JSON.stringify(appData.todos)}
+
+【进度评估】根据用户描述合理计算进度，不要固定加20%：
+- 刚开始查资料 → 5-10%；方向初定 → 20-30%；主体完成 → 70-85%；全做完 → 100% isCompleted:true
+- 没提到任务进展则不输出 TASK_UPDATE
+
+有进度变化时在回复末尾附加（不放代码块）：
+[TASK_UPDATE]{"id":"任务id","progress":数字,"isCompleted":布尔}[/TASK_UPDATE]
+
+【里程碑鼓励】进度50%/80%/100%时给予对应鼓励。`;
+}
+
+async function callAI(messages) {
+  const model=currentPlatform?.model||'deepseek-chat';
+  const res=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey,model,messages:[{role:'system',content:getSystem()},...messages.filter(m=>m.role!=='milestone').map(m=>({role:m.role,content:m.content}))],temperature:0.7,max_tokens:600})});
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+  const data=await res.json();
+  return data.choices[0].message.content;
+}
+
+async function autoNameTopic(topicId) {
+  const topic=appData.topics[topicId];
+  if(!topic||topic.named) return;
+  const userMsgs=topic.messages.filter(m=>m.role==='user');
+  if(!userMsgs.length) return;
+  try {
+    const res=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey,model:currentPlatform?.model||'deepseek-chat',messages:[{role:'system',content:'根据用户这句话，给对话起一个5字以内的中文标题，不加标点，只输出标题文字。'},{role:'user',content:userMsgs[0].content}],temperature:0.3,max_tokens:15})});
+    const data=await res.json();
+    const title=data.choices?.[0]?.message?.content?.trim().slice(0,10)||'新对话';
+    topic.name=title;topic.named=true;
+    UI.renderTopics();save();
+  } catch(e){}
 }
 
 function applyTaskUpdate(text) {
-    const m = text.match(/\[TASK_UPDATE\]([\s\S]*?)\[\/TASK_UPDATE\]/);
-    if (m) {
-        try {
-            const u = JSON.parse(m[1]);
-            const t = appData.todos.find(t => t.id === u.id);
-            if (t) { t.progress = Math.min(100, Math.max(0, u.progress)); t.isCompleted = u.isCompleted; }
-        } catch(e) {}
-    }
-    return text.replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/, '').trim();
+  const milestones=[];
+  const m=text.match(/\[TASK_UPDATE\]([\s\S]*?)\[\/TASK_UPDATE\]/);
+  if(m){
+    try{
+      const u=JSON.parse(m[1]);
+      const todo=appData.todos.find(t=>t.id===u.id);
+      if(todo){
+        const prev=todo.progress;
+        todo.progress=Math.min(100,Math.max(0,u.progress));
+        todo.isCompleted=u.isCompleted;
+        if(!todo.lastMilestone)todo.lastMilestone=0;
+        if(todo.progress>0&&!todo.isCompleted){appData.todos.forEach(t=>t.isActive=false);todo.isActive=true;}
+        for(const cp of[50,80,100]){
+          if(prev<cp&&todo.progress>=cp&&todo.lastMilestone<cp){todo.lastMilestone=cp;milestones.push({todo,cp});}
+        }
+      }
+    }catch(e){}
+  }
+  return{cleanText:text.replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/,'').trim(),milestones};
 }
 
-// ── RENDER ──
-const UI = {
-    render() { this.renderTopics(); this.renderChat(); this.renderTasks(); save(); },
-
-    renderTopics() {
-        const c = document.getElementById('js-topic-list');
-        const ids = Object.keys(appData.topics);
-        c.innerHTML = ids.map(id => `
-            <div class="topic-item ${id === appData.activeTopicId ? 'active' : ''}"
-                 onclick="UI.switchTopic('${id}')" title="${appData.topics[id].name}">
-                ${appData.topics[id].name}
-            </div>
-        `).join('');
-        document.getElementById('js-current-topic-name').textContent =
-            appData.topics[appData.activeTopicId]?.name || '';
-    },
-
-    renderChat() {
-        const d = document.getElementById('js-chat-display');
-        const msgs = appData.topics[appData.activeTopicId]?.messages || [];
-        d.innerHTML = msgs.map(m => `
-            <div class="msg ${m.role === 'assistant' ? 'ai' : 'user'}">
-                <div class="msg-label">${m.role === 'assistant' ? 'StILL' : '你'}</div>
-                ${m.content}
-            </div>
-        `).join('');
-        d.scrollTop = d.scrollHeight;
-    },
-
-    renderTasks() {
-        const c = document.getElementById('js-task-list');
-        c.innerHTML = appData.todos.map(t => `
-            <div class="task-item ${t.isCompleted ? 'completed' : ''}">
-                <div class="progress-fill" style="width:${t.progress}%"></div>
-                <div class="task-inner">
-                    <span>${t.title}</span>
-                    ${t.progress > 0 ? `<span class="task-pct">${t.progress}%</span>` : ''}
-                </div>
-            </div>
-        `).join('');
-    },
-
-    switchTopic(id) { appData.activeTopicId = id; this.render(); },
-
-    showTyping() {
-        const d = document.getElementById('js-chat-display');
-        const el = document.createElement('div');
-        el.className = 'typing-indicator'; el.id = 'js-typing';
-        el.innerHTML = '<span></span><span></span><span></span>';
-        d.appendChild(el); d.scrollTop = d.scrollHeight;
-    },
-
-    hideTyping() { document.getElementById('js-typing')?.remove(); }
-};
-
-// ── SEND ──
-async function handleSend() {
-    if (!apiKey) { openModal(); return; }
-    const input = document.getElementById('js-msg-input');
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    const topic = appData.topics[appData.activeTopicId];
-    topic.messages.push({ role: 'user', content: msg });
-    input.value = '';
-
-    const btn = document.getElementById('js-send-btn');
-    btn.disabled = true;
-    UI.render();
-    UI.showTyping();
-
-    try {
-        const raw = await callAI(topic.messages);
-        UI.hideTyping();
-        const reply = applyTaskUpdate(raw);
-        topic.messages.push({ role: 'assistant', content: reply });
-    } catch(e) {
-        UI.hideTyping();
-        topic.messages.push({ role: 'assistant', content: `⚠ 请求失败：${e.message}` });
-    }
-
-    btn.disabled = false;
-    UI.render();
+function milestoneMsg(todo,cp){
+  if(cp===100)return`🎉 「${todo.title}」完成了！你今天真的很棒，继续保持这股劲儿。`;
+  if(cp===80)return`✨ 「${todo.title}」已完成 80%，终点就在眼前，冲刺吧！`;
+  if(cp===50)return`⚡ 「${todo.title}」过半了！节奏很好，你在正确的轨道上。`;
+  return'';
 }
 
-document.getElementById('js-send-btn').onclick = handleSend;
-document.getElementById('js-msg-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-});
+// ══════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════
+const UI={
+  render(){this.renderTopics();this.renderChat();this.renderTasks();save();if(timerState.running)syncImmChatDisplay();},
 
-// ── NEW TOPIC ──
-document.getElementById('js-new-topic').onclick = () => {
-    const id = 't' + Date.now();
-    const n = '话题 ' + (Object.keys(appData.topics).length + 1);
-    appData.topics[id] = { name: n, messages: [{ role: 'assistant', content: '新话题开始，告诉我你的计划。' }] };
-    appData.activeTopicId = id;
-    UI.render();
+  renderTopics(){
+    const c=document.getElementById('js-topic-list');
+    c.innerHTML=Object.keys(appData.topics).map(id=>{
+      const t=appData.topics[id];
+      return`<div class="topic-item ${id===appData.activeTopicId?'active':''}" onclick="UI.switchTopic('${id}')"><span class="topic-item-name" title="${t.name}">${t.name}</span><button class="topic-del" onclick="event.stopPropagation();UI.deleteTopic('${id}')">✕</button></div>`;
+    }).join('');
+    document.getElementById('js-topic-name').textContent=appData.topics[appData.activeTopicId]?.name||'';
+  },
+
+  renderChat(){
+    const d=document.getElementById('js-chat-display');
+    const msgs=appData.topics[appData.activeTopicId]?.messages||[];
+    d.innerHTML=msgs.map(m=>{
+      if(m.role==='milestone')return`<div class="msg milestone">${m.content}</div>`;
+      return`<div class="msg ${m.role==='assistant'?'ai':'user'}"><div class="msg-label">${m.role==='assistant'?'StILL':'你'}</div>${m.content}</div>`;
+    }).join('');
+    d.scrollTop=d.scrollHeight;
+  },
+
+  renderTasks(){
+    const sorted=[...appData.todos].sort((a,b)=>{
+      if(a.isActive&&!b.isActive)return-1;if(!a.isActive&&b.isActive)return 1;
+      if(a.isCompleted!==b.isCompleted)return a.isCompleted?1:-1;
+      return b.progress-a.progress;
+    });
+    document.getElementById('js-task-list').innerHTML=sorted.map(t=>`
+      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''}" data-id="${t.id}">
+        <div class="progress-fill" style="width:${t.progress}%"></div>
+        <div class="task-inner"><span class="task-name">${t.title}</span>${t.progress>0?`<span class="task-pct">${t.progress}%</span>`:''}</div>
+        <div class="task-actions">
+          <button class="task-btn timer-btn" onclick="openTimerPicker('${t.id}')" title="番茄钟">⏱</button>
+          ${!t.isCompleted?`<button class="task-btn done-btn" onclick="UI.completeTask('${t.id}')">✓</button>`:''}
+          <button class="task-btn del-btn" onclick="UI.deleteTask('${t.id}')">✕</button>
+        </div>
+      </div>`).join('');
+  },
+
+  switchTopic(id){appData.activeTopicId=id;this.render();},
+
+  deleteTopic(id){
+    if(Object.keys(appData.topics).length<=1){alert('至少保留一个话题');return;}
+    delete appData.topics[id];
+    if(appData.activeTopicId===id)appData.activeTopicId=Object.keys(appData.topics)[0];
+    this.render();
+  },
+
+  completeTask(id){
+    const el=document.querySelector(`.task-item[data-id="${id}"]`);
+    if(el){el.style.transition='opacity 0.4s,transform 0.4s';el.style.opacity='0.4';el.style.transform='scale(0.97)';}
+    setTimeout(()=>{
+      const t=appData.todos.find(t=>t.id===id);if(!t)return;
+      t.progress=100;t.isCompleted=true;t.isActive=false;t.lastMilestone=100;
+      appData.topics[appData.activeTopicId].messages.push({role:'milestone',content:`🎉 「${t.title}」手动标记完成！为自己鼓个掌吧。`});
+      this.render();
+    },380);
+  },
+
+  deleteTask(id){
+    const el=document.querySelector(`.task-item[data-id="${id}"]`);
+    if(el){
+      el.style.transition='opacity 0.3s,transform 0.3s';el.style.opacity='0';el.style.transform='translateX(18px)';
+      setTimeout(()=>{el.style.transition='max-height 0.35s,padding 0.35s,margin 0.35s';el.style.maxHeight='0';el.style.paddingTop='0';el.style.paddingBottom='0';el.style.marginBottom='0';},280);
+      setTimeout(()=>{appData.todos=appData.todos.filter(t=>t.id!==id);this.render();},620);
+    }else{appData.todos=appData.todos.filter(t=>t.id!==id);this.render();}
+  },
+
+  showTyping(immersive){
+    const d=document.getElementById(immersive?'js-imm-chat-display':'js-chat-display');
+    const el=document.createElement('div');el.className='typing-indicator';el.id='js-typing';
+    el.innerHTML='<span></span><span></span><span></span>';
+    d.appendChild(el);d.scrollTop=d.scrollHeight;
+  },
+  hideTyping(){document.getElementById('js-typing')?.remove();}
 };
 
-// ── ADD TASK ──
-document.getElementById('js-add-task').onclick = () => {
-    const name = prompt('新任务名称：');
-    if (!name?.trim()) return;
-    appData.todos.push({ id: 'todo-' + Date.now(), title: name.trim(), progress: 0, isCompleted: false });
-    UI.render();
-};
-
-// ── AUDIO ──
-const audio = new Audio('https://cdn.pixabay.com/audio/2022/10/13/audio_347f8b3b5a.mp3');
-audio.loop = true; audio.volume = 0;
-let audioPlaying = false;
-
-function fadeAudio(target, cb) {
-    const step = audio.volume < target ? 0.03 : -0.03;
-    const t = setInterval(() => {
-        let next = audio.volume + step;
-        if ((step > 0 && next >= target) || (step < 0 && next <= target)) {
-            audio.volume = Math.max(0, Math.min(1, target));
-            clearInterval(t); if (cb) cb();
-        } else { audio.volume = Math.max(0, Math.min(1, next)); }
-    }, 50);
+// ══════════════════════════════════════════════
+// SEND (works for both main and immersive)
+// ══════════════════════════════════════════════
+async function handleSend(immersive=false) {
+  if(!apiKey){showModal('key');return;}
+  const inputEl=document.getElementById(immersive?'js-imm-input':'js-msg-input');
+  const msg=inputEl.value.trim();if(!msg)return;
+  const topicId=appData.activeTopicId, topic=appData.topics[topicId];
+  const isFirst=!topic.messages.some(m=>m.role==='user');
+  topic.messages.push({role:'user',content:msg});inputEl.value='';
+  const btn=document.getElementById(immersive?'js-imm-send':'js-send-btn');
+  btn.disabled=true;
+  if(immersive)syncImmChatDisplay(); else UI.render();
+  UI.showTyping(immersive);
+  try{
+    const raw=await callAI(topic.messages);
+    UI.hideTyping();
+    const{cleanText,milestones}=applyTaskUpdate(raw);
+    topic.messages.push({role:'assistant',content:cleanText});
+    for(const{todo,cp}of milestones){const txt=milestoneMsg(todo,cp);if(txt)topic.messages.push({role:'milestone',content:txt});}
+    if(isFirst)autoNameTopic(topicId);
+  }catch(e){UI.hideTyping();topic.messages.push({role:'assistant',content:`⚠ 请求失败：${e.message}`});}
+  btn.disabled=false;
+  if(immersive)syncImmChatDisplay();else UI.render();
 }
 
-document.getElementById('js-audio-btn').onclick = function() {
-    if (!audioPlaying) {
-        audio.play().catch(() => {});
-        audioPlaying = true;
-        this.textContent = '⏸ 关闭雨声';
-        fadeAudio(0.5);
-    } else {
-        fadeAudio(0, () => { audio.pause(); audioPlaying = false; });
-        this.textContent = '🌧 开启雨声';
-    }
+document.getElementById('js-send-btn').onclick=()=>handleSend(false);
+document.getElementById('js-msg-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend(false);}});
+
+// New topic / Add task
+document.getElementById('js-new-topic').onclick=()=>{
+  const id='t'+Date.now();
+  appData.topics[id]={name:'新对话',named:false,messages:[{role:'assistant',content:'新话题开始，告诉我你的计划。'}]};
+  appData.activeTopicId=id;UI.render();
+};
+document.getElementById('js-add-task').onclick=()=>{
+  const name=prompt('新任务名称：');if(!name?.trim())return;
+  appData.todos.push({id:'todo-'+Date.now(),title:name.trim(),progress:0,isCompleted:false,lastMilestone:0,isActive:false});
+  UI.render();
 };
 
-// ── RAIN ──
-const rainContainer = document.getElementById('js-rain');
-for (let i = 0; i < 70; i++) {
-    const d = document.createElement('div');
-    d.className = 'rain-drop';
-    d.style.cssText = `left:${Math.random()*100}vw;height:${Math.random()*55+25}px;opacity:${Math.random()*0.3+0.04};animation-duration:${Math.random()*0.7+0.4}s;animation-delay:${Math.random()*3}s`;
-    rainContainer.appendChild(d);
-}
+// Expose openTimerPicker globally for inline onclick
+window.openTimerPicker=openTimerPicker;
 
-// ── INIT ──
+// INIT
 UI.render();
 refreshStatus();
 </script>
