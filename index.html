@@ -36,7 +36,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .layout{position:relative;z-index:10;display:flex;gap:20px;align-items:center;margin-top:44px}
 
 /* CHAT CARD */
-.chat-card{width:720px;height:68vh;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);display:flex;overflow:hidden}
+.chat-card{width:800px;height:74vh;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);display:flex;overflow:hidden}
 .topics-sidebar{width:190px;flex-shrink:0;border-right:1px solid var(--glass-b);display:flex;flex-direction:column;padding:18px 12px;gap:8px}
 .sidebar-label{font-size:0.65rem;letter-spacing:2.5px;text-transform:uppercase;opacity:0.38;padding:0 4px 10px;border-bottom:1px solid var(--glass-b);flex-shrink:0}
 .topic-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
@@ -61,11 +61,17 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .chat-display{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
 .chat-display::-webkit-scrollbar{width:3px}
 .chat-display::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
-.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.87rem;line-height:1.6}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.87rem;line-height:1.6;animation:msgIn 0.3s cubic-bezier(0.34,1.5,0.64,1) both}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px) scale(0.97)}to{opacity:1;transform:none}}
 .msg.ai{background:rgba(255,255,255,0.07);align-self:flex-start;border-radius:4px 14px 14px 14px}
 .msg.user{background:var(--amber);align-self:flex-end;border-radius:14px 4px 14px 14px;text-align:right}
 .msg-label{font-size:0.65rem;opacity:0.38;margin-bottom:4px}
 .msg.milestone{background:rgba(255,200,80,0.1);border:1px solid rgba(255,200,80,0.2);align-self:center;text-align:center;border-radius:14px;max-width:78%;font-size:0.83rem;color:rgba(255,220,140,0.95);padding:10px 16px}
+.msg ol,.msg ul{margin:6px 0 4px 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.msg li{line-height:1.55;opacity:0.92}
+.msg ol{list-style:decimal}
+.msg ul{list-style:disc}
+.msg strong{color:rgba(255,200,130,0.95);font-weight:600}
 .typing-indicator{display:flex;gap:5px;align-self:flex-start;padding:12px 14px}
 .typing-indicator span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.35);animation:blink 1.2s infinite}
 .typing-indicator span:nth-child(2){animation-delay:0.2s}
@@ -80,14 +86,18 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .btn-send:disabled{opacity:0.35;cursor:not-allowed}
 
 /* TASK PANEL */
-.task-panel{width:210px;height:68vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);padding:16px 14px;display:flex;flex-direction:column;gap:10px}
+.task-panel{width:240px;height:74vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);padding:16px 14px;display:flex;flex-direction:column;gap:8px}
 .task-header-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--glass-b);flex-shrink:0}
 .task-header{font-size:0.65rem;letter-spacing:2.5px;text-transform:uppercase;opacity:0.38}
-.task-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.task-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .task-list::-webkit-scrollbar{width:3px}
-.task-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+.task-list::-webkit-scrollbar-thumb{background:rgba(255,160,80,0.25);border-radius:4px;transition:background 0.2s}
+.task-list::-webkit-scrollbar-thumb:hover{background:rgba(255,160,80,0.5)}
+.task-list::-webkit-scrollbar-track{background:transparent}
 .task-item{padding:10px 12px;border-radius:12px;font-size:0.83rem;position:relative;overflow:hidden;border:1px solid transparent;transition:border-color 0.2s,background 0.2s;cursor:default}
 .task-item:hover{border-color:var(--glass-b)}
+.task-item{animation:taskIn 0.32s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes taskIn{from{opacity:0;transform:translateY(8px) scale(0.97)}to{opacity:1;transform:none}}
 .task-item.completed{opacity:0.35;text-decoration:line-through}
 .task-item.active-task{border-color:rgba(255,160,80,0.3);background:rgba(255,160,80,0.05)}
 .progress-fill{position:absolute;top:0;left:0;height:100%;background:rgba(255,160,80,0.17);z-index:0;transition:width 0.7s cubic-bezier(.4,0,.2,1)}
@@ -155,7 +165,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .imm-task-label{font-size:0.78rem;opacity:0.35;letter-spacing:2px;margin-top:16px}
 
 /* Immersive controls */
-.imm-controls{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center}
+.imm-controls{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center;transition:bottom 0.46s cubic-bezier(.4,0,.2,1);z-index:310}
 .imm-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);border-radius:14px;padding:10px 20px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:0.2s;white-space:nowrap}
 .imm-btn:hover{background:rgba(255,255,255,0.13);color:white}
 .imm-btn.danger:hover{background:rgba(255,60,60,0.2);border-color:rgba(255,60,60,0.3);color:rgba(255,120,100,0.9)}
@@ -188,7 +198,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .cal-week-row{display:flex;gap:3px;flex-wrap:wrap}
 .cal-day{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,0.06);cursor:default;transition:transform 0.15s;position:relative}
 .cal-day:hover{transform:scale(1.4);z-index:2}
-.cal-day[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;top:-28px;transform:translateX(-50%);background:rgba(10,20,40,0.95);border:1px solid var(--glass-b);border-radius:6px;padding:3px 8px;font-size:0.65rem;white-space:nowrap;pointer-events:none;color:rgba(255,255,255,0.8);z-index:10}
+.cal-day[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;top:-32px;transform:translateX(-50%);background:rgba(8,16,34,0.97);border:1px solid rgba(255,160,80,0.2);border-radius:8px;padding:5px 10px;font-size:0.64rem;white-space:nowrap;pointer-events:none;color:rgba(255,255,255,0.85);z-index:10;letter-spacing:0.5px}
 .drawer-overlay{position:fixed;inset:0;z-index:49;background:transparent;display:none}
 .drawer-overlay.show{display:block}
 
@@ -218,6 +228,120 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .platform-icon{font-size:1.3rem;width:28px;text-align:center;flex-shrink:0}
 .platform-name{font-size:0.88rem;font-weight:500;margin-bottom:2px}
 .platform-desc{font-size:0.72rem;opacity:0.4}
+
+/* ═══ MINI PLAYER ═══ */
+.player-section{
+  flex-shrink:0;
+  border-top:1px solid var(--glass-b);
+  display:flex;flex-direction:column;gap:7px;
+  padding:18px 14px 10px;
+}
+/* 曲目名称 — 带切换动画的容器 */
+.track-name-wrap{
+  position:relative;height:16px;overflow:hidden;
+}
+.track-name{
+  position:absolute;inset:0;
+  font-size:0.72rem;opacity:0.5;text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  letter-spacing:0.5px;
+  transition:opacity 0.28s ease, transform 0.28s ease;
+}
+.track-name.slide-out-up{opacity:0;transform:translateY(-7px)}
+.track-name.slide-in-down{opacity:0;transform:translateY(7px)}
+.player-controls{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+/* 所有按钮统一尺寸 28x28 */
+.ctrl-btn{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-b);
+  color:rgba(255,255,255,0.42);
+  border-radius:8px;
+  width:28px;height:28px;
+  font-size:0.78rem;cursor:pointer;
+  font-family:inherit;
+  transition:background 0.15s,color 0.15s,border-color 0.15s;
+  line-height:1;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;padding:0;
+}
+.ctrl-btn:hover{background:var(--glass-h);color:rgba(255,255,255,0.85);border-color:rgba(255,255,255,0.18)}
+/* 播放按钮稍大一号，橙色突出 */
+.ctrl-play{
+  width:32px;height:32px;
+  background:var(--amber);border-color:var(--amber-b);
+  color:white;font-size:0.85rem;border-radius:10px;
+}
+.ctrl-play:hover{background:rgba(255,160,80,0.42)!important}
+.ctrl-play.active{background:rgba(255,160,80,0.35);border-color:var(--amber-b)}
+.ctrl-rain.rain-on{
+  background:rgba(100,160,255,0.16);border-color:rgba(100,160,255,0.28);
+  color:rgba(160,200,255,0.88);
+}
+/* Track dropdown */
+.track-select-wrap{position:relative}
+.track-dropdown{
+  position:absolute;bottom:calc(100% + 6px);right:0;
+  background:rgba(10,18,34,0.97);border:1px solid var(--glass-b);
+  border-radius:12px;padding:6px;min-width:150px;
+  display:flex;flex-direction:column;gap:3px;
+  backdrop-filter:blur(20px);z-index:50;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.track-dropdown.hidden{display:none}
+.track-opt{
+  background:transparent;border:none;color:rgba(255,255,255,0.55);
+  font-family:inherit;font-size:0.76rem;padding:7px 10px;
+  border-radius:8px;cursor:pointer;text-align:left;transition:0.15s;
+}
+.track-opt:hover{background:var(--glass-h);color:white}
+.track-opt.current{color:rgba(255,200,120,0.9);background:rgba(255,160,80,0.08)}
+
+/* ═══ SUBTASKS ═══ */
+.subtask-list{
+  display:flex;flex-direction:column;gap:3px;
+  padding:4px 0 2px 10px;
+  border-left:1px solid rgba(255,160,80,0.2);
+  margin-left:6px;
+  overflow:hidden;
+  max-height:0;
+  transition:max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.35s;
+  opacity:0;
+}
+.subtask-list.expanded{
+  max-height:400px;
+  opacity:1;
+}
+.subtask-item{
+  display:flex;align-items:center;gap:6px;
+  padding:4px 8px;border-radius:7px;
+  font-size:0.76rem;color:rgba(255,255,255,0.5);
+  transition:color 0.2s;
+}
+.subtask-item.done{
+  color:rgba(255,255,255,0.22);
+  text-decoration:line-through;
+}
+.subtask-dot{
+  width:5px;height:5px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,160,80,0.35);
+  transition:background 0.3s;
+}
+.subtask-item.done .subtask-dot{
+  background:rgba(255,255,255,0.15);
+}
+.subtask-weight{
+  font-size:0.65rem;opacity:0.3;margin-left:auto;flex-shrink:0;
+}
+.subtask-node{
+  display:inline-flex;align-items:center;gap:4px;
+  margin:4px 0 2px 14px;font-size:0.68rem;
+  color:rgba(255,160,80,0.55);padding:2px 9px;border-radius:20px;
+  border:1px solid rgba(255,160,80,0.18);background:rgba(255,160,80,0.05);
+  cursor:pointer;transition:all 0.2s;user-select:none;
+}
+.subtask-node:hover{background:rgba(255,160,80,0.14);color:rgba(255,160,80,0.9);}
+.task-item{cursor:pointer;user-select:none;}
 </style>
 </head>
 <body>
@@ -378,15 +502,61 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
     <div class="task-panel">
       <div class="task-header-row">
         <div class="task-header">进度清单</div>
+        <button id="js-clear-all" class="task-btn del-btn" style="opacity:.4;padding:2px 8px;font-size:.63rem" title="清除全部">清空</button>
       </div>
       <div class="task-list" id="js-task-list"></div>
       <button class="btn-add-task" id="js-add-task">＋ 添加任务</button>
-      <button class="btn-audio" id="js-audio-btn">🌧 开启雨声</button>
+
+      <!-- PLAYER SECTION -->
+      <div class="player-section">
+        <div class="track-name-wrap"><div class="track-name" id="js-track-name">— 选择曲目 —</div></div>
+        <div class="player-controls">
+          <button class="ctrl-btn" id="js-prev-track" title="上一首">&lt;</button>
+          <button class="ctrl-btn ctrl-play" id="js-play-btn" title="播放">&#9654;</button>
+          <button class="ctrl-btn" id="js-next-track" title="下一首">&gt;</button>
+          <button class="ctrl-btn ctrl-rain" id="js-audio-btn" title="雨声">🌧</button>
+          <div class="track-select-wrap">
+            <button class="ctrl-btn ctrl-list" id="js-track-list-btn" title="选曲">&#9776;</button>
+            <div class="track-dropdown hidden" id="js-track-dropdown"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+// ── 轻量 Markdown 渲染（只处理常用格式，不依赖外部库）──
+function renderMd(text) {
+  if (!text) return '';
+  var s = text
+    // 转义 HTML
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // 有序列表块：连续的 "1. xxx\n2. xxx" → <ol>
+  s = s.replace(/((?:^|\n)\d+\.\s+.+)+/g, function(block) {
+    var items = block.trim().split(/\n/).map(function(line) {
+      return '<li>' + line.replace(/^\d+\.\s+/, '') + '</li>';
+    }).join('');
+    return '<ol>' + items + '</ol>';
+  });
+
+  // 无序列表块：连续的 "- xxx" 或 "• xxx"
+  s = s.replace(/((?:^|\n)[-•]\s+.+)+/g, function(block) {
+    var items = block.trim().split(/\n/).map(function(line) {
+      return '<li>' + line.replace(/^[-•]\s+/, '') + '</li>';
+    }).join('');
+    return '<ul>' + items + '</ul>';
+  });
+
+  // **粗体**
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // 换行（列表外的普通换行）
+  s = s.replace(/\n/g, '<br>');
+
+  return s;
+}
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
@@ -409,10 +579,11 @@ function defaultState() {
     activeTopicId:'t1',
     topics:{'t1':{name:'新对话',named:false,messages:[{role:'assistant',content:'你好，我是 StILL。告诉我今天你想完成什么？'}]}},
     todos:[
-      {id:'todo-1',title:'论文选题',progress:0,isCompleted:false,lastMilestone:0,isActive:false},
-      {id:'todo-2',title:'背单词',progress:0,isCompleted:false,lastMilestone:0,isActive:false}
+      {id:'todo-1',title:'论文选题',progress:0,isCompleted:false,lastMilestone:0,isActive:false,subtasks:[]},
+      {id:'todo-2',title:'背单词',progress:0,isCompleted:false,lastMilestone:0,isActive:false,subtasks:[]}
     ],
-    history:{} // { 'YYYY-MM-DD': { progress: avg%, focusMin: N } }
+    history:{}, // { 'YYYY-MM-DD': { focusMin:N, stayMin:N, completedCount:N } }
+    lastVisitDate: null
   };
 }
 
@@ -421,7 +592,8 @@ let appData = (() => {
     const d = JSON.parse(localStorage.getItem('StILL_DATA'));
     if (!d) return defaultState();
     if (!d.history) d.history = {};
-    d.todos = d.todos.map(t=>({...t,lastMilestone:t.lastMilestone||0,isActive:t.isActive||false}));
+    d.todos = d.todos.map(t=>({...t,lastMilestone:t.lastMilestone||0,isActive:t.isActive||false,subtasks:t.subtasks||[]}));
+    if (!('lastVisitDate' in d)) d.lastVisitDate = null;
     return d;
   } catch(e) { return defaultState(); }
 })();
@@ -432,11 +604,10 @@ let currentPlatform = detectPlatform(apiKey);
 function todayKey() { return new Date().toISOString().slice(0,10); }
 
 function recordTodayHistory() {
-  const todos = appData.todos;
-  const avg = todos.length ? Math.round(todos.reduce((s,t)=>s+t.progress,0)/todos.length) : 0;
   const tk = todayKey();
-  if (!appData.history[tk]) appData.history[tk] = {progress:0,focusMin:0};
-  appData.history[tk].progress = avg;
+  if (!appData.history[tk]) appData.history[tk] = {focusMin:0, stayMin:0, completedCount:0};
+  // Sync completed task count
+  appData.history[tk].completedCount = appData.todos.filter(t => t.isCompleted).length;
 }
 
 function save() { recordTodayHistory(); localStorage.setItem('StILL_DATA',JSON.stringify(appData)); }
@@ -458,10 +629,23 @@ updateLiveClock();
 
 function updateFocusStat() {
   const tk = todayKey();
-  const min = appData.history[tk]?.focusMin || 0;
-  document.getElementById('js-focus-stat').textContent = `今日已专注 · ${min} 分钟`;
+  const entry = appData.history[tk] || {};
+  const focus = entry.focusMin || 0;
+  const stay  = entry.stayMin  || 0;
+  let txt = `在线 ${stay} 分钟`;
+  if (focus > 0) txt += `  ·  专注 ${focus} 分钟`;
+  document.getElementById('js-focus-stat').textContent = txt;
 }
 updateFocusStat();
+
+// 页面停留计时：每 60 秒记录一次在线时长
+setInterval(() => {
+  const tk = todayKey();
+  if (!appData.history[tk]) appData.history[tk] = {focusMin:0, stayMin:0, completedCount:0};
+  appData.history[tk].stayMin = (appData.history[tk].stayMin || 0) + 1;
+  localStorage.setItem('StILL_DATA', JSON.stringify(appData)); // 直接写，不触发 save() 循环
+  updateFocusStat();
+}, 60000);
 
 // ══════════════════════════════════════════════
 // MODAL
@@ -512,7 +696,7 @@ function refreshStatus() {
 // ══════════════════════════════════════════════
 // AUDIO (shared)
 // ══════════════════════════════════════════════
-const audio = new Audio('https://cdn.pixabay.com/audio/2022/10/13/audio_347f8b3b5a.mp3');
+const audio = new Audio('raindrops.mp3');
 audio.loop=true; audio.volume=0; let audioPlaying=false;
 function fadeAudio(target,cb) {
   const step=audio.volume<target?0.03:-0.03;
@@ -523,8 +707,18 @@ function fadeAudio(target,cb) {
   },50);
 }
 function toggleAudio(btn) {
-  if (!audioPlaying) { audio.play().catch(()=>{}); audioPlaying=true; btn.textContent='⏸ 关闭雨声'; fadeAudio(0.5); }
-  else { fadeAudio(0,()=>{audio.pause();audioPlaying=false;}); btn.textContent='🌧 开启雨声'; }
+  if (!audioPlaying) {
+    audio.play().catch(()=>{});
+    audioPlaying=true;
+    // Main btn shows icon only; imm btn shows text
+    if (btn.id==='js-audio-btn') { btn.classList.add('rain-on'); }
+    else { btn.textContent='⏸ 关闭雨声'; }
+    fadeAudio(0.5);
+  } else {
+    fadeAudio(0,()=>{audio.pause();audioPlaying=false;});
+    if (btn.id==='js-audio-btn') { btn.classList.remove('rain-on'); }
+    else { btn.textContent='🌧 开启雨声'; }
+  }
 }
 document.getElementById('js-audio-btn').onclick = function(){ toggleAudio(this); };
 document.getElementById('js-imm-audio').onclick = function(){ toggleAudio(this); };
@@ -555,13 +749,14 @@ document.getElementById('js-open-history').onclick=openDrawer;
 document.getElementById('js-close-drawer').onclick=closeDrawer;
 document.getElementById('js-drawer-overlay').onclick=closeDrawer;
 
-function progressToColor(pct) {
-  if (!pct||pct===0) return 'rgba(255,255,255,0.06)';
-  if (pct<20) return 'rgba(255,160,80,0.18)';
-  if (pct<40) return 'rgba(255,160,80,0.35)';
-  if (pct<60) return 'rgba(255,160,80,0.55)';
-  if (pct<80) return 'rgba(255,160,80,0.75)';
-  return 'rgba(255,200,120,0.95)';
+function stayToColor(stayMin) {
+  // 颜色深度完全由当天停留时长决定
+  if (!stayMin || stayMin === 0) return 'rgba(255,255,255,0.06)';
+  if (stayMin < 5)  return 'rgba(255,160,80,0.18)';  // < 5 分钟：刚来看看
+  if (stayMin < 15) return 'rgba(255,160,80,0.36)';  // 5-15 分钟
+  if (stayMin < 30) return 'rgba(255,160,80,0.56)';  // 15-30 分钟
+  if (stayMin < 60) return 'rgba(255,160,80,0.78)';  // 30-60 分钟
+  return 'rgba(255,200,120,0.96)';                   // 60+ 分钟：深度使用
 }
 
 function renderCalendar() {
@@ -578,11 +773,19 @@ function renderCalendar() {
     for(let day=1;day<=days;day++){
       const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
       const entry=appData.history[ds]||{};
-      const pct=entry.progress||0; const focusMin=entry.focusMin||0;
+      const stayMin=entry.stayMin||0;
+      const focusMin=entry.focusMin||0;
+      const completedCount=entry.completedCount||0;
       const cell=document.createElement('div'); cell.className='cal-day';
-      cell.style.background=progressToColor(pct);
+      cell.style.background=stayToColor(stayMin);
       if(new Date(ds)>today) cell.style.opacity='0.25';
-      cell.setAttribute('data-tip',`${month+1}/${day}  进度${pct}%  专注${focusMin}min`);
+      let tip=`${month+1}/${day}`;
+      if(stayMin||focusMin||completedCount){
+        tip+=`  在线 ${stayMin}min`;
+        if(focusMin) tip+=`  专注 ${focusMin}min`;
+        if(completedCount) tip+=`  完成 ${completedCount} 项`;
+      } else { tip+='  未使用'; }
+      cell.setAttribute('data-tip',tip);
       row.appendChild(cell);
     }
     container.appendChild(row);
@@ -640,6 +843,30 @@ document.querySelectorAll('.dur-btn').forEach(btn=>{
   btn.onclick=()=>{ document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.getElementById('js-custom-min').value=''; };
 });
 document.getElementById('js-cancel-timer-picker').onclick=()=>document.getElementById('js-timer-picker').classList.add('hidden');
+// 点击遮罩（.timer-picker 本身）关闭
+document.getElementById('js-timer-picker').addEventListener('click', function(e){
+  if(e.target === this) this.classList.add('hidden');
+});
+// ESC 关闭 Picker 和沉浸模式
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    // 关闭 Picker
+    document.getElementById('js-timer-picker').classList.add('hidden');
+    // 沉浸模式：先关聊天面板，再按第二次 ESC 退出
+    const imm = document.getElementById('js-immersive');
+    if(imm.classList.contains('active')){
+      if(immChatOpen){
+        immChatOpen=false;
+        document.getElementById('js-imm-chat-panel').classList.remove('open');
+        document.getElementById('js-clock-wrap').classList.remove('shifted');
+        document.getElementById('js-imm-chat-toggle').textContent='💬 呼出助手';
+        document.querySelector('.imm-controls').style.bottom = '42px';
+      } else {
+        finishTimer(true);
+      }
+    }
+  }
+});
 
 document.getElementById('js-start-timer').onclick=()=>{
   const customVal=parseInt(document.getElementById('js-custom-min').value);
@@ -696,7 +923,7 @@ function finishTimer(exitEarly) {
   // Record focus minutes
   const focusedMin=Math.round(timerState.accSec/60);
   const tk=todayKey();
-  if(!appData.history[tk]) appData.history[tk]={progress:0,focusMin:0};
+  if(!appData.history[tk]) appData.history[tk]={focusMin:0,stayMin:0,completedCount:0};
   appData.history[tk].focusMin=(appData.history[tk].focusMin||0)+focusedMin;
   save();
   updateFocusStat();
@@ -732,6 +959,14 @@ document.getElementById('js-imm-chat-toggle').onclick=()=>{
   document.getElementById('js-imm-chat-panel').classList.toggle('open',immChatOpen);
   document.getElementById('js-clock-wrap').classList.toggle('shifted',immChatOpen);
   document.getElementById('js-imm-chat-toggle').textContent=immChatOpen?'💬 收起助手':'💬 呼出助手';
+  // 控制栏跟随面板上移，避免被遮挡
+  const controls = document.querySelector('.imm-controls');
+  if(immChatOpen){
+    const panelH = document.getElementById('js-imm-chat-panel').offsetHeight;
+    controls.style.bottom = (panelH + 14) + 'px';
+  } else {
+    controls.style.bottom = '42px';
+  }
   if(immChatOpen) setTimeout(()=>document.getElementById('js-imm-input').focus(),440);
 };
 document.getElementById('js-imm-chat-close').onclick=()=>{
@@ -739,6 +974,7 @@ document.getElementById('js-imm-chat-close').onclick=()=>{
   document.getElementById('js-imm-chat-panel').classList.remove('open');
   document.getElementById('js-clock-wrap').classList.remove('shifted');
   document.getElementById('js-imm-chat-toggle').textContent='💬 呼出助手';
+  document.querySelector('.imm-controls').style.bottom = '42px';
 };
 
 function syncImmChatDisplay() {
@@ -746,7 +982,9 @@ function syncImmChatDisplay() {
   const d=document.getElementById('js-imm-chat-display');
   d.innerHTML=msgs.map(m=>{
     if(m.role==='milestone') return `<div class="msg milestone">${m.content}</div>`;
-    return `<div class="msg ${m.role==='assistant'?'ai':'user'}"><div class="msg-label">${m.role==='assistant'?'StILL':'你'}</div>${m.content}</div>`;
+    const isAI = m.role==='assistant';
+    const body = isAI ? renderMd(m.content) : m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    return `<div class="msg ${isAI?'ai':'user'}"><div class="msg-label">${isAI?'StILL':'你'}</div>${body}</div>`;
   }).join('');
   d.scrollTop=d.scrollHeight;
 }
@@ -759,18 +997,62 @@ document.getElementById('js-imm-input').addEventListener('keydown',e=>{ if(e.key
 // AI CALL
 // ══════════════════════════════════════════════
 function getSystem() {
-  return `你是 StILL，温和专注的 AI 陪伴助手。
+  const todosJson = JSON.stringify(appData.todos.map(t=>({
+    id:t.id, title:t.title, progress:t.progress,
+    isCompleted:t.isCompleted,
+    subtasks:(t.subtasks||[]).map(s=>({id:s.id,title:s.title,done:s.done,weight:s.weight}))
+  })));
+  return `你是 StILL，一个温和专注的 AI 陪伴助手。说话简洁，像靠谱的朋友，不啰嗦。
 
-用户任务（JSON）：${JSON.stringify(appData.todos)}
+当前任务清单：${todosJson}
 
-【进度评估】根据用户描述合理计算进度，不要固定加20%：
-- 刚开始查资料 → 5-10%；方向初定 → 20-30%；主体完成 → 70-85%；全做完 → 100% isCompleted:true
-- 没提到任务进展则不输出 TASK_UPDATE
+═══ 规则 ═══
 
-有进度变化时在回复末尾附加（不放代码块）：
-[TASK_UPDATE]{"id":"任务id","progress":数字,"isCompleted":布尔}[/TASK_UPDATE]
+【新增任务】用户提到要做的事不在清单里时：问"加入清单？"，确认后输出：
+[ADD_TASKS][{"title":"任务名","estimatedMin":分钟},…][/ADD_TASKS]
+加完问"从哪个开始？"
 
-【里程碑鼓励】进度50%/80%/100%时给予对应鼓励。`;
+【清除任务后的引导】当系统通知你"已清除任务"或"清单已清空"时：
+- 先用一句话自然确认（如"好，清掉了"）
+- 然后问："有新的计划要加进来吗？"
+- 不要罗列建议，等用户自己说
+
+【任务细分——开始一个任务时的判断流程】
+收到任务切换通知 [系统通知:SWITCH:...] 时，必须先判断该任务是否需要细分：
+
+步骤1：判断任务类型
+★ 生活类任务（如：吃饭、睡觉、散步、上课、做菜、买东西、看电影、上舞蹈课、聚会、运动等纯线下活动）
+  → 这类任务用户通常只当记事本用，不需要步骤拆解
+  → 直接问："「任务名」要细分步骤，还是就当个提醒放着？"
+  → 若用户说不用 → 保持任务原样，说"好，放着就行，完事了告诉我"
+  → 若用户说要细分 → 进行步骤2
+
+★ 学习/工作类任务（如：写作业、背单词、做报告、写论文、学编程等有明确可拆分步骤的任务）
+  → 这类通常需要细分
+  → 进行步骤2
+
+步骤2：细分前的资料确认（仅当确定要细分时）
+- 已知有参考书/大纲/要求 → 直接细分，不再问
+- 不清楚 → 只问一句："有大纲或参考资料吗，还是我帮你定方案？"
+  得到回复后立即输出细分，不再追问
+
+步骤3：输出细分
+[SUBTASKS:任务id][{"id":"s1","title":"步骤名","weight":分钟},…][/SUBTASKS]
+输出后说"拆好了，从第一步开始吧"
+
+【进度】完成子步骤时：[SUBTASK_DONE:任务id:子任务id][/SUBTASK_DONE]
+无子任务时：[TASK_UPDATE]{"id":"任务id","progress":数字,"isCompleted":布尔}[/TASK_UPDATE]
+
+【重要】清除任务、完成任务这类操作由前端系统直接处理，你不需要输出任何指令。
+当收到 [系统通知:...] 时，按对应规则处理，回复简洁自然。
+
+【回复格式】
+- 日常对话：纯文字，自然口语，不加任何 markdown
+- 有明确步骤/列表（3条以上）：用数字列表或短横线列表
+- 需要强调的关键词：用 **粗体**，每条回复最多 2-3 处
+- 禁止：不必要的标题行、过度粗体、超过一层的嵌套列表
+
+【语气】简洁温和，一次只问一个问题，遇到模糊情况主动做决策。`;
 }
 
 async function callAI(messages) {
@@ -795,32 +1077,128 @@ async function autoNameTopic(topicId) {
   } catch(e){}
 }
 
+function calcProgressFromSubtasks(todo) {
+  const subs = todo.subtasks || [];
+  if (!subs.length) return todo.progress;
+  const totalW = subs.reduce((s,s2)=>s+(s2.weight||1),0);
+  const doneW  = subs.filter(s=>s.done).reduce((s,s2)=>s+(s2.weight||1),0);
+  return totalW > 0 ? Math.round(doneW/totalW*100) : 0;
+}
+
 function applyTaskUpdate(text) {
   const milestones=[];
-  const m=text.match(/\[TASK_UPDATE\]([\s\S]*?)\[\/TASK_UPDATE\]/);
-  if(m){
+  let clean = text;
+
+  // ── ADD_TASKS ──
+  const addM = text.match(/\[ADD_TASKS\]([\s\S]*?)\[\/ADD_TASKS\]/);
+  if(addM){
     try{
-      const u=JSON.parse(m[1]);
-      const todo=appData.todos.find(t=>t.id===u.id);
+      const newTasks = JSON.parse(addM[1]);
+      newTasks.forEach(t=>{
+        const id='todo-'+Date.now()+Math.random().toString(36).slice(2,6);
+        appData.todos.push({id,title:t.title,progress:0,isCompleted:false,lastMilestone:0,isActive:false,subtasks:[]});
+      });
+    }catch(e){}
+    clean = clean.replace(/\[ADD_TASKS\][\s\S]*?\[\/ADD_TASKS\]/,'').trim();
+  }
+
+  // ── SUBTASKS ──
+  const subM = text.match(/\[SUBTASKS:([^\]]+)\]([\s\S]*?)\[\/SUBTASKS\]/);
+  if(subM){
+    try{
+      const todoId=subM[1].trim();
+      const subs=JSON.parse(subM[2]);
+      const todo=appData.todos.find(t=>t.id===todoId);
       if(todo){
+        todo.subtasks=subs.map(s=>({...s,done:false}));
+        todo.isActive=true;
+        appData.todos.forEach(t=>{if(t.id!==todoId)t.isActive=false;});
+      }
+    }catch(e){}
+    clean = clean.replace(/\[SUBTASKS:[^\]]+\][\s\S]*?\[\/SUBTASKS\]/,'').trim();
+  }
+
+  // ── SUBTASK_DONE ──
+  const sdM = text.match(/\[SUBTASK_DONE:([^:]+):([^\]]+)\]/g);
+  if(sdM){
+    sdM.forEach(tag=>{
+      const parts=tag.match(/\[SUBTASK_DONE:([^:]+):([^\]]+)\]/);
+      if(!parts)return;
+      const [,todoId,subId]=parts;
+      const todo=appData.todos.find(t=>t.id===todoId);
+      if(!todo)return;
+      const sub=todo.subtasks.find(s=>s.id===subId);
+      if(sub) sub.done=true;
+      // recalc progress
+      const prev=todo.progress;
+      const allDone=todo.subtasks.length>0&&todo.subtasks.every(s=>s.done);
+      todo.progress=allDone?100:calcProgressFromSubtasks(todo);
+      todo.isCompleted=allDone;
+      if(!todo.lastMilestone)todo.lastMilestone=0;
+      if(todo.progress>0&&!todo.isCompleted){appData.todos.forEach(t=>t.isActive=false);todo.isActive=true;}
+      for(const cp of[100]){ // only 100% triggers gold — 50/80 handled softly in chat
+        if(prev<cp&&todo.progress>=cp&&todo.lastMilestone<cp){todo.lastMilestone=cp;milestones.push({todo,cp});}
+      }
+    });
+    clean = clean.replace(/\[SUBTASK_DONE:[^:]+:[^\]]+\]/g,'').trim();
+  }
+
+  // ── TASK_UPDATE (fallback, for tasks without subtasks) ──
+  const tuM = text.match(/\[TASK_UPDATE\]([\s\S]*?)\[\/TASK_UPDATE\]/);
+  if(tuM){
+    try{
+      const u=JSON.parse(tuM[1]);
+      const todo=appData.todos.find(t=>t.id===u.id);
+      if(todo && (!todo.subtasks||todo.subtasks.length===0)){
         const prev=todo.progress;
         todo.progress=Math.min(100,Math.max(0,u.progress));
         todo.isCompleted=u.isCompleted;
         if(!todo.lastMilestone)todo.lastMilestone=0;
         if(todo.progress>0&&!todo.isCompleted){appData.todos.forEach(t=>t.isActive=false);todo.isActive=true;}
-        for(const cp of[50,80,100]){
+        for(const cp of[100]){
           if(prev<cp&&todo.progress>=cp&&todo.lastMilestone<cp){todo.lastMilestone=cp;milestones.push({todo,cp});}
         }
       }
     }catch(e){}
+    clean = clean.replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/,'').trim();
   }
-  return{cleanText:text.replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/,'').trim(),milestones};
+
+  return{cleanText:clean,milestones};
+}
+
+// ══════════════════════════════════════════════
+// AI 诚信检查 — AI 说做了某事但没输出标签时，前端自动补执行
+// ══════════════════════════════════════════════
+function checkAIHonesty(rawText, todosBefore) {
+  var t = rawText;
+  var fixed = false;
+
+  // ── 检查：声称清空了但 todos 没变（说明 AI 忘了输出指令）──
+  // 只匹配明确的全量清除，避免局部删除时误触发
+  var claimedClear = /清(空|除)(了|完)(全部|所有|清单|任务)?|全部(都)?(清|删)(了|掉)|清单(已)?(清空|空了)/.test(t);
+  if (claimedClear && appData.todos.length > 0 && appData.todos.length === todosBefore) {
+    appData.todos = [];
+    fixed = true;
+  }
+
+  // ── 检查：声称完成了某任务但清单没变化——用现有任务标题做精确匹配 ──
+  var doneWords = ['\u5b8c\u6210\u4e86', '\u505a\u5b8c\u4e86', '\u641e\u5b9a\u4e86', '\u5df2\u5b8c\u6210', '\u505a\u597d\u4e86'];
+  appData.todos.forEach(function(td) {
+    if (td.isCompleted) return;
+    // 检查 AI 回复里是否出现了该任务标题 + 完成词
+    doneWords.forEach(function(dw) {
+      if (t.indexOf(td.title) !== -1 && t.indexOf(dw) !== -1) {
+        td.progress = 100; td.isCompleted = true; td.isActive = false; td.lastMilestone = 100;
+        fixed = true;
+      }
+    });
+  });
+
+  return fixed;
 }
 
 function milestoneMsg(todo,cp){
-  if(cp===100)return`🎉 「${todo.title}」完成了！你今天真的很棒，继续保持这股劲儿。`;
-  if(cp===80)return`✨ 「${todo.title}」已完成 80%，终点就在眼前，冲刺吧！`;
-  if(cp===50)return`⚡ 「${todo.title}」过半了！节奏很好，你在正确的轨道上。`;
+  if(cp===100)return`🎉 「${todo.title}」全部完成了！今天又迈出了一大步。`;
   return'';
 }
 
@@ -844,7 +1222,9 @@ const UI={
     const msgs=appData.topics[appData.activeTopicId]?.messages||[];
     d.innerHTML=msgs.map(m=>{
       if(m.role==='milestone')return`<div class="msg milestone">${m.content}</div>`;
-      return`<div class="msg ${m.role==='assistant'?'ai':'user'}"><div class="msg-label">${m.role==='assistant'?'StILL':'你'}</div>${m.content}</div>`;
+      const isAI = m.role==='assistant';
+      const body = isAI ? renderMd(m.content) : m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      return`<div class="msg ${isAI?'ai':'user'}"><div class="msg-label">${isAI?'StILL':'你'}</div>${body}</div>`;
     }).join('');
     d.scrollTop=d.scrollHeight;
   },
@@ -855,16 +1235,54 @@ const UI={
       if(a.isCompleted!==b.isCompleted)return a.isCompleted?1:-1;
       return b.progress-a.progress;
     });
-    document.getElementById('js-task-list').innerHTML=sorted.map(t=>`
-      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''}" data-id="${t.id}">
+    document.getElementById('js-task-list').innerHTML=sorted.map(t=>{
+      const subs=t.subtasks||[];
+      let subHtml='';
+      if(subs.length){
+        if(t.isActive){
+          subHtml=`<div class="subtask-list expanded" id="subs-${t.id}">${subs.map(s=>`
+            <div class="subtask-item ${s.done?'done':''}">
+              <div class="subtask-dot"></div><span>${s.title}</span>
+              <span class="subtask-weight">${s.weight}min</span>
+            </div>`).join('')}</div>`;
+        } else {
+          const done=subs.filter(s=>s.done).length;
+          subHtml=`<div class="subtask-node" ondblclick="event.stopPropagation();UI.switchTask('${t.id}')">⋯ ${done}/${subs.length} 步</div>`;
+        }
+      }
+      return`
+      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''}" data-id="${t.id}" ondblclick="UI.switchTask('${t.id}')">
         <div class="progress-fill" style="width:${t.progress}%"></div>
         <div class="task-inner"><span class="task-name">${t.title}</span>${t.progress>0?`<span class="task-pct">${t.progress}%</span>`:''}</div>
         <div class="task-actions">
-          <button class="task-btn timer-btn" onclick="openTimerPicker('${t.id}')" title="番茄钟">⏱</button>
-          ${!t.isCompleted?`<button class="task-btn done-btn" onclick="UI.completeTask('${t.id}')">✓</button>`:''}
-          <button class="task-btn del-btn" onclick="UI.deleteTask('${t.id}')">✕</button>
+          <button class="task-btn timer-btn" onclick="event.stopPropagation();openTimerPicker('${t.id}')" title="番茄钟">⏱</button>
+          ${!t.isCompleted?`<button class="task-btn done-btn" onclick="event.stopPropagation();UI.completeTask('${t.id}')">✓</button>`:''}
+          <button class="task-btn del-btn" onclick="event.stopPropagation();UI.deleteTask('${t.id}')">✕</button>
         </div>
-      </div>`).join('');
+        ${subHtml}
+      </div>`;
+    }).join('');
+  },
+
+  switchTask(id){
+    if(aiLock) return;
+    const t=appData.todos.find(x=>x.id===id);
+    if(!t||t.isCompleted) return;
+    if(t.isActive) return;
+    appData.todos.forEach(x=>{x.isActive=false;});
+    t.isActive=true;
+    this.render();
+    const topic=appData.topics[appData.activeTopicId];
+    topic.messages.push({role:'user',content:`切换到「${t.title}」`});
+    this.render();
+    // 携带子任务状态，让 AI 知道该任务是否已有细分、是否需要先问
+    const hasSubs = t.subtasks && t.subtasks.length > 0;
+    const doneSubs = hasSubs ? t.subtasks.filter(s=>s.done).length : 0;
+    const totalSubs = hasSubs ? t.subtasks.length : 0;
+    const switchCtx = hasSubs
+      ? `[系统通知:SWITCH: 用户切换到任务「${t.title}」，该任务已有细分步骤（${doneSubs}/${totalSubs} 完成），请简短确认并问从哪步继续]`
+      : `[系统通知:SWITCH: 用户切换到任务「${t.title}」，该任务还没有细分步骤，请按任务细分流程判断是否需要细分]`;
+    callAIAndRespond(switchCtx, topic);
   },
 
   switchTopic(id){appData.activeTopicId=id;this.render();},
@@ -906,29 +1324,145 @@ const UI={
 };
 
 // ══════════════════════════════════════════════
+// AI LOCK — 防止并发请求
+// ══════════════════════════════════════════════
+let aiLock = false;
+
+function setLock(on, immersive=false){
+  aiLock = on;
+  // 始终同时锁定/解锁两个发送按钮，防止状态不一致
+  ['js-send-btn','js-imm-send'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.disabled = on;
+  });
+}
+
+// 统一的 AI 调用 + 回复写入，供 handleSend 和 switchTask 共用
+async function callAIAndRespond(userOverride, topic, immersive=false, isFirstMsg=false){
+  const topicId = appData.activeTopicId;
+  setLock(true, immersive);
+  UI.showTyping(immersive);
+  try{
+    // 构造发给 AI 的消息列表（去掉 milestone，可能附加 override）
+    const msgs = topic.messages.filter(m=>m.role!=='milestone');
+    if(userOverride) msgs.push({role:'user', content:userOverride});
+    const raw = await callAI(msgs);
+    UI.hideTyping();
+    const todoCountBefore = appData.todos.length;
+    const{cleanText, milestones} = applyTaskUpdate(raw);
+    // 自我检查：AI 声称做了某事但没输出标签时，前端补执行
+    const honestFixed = checkAIHonesty(raw, todoCountBefore);
+    topic.messages.push({role:'assistant', content:cleanText});
+    for(const{todo,cp} of milestones){
+      const txt=milestoneMsg(todo,cp);
+      if(txt) topic.messages.push({role:'milestone',content:txt});
+    }
+    if(isFirstMsg && !userOverride) autoNameTopic(topicId);
+  } catch(e){
+    UI.hideTyping();
+    topic.messages.push({role:'assistant', content:`⚠ 请求失败：${e.message}`});
+  }
+  setLock(false, immersive);
+  if(immersive) syncImmChatDisplay(); else UI.render();
+}
+
+// ══════════════════════════════════════════════
+// FRONTEND INTENT — 拦截清除/完成，直接执行，不等 AI
+// ══════════════════════════════════════════════
+function execIntent(msg){
+  var m = msg.trim();
+
+  // 清除全部
+  if (/清.?(全部|所有|一切)/.test(m) || /全部.?清/.test(m) || /清空(清单|任务|全部|所有)?$/.test(m) || /删.?(所有|全部)/.test(m)) {
+    var n = appData.todos.length;
+    appData.todos = [];
+    save(); UI.render();
+    return n > 0
+      ? '[系统通知: 已清除全部' + n + '个任务，清单现在是空的。请先用一句话确认，然后问用户有没有新的计划要加进来]'
+      : '[系统通知: 用户说清除全部，但清单本来就是空的，简短回应]';
+  }
+
+  // 完成全部
+  if (/全部.{0,3}(完成|做完|搞定|弄完)/.test(m) || /所有.{0,3}(完成|做完|搞定)/.test(m) || /(完成|做完|搞定).{0,3}全部/.test(m)) {
+    var pending = appData.todos.filter(function(t){ return !t.isCompleted; });
+    pending.forEach(function(t){ t.progress=100; t.isCompleted=true; t.isActive=false; t.lastMilestone=100; });
+    save(); UI.render();
+    var names = pending.map(function(t){ return t.title; }).join('、');
+    return pending.length > 0
+      ? '[系统通知: 已将「' + names + '」全部标记完成，请用一句话简短祝贺，不超过15字]'
+      : '[系统通知: 用户说全完成，但没有未完成任务，简短回应]';
+  }
+
+  // 清除/删除指定任务
+  var clearKws = ['清除', '删除', '删掉', '清掉', '移除'];
+  for (var ci = 0; ci < clearKws.length; ci++) {
+    var ck = clearKws[ci];
+    var cidx = m.indexOf(ck);
+    if (cidx !== -1 && !/全部|所有/.test(m)) {
+      var raw = m.slice(cidx + ck.length).trim();
+      raw = raw.replace(/^[《》“”‘’"'（）]/, '');
+      raw = raw.replace(/[《》“”‘’"'任务]$/, '').trim();
+      if (raw.length >= 1 && raw.length <= 15) {
+        var delMatched = appData.todos.filter(function(t){ return t.title.indexOf(raw) !== -1; });
+        if (delMatched.length) {
+          var delIds = delMatched.map(function(t){ return t.id; });
+          appData.todos = appData.todos.filter(function(t){ return delIds.indexOf(t.id) === -1; });
+          save(); UI.render();
+          var delNames = delMatched.map(function(t){ return t.title; }).join('、');
+          return '[系统通知: 已从清单移除「' + delNames + '」。请先自然确认，如果清单里没有其他未完成任务，顺带问有没有新计划]';
+        }
+      }
+    }
+  }
+
+  // 完成指定任务
+  var doneWds = ['完成了', '做完了', '做好了', '搞定了', '结束了', '已完成', '弄完了'];
+  for (var di = 0; di < doneWds.length; di++) {
+    var dw = doneWds[di];
+    var didx = m.indexOf(dw);
+    if (didx !== -1 && !/全部|所有/.test(m)) {
+      var before = m.slice(0, didx).replace(/^[我把将《》“”"']/, '').replace(/[《》“”"']$/, '').trim();
+      var after2 = m.slice(didx + dw.length).replace(/^[《》“”"']/, '').replace(/[《》“”"'任务]$/, '').trim();
+      var kw = (before.length >= 1 && before.length <= 15) ? before
+             : (after2.length >= 1 && after2.length <= 15) ? after2 : '';
+      if (kw && !/全部|所有/.test(kw)) {
+        var doneMatched = appData.todos.filter(function(t){ return t.title.indexOf(kw) !== -1 && !t.isCompleted; });
+        if (doneMatched.length) {
+          doneMatched.forEach(function(t){ t.progress=100; t.isCompleted=true; t.isActive=false; t.lastMilestone=100; });
+          save(); UI.render();
+          var doneNames = doneMatched.map(function(t){ return t.title; }).join('、');
+          return '[系统通知: 已将「' + doneNames + '」标记完成，请用一句话简短祝贺，不超过15字]';
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+// ══════════════════════════════════════════════
 // SEND (works for both main and immersive)
 // ══════════════════════════════════════════════
 async function handleSend(immersive=false) {
   if(!apiKey){showModal('key');return;}
+  if(aiLock) return;
   const inputEl=document.getElementById(immersive?'js-imm-input':'js-msg-input');
   const msg=inputEl.value.trim();if(!msg)return;
-  const topicId=appData.activeTopicId, topic=appData.topics[topicId];
-  const isFirst=!topic.messages.some(m=>m.role==='user');
-  topic.messages.push({role:'user',content:msg});inputEl.value='';
-  const btn=document.getElementById(immersive?'js-imm-send':'js-send-btn');
-  btn.disabled=true;
-  if(immersive)syncImmChatDisplay(); else UI.render();
-  UI.showTyping(immersive);
-  try{
-    const raw=await callAI(topic.messages);
-    UI.hideTyping();
-    const{cleanText,milestones}=applyTaskUpdate(raw);
-    topic.messages.push({role:'assistant',content:cleanText});
-    for(const{todo,cp}of milestones){const txt=milestoneMsg(todo,cp);if(txt)topic.messages.push({role:'milestone',content:txt});}
-    if(isFirst)autoNameTopic(topicId);
-  }catch(e){UI.hideTyping();topic.messages.push({role:'assistant',content:`⚠ 请求失败：${e.message}`});}
-  btn.disabled=false;
-  if(immersive)syncImmChatDisplay();else UI.render();
+  inputEl.value='';
+  const topic=appData.topics[appData.activeTopicId];
+
+  // ① 前端先拦截——命中则直接执行，立刻更新 UI，再让 AI 只回一句话
+  const override = execIntent(msg);
+
+  // 判断是否是话题第一条消息（用于自动命名），在 push 之前判断
+  const isFirstMsg = !topic.messages.some(m=>m.role==='user');
+
+  // 把用户原始消息推入对话历史（让对话记录完整）
+  topic.messages.push({role:'user', content:msg});
+  if(immersive) syncImmChatDisplay(); else UI.render();
+
+  // ② 调 AI（如果有 override 就用 override 代替用户消息传给 AI）
+  await callAIAndRespond(override || null, topic, immersive, isFirstMsg);
 }
 
 document.getElementById('js-send-btn').onclick=()=>handleSend(false);
@@ -949,9 +1483,182 @@ document.getElementById('js-add-task').onclick=()=>{
 // Expose openTimerPicker globally for inline onclick
 window.openTimerPicker=openTimerPicker;
 
+// 清空按钮（不经过 AI，直接执行）
+document.getElementById('js-clear-all').onclick=()=>{
+  if(!appData.todos.length){return;}
+  if(!confirm(`清除全部 ${appData.todos.length} 个任务？`))return;
+  appData.todos=[];
+  save(); UI.render();
+};
+
+
+// ══════════════════════════════════════════════
+// MUSIC PLAYER
+// ══════════════════════════════════════════════
+const TRACKS = [
+  { name: '曲目一',   src: 'music/track1.mp3' },
+  { name: '曲目二',   src: 'music/track2.mp3' },
+  { name: '曲目三',   src: 'music/track3.mp3' },
+  { name: '曲目四',   src: 'music/track4.mp3' },
+  { name: '曲目五',   src: 'music/track5.mp3' },
+];
+
+const musicAudio = new Audio();
+musicAudio.volume = 0;
+let musicPlaying = false;
+let currentTrackIdx = 0;
+
+function fadeMusicTo(target, cb) {
+  const step = musicAudio.volume < target ? 0.025 : -0.025;
+  const t = setInterval(() => {
+    let next = musicAudio.volume + step;
+    if ((step > 0 && next >= target) || (step < 0 && next <= target)) {
+      musicAudio.volume = Math.max(0, Math.min(1, target));
+      clearInterval(t); if (cb) cb();
+    } else { musicAudio.volume = Math.max(0, Math.min(1, next)); }
+  }, 40);
+}
+
+function loadTrack(idx) {
+  currentTrackIdx = (idx + TRACKS.length) % TRACKS.length;
+  const track = TRACKS[currentTrackIdx];
+  musicAudio.src = track.src;
+  musicAudio.load();
+  // 曲目名切换动画：旧名上滑淡出 → 新名下入淡入
+  const el = document.getElementById('js-track-name');
+  el.classList.add('slide-out-up');
+  setTimeout(() => {
+    el.textContent = track.name;
+    el.classList.remove('slide-out-up');
+    el.classList.add('slide-in-down');
+    // 强制 reflow 触发动画
+    void el.offsetWidth;
+    el.classList.remove('slide-in-down');
+  }, 200);
+  renderTrackDropdown();
+}
+
+function renderTrackDropdown() {
+  const dd = document.getElementById('js-track-dropdown');
+  dd.innerHTML = TRACKS.map((t,i) =>
+    `<button class="track-opt ${i===currentTrackIdx?'current':''}"
+      onclick="selectTrack(${i})">${t.name}</button>`
+  ).join('');
+}
+
+function selectTrack(idx) {
+  const wasPlaying = musicPlaying;
+  if (musicPlaying) pauseMusic();
+  loadTrack(idx);
+  document.getElementById('js-track-dropdown').classList.add('hidden');
+  if (wasPlaying) setTimeout(playMusic, 100);
+}
+
+// Track list toggle
+document.getElementById('js-track-list-btn').onclick = (e) => {
+  e.stopPropagation();
+  const dd = document.getElementById('js-track-dropdown');
+  dd.classList.toggle('hidden');
+  renderTrackDropdown();
+};
+document.addEventListener('click', () => {
+  document.getElementById('js-track-dropdown').classList.add('hidden');
+});
+
+function playMusic() {
+  musicAudio.play().catch(() => {});
+  musicPlaying = true;
+  document.getElementById('js-play-btn').innerHTML = '<b style="letter-spacing:1px">II</b>';
+  document.getElementById('js-play-btn').classList.add('active');
+  fadeMusicTo(0.55);
+}
+
+function pauseMusic() {
+  fadeMusicTo(0, () => { musicAudio.pause(); });
+  musicPlaying = false;
+  document.getElementById('js-play-btn').innerHTML = '&#9654;';
+  document.getElementById('js-play-btn').classList.remove('active');
+}
+
+function toggleMusic() {
+  if (!musicAudio.src || musicAudio.src === window.location.href) {
+    loadTrack(0);
+    setTimeout(playMusic, 80);
+    return;
+  }
+  if (musicPlaying) pauseMusic(); else playMusic();
+}
+
+// Auto-advance to next track
+musicAudio.addEventListener('ended', () => {
+  loadTrack(currentTrackIdx + 1);
+  setTimeout(playMusic, 80);
+});
+
+document.getElementById('js-play-btn').onclick = toggleMusic;
+
+document.getElementById('js-prev-track').onclick = () => {
+  const wasPlaying = musicPlaying;
+  if (musicPlaying) pauseMusic();
+  loadTrack(currentTrackIdx - 1);
+  if (wasPlaying) setTimeout(playMusic, 120);
+};
+
+document.getElementById('js-next-track').onclick = () => {
+  const wasPlaying = musicPlaying;
+  if (musicPlaying) pauseMusic();
+  loadTrack(currentTrackIdx + 1);
+  if (wasPlaying) setTimeout(playMusic, 120);
+};
+
+// Init: preload first track name without playing
+loadTrack(0);
+
 // INIT
 UI.render();
 refreshStatus();
+
+// ── First-visit daily greeting ──
+(function checkDailyGreeting() {
+  const today = todayKey();
+  if (appData.lastVisitDate === today) return; // already greeted today
+
+  const prevDate = appData.lastVisitDate;
+  appData.lastVisitDate = today;
+  save();
+
+  if (!apiKey) return; // no key yet, skip
+
+  const topic = appData.topics[appData.activeTopicId];
+  const hasTodos = appData.todos.some(t => !t.isCompleted);
+  const hasCompleted = appData.todos.some(t => t.isCompleted);
+
+  // Build greeting context
+  const pendingTitles = appData.todos.filter(t=>!t.isCompleted).map(t=>t.title);
+  let greetCtx = '';
+  if (prevDate && hasTodos) {
+    greetCtx = `昨天遗留的任务：${pendingTitles.join('、')}。先询问用户是否保留这些任务，若不需要让用户直接告诉你清除哪些。完成后，友好地问用户今天的计划。`;
+  } else {
+    greetCtx = `用户今天第一次上线，用简短温暖的方式问候，然后问今天有什么计划。`;
+  }
+
+  // Inject a system-triggered greeting via AI
+  const greetMsg = [{role:'user', content:`[SYSTEM_GREETING] ${greetCtx}`}];
+  const tempMsgs = [...(topic.messages.filter(m=>m.role!=='milestone')), ...greetMsg];
+
+  // Show typing and request greeting
+  setTimeout(async () => {
+    if (!apiKey) return;
+    UI.showTyping(false);
+    try {
+      const raw = await callAI(tempMsgs);
+      UI.hideTyping();
+      const {cleanText} = applyTaskUpdate(raw);
+      topic.messages.push({role:'assistant', content:cleanText});
+      UI.render();
+    } catch(e) { UI.hideTyping(); }
+  }, 800);
+})();
 </script>
 </body>
 </html>
