@@ -29,6 +29,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 
 /* TOP-CENTER: clock + focus stats */
 .top-center{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;z-index:20;pointer-events:none}
+.live-date{font-size:0.65rem;opacity:0.3;letter-spacing:2.5px;margin-bottom:4px}
 .live-clock{font-family:'DM Serif Display',serif;font-size:2.2rem;letter-spacing:4px;opacity:0.75;line-height:1}
 .focus-stat{font-size:0.68rem;opacity:0.35;letter-spacing:2px;margin-top:4px}
 
@@ -169,6 +170,34 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .imm-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);border-radius:14px;padding:10px 20px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:0.2s;white-space:nowrap}
 .imm-btn:hover{background:rgba(255,255,255,0.13);color:white}
 .imm-btn.danger:hover{background:rgba(255,60,60,0.2);border-color:rgba(255,60,60,0.3);color:rgba(255,120,100,0.9)}
+/* 沉浸模式播放器 — 右下角悬浮，低调不抢镜 */
+.imm-player{
+  position:absolute;right:32px;bottom:36px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+  z-index:310;opacity:0.45;transition:opacity 0.25s;
+}
+.imm-player:hover{opacity:1}
+.imm-track-name{
+  font-size:0.65rem;letter-spacing:0.5px;
+  color:rgba(255,255,255,0.7);text-align:right;
+  max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  transition:opacity 0.22s,transform 0.22s;
+}
+.imm-track-name.slide-out-up{opacity:0;transform:translateY(-5px)}
+.imm-track-name.slide-in-down{opacity:0;transform:translateY(5px)}
+.imm-player-btns{display:flex;align-items:center;gap:4px}
+.imm-ctrl{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.5);border-radius:7px;
+  width:26px;height:26px;font-size:0.72rem;cursor:pointer;
+  font-family:inherit;transition:background 0.15s,color 0.15s;
+  display:flex;align-items:center;justify-content:center;padding:0;
+}
+.imm-ctrl:hover{background:rgba(255,255,255,0.14);color:white}
+.imm-ctrl.play{width:30px;height:30px;font-size:0.8rem;border-radius:9px;background:rgba(255,160,80,0.25);border-color:rgba(255,160,80,0.3);color:rgba(255,200,130,0.9)}
+.imm-ctrl.play:hover{background:rgba(255,160,80,0.4)!important}
+.imm-ctrl.play.active{background:rgba(255,160,80,0.35)}
+.imm-ctrl.rain-on{background:rgba(100,160,255,0.18);border-color:rgba(100,160,255,0.28);color:rgba(160,200,255,0.9)}
 
 /* Slide-up chat panel in immersive */
 .imm-chat-panel{position:absolute;bottom:0;left:50%;transform:translate(-50%,100%);width:580px;height:48vh;background:rgba(8,14,28,0.96);border:1px solid var(--glass-b);border-bottom:none;border-radius:20px 20px 0 0;display:flex;flex-direction:column;transition:transform 0.46s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(28px)}
@@ -196,9 +225,17 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .calendar-grid-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
 .cal-month-label{font-size:0.68rem;opacity:0.35;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
 .cal-week-row{display:flex;gap:3px;flex-wrap:wrap}
-.cal-day{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,0.06);cursor:default;transition:transform 0.15s;position:relative}
-.cal-day:hover{transform:scale(1.4);z-index:2}
-.cal-day[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;top:-32px;transform:translateX(-50%);background:rgba(8,16,34,0.97);border:1px solid rgba(255,160,80,0.2);border-radius:8px;padding:5px 10px;font-size:0.64rem;white-space:nowrap;pointer-events:none;color:rgba(255,255,255,0.85);z-index:10;letter-spacing:0.5px}
+.cal-day{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,0.06);cursor:pointer;transition:transform 0.15s;position:relative}
+.cal-day:hover{transform:scale(1.3);z-index:3}
+/* 今天高亮：白色光晕边框 */
+.cal-day.today{box-shadow:0 0 0 1px rgba(255,255,255,0.95),0 0 4px rgba(255,255,255,0.3);border-radius:4px}
+/* 倒数日：彩色半透明遮罩 */
+.cal-day.has-countdown::before{content:'';position:absolute;inset:0;border-radius:3px;background:var(--cd-color,rgba(255,160,80,0.5));opacity:0.75;pointer-events:none;z-index:1}
+/* 已过期倒数日 */
+.cal-day.countdown-past::before{content:'';position:absolute;inset:0;border-radius:3px;background:var(--cd-color,rgba(255,255,255,0.2));opacity:0.3;pointer-events:none;z-index:1}
+/* JS tooltip */
+#cal-tooltip{position:fixed;z-index:9999;pointer-events:none;background:rgba(6,12,28,0.97);border:1px solid rgba(255,160,80,0.22);border-radius:9px;padding:6px 11px;font-size:0.63rem;color:rgba(255,255,255,0.88);white-space:pre;line-height:1.65;letter-spacing:0.4px;box-shadow:0 4px 20px rgba(0,0,0,0.55);opacity:0;transition:opacity 0.1s;max-width:200px}
+#cal-tooltip.visible{opacity:1}
 .drawer-overlay{position:fixed;inset:0;z-index:49;background:transparent;display:none}
 .drawer-overlay.show{display:block}
 
@@ -342,9 +379,168 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 }
 .subtask-node:hover{background:rgba(255,160,80,0.14);color:rgba(255,160,80,0.9);}
 .task-item{cursor:pointer;user-select:none;}
+
+/* ═══ COUNTDOWN PANEL ═══ */
+/* 浮动倒数日卡片 */
+.cd-float{
+  position:fixed;z-index:100;
+  width:108px;
+  background:rgba(10,18,34,0.82);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;
+  padding:10px 10px 9px;
+  backdrop-filter:blur(20px);
+  cursor:grab;
+  user-select:none;
+  transition:box-shadow 0.2s, opacity 0.2s;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.cd-float:active{cursor:grabbing;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
+.cd-float:hover .cd-float-del{opacity:1}
+.cd-float-dot{
+  position:absolute;top:8px;left:9px;
+  width:7px;height:7px;border-radius:50%;
+  flex-shrink:0;
+}
+.cd-float-del{
+  position:absolute;top:5px;right:6px;
+  background:transparent;border:none;
+  color:rgba(255,80,60,0.5);font-size:0.7rem;
+  cursor:pointer;padding:1px 3px;line-height:1;
+  opacity:0;transition:opacity 0.15s;
+}
+.cd-float-days{
+  font-family:'DM Serif Display',serif;
+  font-size:1.55rem;letter-spacing:1px;
+  color:rgba(255,255,255,0.88);line-height:1;
+  margin-top:2px;padding-left:16px;
+}
+.cd-float-unit{font-size:0.58rem;opacity:0.4;letter-spacing:1px;margin-left:2px}
+.cd-float-name{
+  font-size:0.63rem;opacity:0.45;
+  margin-top:4px;padding-left:16px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cd-float-today{color:rgba(255,200,100,0.9);opacity:1!important}
+/* 管理面板：从侧边栏调出 */
+.cd-manager{
+  display:flex;flex-direction:column;gap:7px;
+}
+.cd-manager-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:8px;border-bottom:1px solid var(--glass-b);
+}
+.cd-manager-title{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;opacity:0.7}
+.cd-icon-btn{
+  background:transparent;border:1px solid var(--glass-b);
+  color:rgba(255,255,255,0.35);border-radius:6px;
+  padding:2px 7px;font-size:0.65rem;cursor:pointer;
+  font-family:inherit;transition:0.15s;
+}
+.cd-icon-btn:hover{background:var(--glass-h);color:white}
+/* 全部列表 */
+.cd-all-list{
+  display:flex;flex-direction:column;gap:5px;
+  max-height:180px;overflow-y:auto;
+}
+.cd-all-list::-webkit-scrollbar{width:2px}
+.cd-all-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+/* 倒数日列表行 */
+.cd-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:9px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  transition:background 0.15s;
+  cursor:default;
+}
+.cd-item:hover{background:rgba(255,255,255,0.08)}
+.cd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cd-info{flex:1;min-width:0}
+.cd-name{font-size:0.73rem;opacity:0.82;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cd-days{font-size:0.63rem;opacity:0.38;margin-top:1px}
+.cd-days.today{color:rgba(255,200,100,0.9);opacity:1}
+.cd-days.past{opacity:0.22;text-decoration:line-through}
+.cd-pin-btn{
+  background:transparent;border:1px solid var(--glass-b);
+  color:rgba(255,255,255,0.3);border-radius:5px;
+  padding:1px 5px;font-size:0.6rem;cursor:pointer;
+  font-family:inherit;transition:0.15s;white-space:nowrap;flex-shrink:0;
+}
+.cd-pin-btn:hover{background:rgba(255,160,80,0.2);border-color:rgba(255,160,80,0.3);color:rgba(255,200,120,0.9)}
+.cd-pin-btn.pinned{background:rgba(255,160,80,0.18);border-color:rgba(255,160,80,0.28);color:rgba(255,200,120,0.85)}
+.cd-del{
+  background:transparent;border:none;color:rgba(255,80,60,0.35);
+  font-size:0.75rem;cursor:pointer;padding:0 2px;
+  opacity:0;transition:opacity 0.15s;flex-shrink:0;
+}
+.cd-item:hover .cd-del{opacity:1}
+/* 空状态 */
+.cd-empty{font-size:0.72rem;opacity:0.3;text-align:center;padding:8px 0}
+/* 新建表单 */
+.cd-form{
+  display:flex;flex-direction:column;gap:6px;
+  padding:8px;border-radius:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-b);
+}
+.cd-form.hidden{display:none}
+.cd-form input[type=text],.cd-form input[type=date],.cd-form select{
+  background:rgba(255,255,255,0.06);border:1px solid var(--glass-b);
+  border-radius:7px;color:white;padding:5px 8px;
+  font-size:0.74rem;outline:none;font-family:inherit;width:100%;
+  color-scheme:dark;
+}
+.cd-form input[type=text]::placeholder{color:rgba(255,255,255,0.25)}
+.cd-form select option{background:#0d1f35;color:white}
+.cd-form-row{display:flex;gap:5px;align-items:center}
+.cd-form-label{font-size:0.64rem;opacity:0.4;flex-shrink:0}
+.cd-color-row{display:flex;gap:5px;flex-wrap:nowrap;padding:2px 0;align-items:center}
+.cd-color-swatch{
+  width:16px;height:16px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform 0.15s,border-color 0.15s;
+  flex-shrink:0;
+}
+.cd-color-swatch:hover{transform:scale(1.2)}
+.cd-color-swatch.selected{border-color:white}
+.cd-form-actions{display:flex;gap:5px}
+.cd-btn{
+  flex:1;background:var(--amber);border:1px solid var(--amber-b);
+  color:white;border-radius:8px;padding:5px;
+  font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s;
+}
+.cd-btn:hover{background:rgba(255,160,80,0.4)}
+.cd-btn.cancel{background:rgba(255,255,255,0.06);border-color:var(--glass-b);color:rgba(255,255,255,0.5)}
+.cd-btn.cancel:hover{background:rgba(255,255,255,0.12);color:white}
+/* 热力图上的倒数日标记 */
+
 </style>
 </head>
 <body>
+
+<!-- 新建倒数日表单（全局，隐藏时不占位）-->
+<div class="cd-form hidden" id="js-cd-form" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;z-index:500;background:rgba(8,14,28,0.97);border:1px solid var(--glass-b);border-radius:16px;padding:16px;box-shadow:0 16px 48px rgba(0,0,0,0.6)">
+  <div style="font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;opacity:0.35;margin-bottom:10px">新建倒数日</div>
+  <input type="text" id="js-cd-name" placeholder="事件名称…" maxlength="20">
+  <input type="date" id="js-cd-date" style="margin-top:5px">
+  <div class="cd-form-row" style="margin-top:5px">
+    <span class="cd-form-label">重复</span>
+    <select id="js-cd-repeat" style="flex:1">
+      <option value="once">仅此一次</option>
+      <option value="yearly">每年</option>
+      <option value="monthly">每月</option>
+      <option value="weekly">每周</option>
+    </select>
+  </div>
+  <div class="cd-form-row" style="margin-top:5px">
+    <span class="cd-form-label">颜色</span>
+    <div class="cd-color-row" id="js-cd-colors"></div>
+  </div>
+  <div class="cd-form-actions" style="margin-top:8px">
+    <button class="cd-btn cancel" id="js-cd-cancel">取消</button>
+    <button class="cd-btn" id="js-cd-save">保存</button>
+  </div>
+</div>
 
 <!-- HISTORY DRAWER -->
 <div class="drawer-overlay" id="js-drawer-overlay"></div>
@@ -352,6 +548,17 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
   <div class="drawer-header">
     <div class="drawer-title">专注日历</div>
     <button class="btn-close-drawer" id="js-close-drawer">关闭</button>
+  </div>
+  <!-- 倒数日管理器 -->
+  <div class="cd-manager" id="js-cd-manager">
+    <div class="cd-manager-header">
+      <div class="cd-manager-title">倒数日</div>
+      <div style="display:flex;gap:4px">
+        <button class="cd-icon-btn" id="js-cd-expand-btn" title="展开全部">全部</button>
+        <button class="cd-icon-btn" id="js-cd-add-btn">＋</button>
+      </div>
+    </div>
+    <div class="cd-all-list" id="js-cd-all-list"></div>
   </div>
   <div class="calendar-legend">
     <span>少</span>
@@ -412,9 +619,19 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 
   <!-- Controls bar -->
   <div class="imm-controls">
-    <button class="imm-btn" id="js-imm-audio">🌧 开启雨声</button>
     <button class="imm-btn" id="js-imm-chat-toggle">💬 呼出助手</button>
     <button class="imm-btn danger" id="js-imm-exit">✕ 退出专注</button>
+  </div>
+
+  <!-- 右下角播放器 -->
+  <div class="imm-player" id="js-imm-player">
+    <div class="imm-track-name" id="js-imm-track-name">— 选择曲目 —</div>
+    <div class="imm-player-btns">
+      <button class="imm-ctrl" id="js-imm-prev">&#8249;</button>
+      <button class="imm-ctrl play" id="js-imm-play">&#9654;</button>
+      <button class="imm-ctrl" id="js-imm-next">&#8250;</button>
+      <button class="imm-ctrl" id="js-imm-rain" title="雨声">🌧</button>
+    </div>
   </div>
 
   <!-- Slide-up chat panel -->
@@ -473,6 +690,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 
   <!-- Top-center -->
   <div class="top-center">
+    <div class="live-date" id="js-live-date"></div>
     <div class="live-clock" id="js-live-clock">00:00:00</div>
     <div class="focus-stat" id="js-focus-stat">今日已专注 · 0 分钟</div>
   </div>
@@ -583,6 +801,7 @@ function defaultState() {
       {id:'todo-2',title:'背单词',progress:0,isCompleted:false,lastMilestone:0,isActive:false,subtasks:[]}
     ],
     history:{}, // { 'YYYY-MM-DD': { focusMin:N, stayMin:N, completedCount:N } }
+    countdowns:[], // [{id,name,date,color,repeat,createdAt}]
     lastVisitDate: null
   };
 }
@@ -594,6 +813,7 @@ let appData = (() => {
     if (!d.history) d.history = {};
     d.todos = d.todos.map(t=>({...t,lastMilestone:t.lastMilestone||0,isActive:t.isActive||false,subtasks:t.subtasks||[]}));
     if (!('lastVisitDate' in d)) d.lastVisitDate = null;
+    if (!d.countdowns) d.countdowns = [];
     return d;
   } catch(e) { return defaultState(); }
 })();
@@ -615,14 +835,20 @@ function save() { recordTodayHistory(); localStorage.setItem('StILL_DATA',JSON.s
 // ══════════════════════════════════════════════
 // LIVE CLOCK
 // ══════════════════════════════════════════════
+const WEEKDAYS = ['日','一','二','三','四','五','六'];
 function updateLiveClock() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2,'0');
   const m = String(now.getMinutes()).padStart(2,'0');
   const s = String(now.getSeconds()).padStart(2,'0');
-  const str = `${h}:${m}:${s}`;
-  document.getElementById('js-live-clock').textContent = str;
+  document.getElementById('js-live-clock').textContent = `${h}:${m}:${s}`;
   document.getElementById('js-imm-realclock').textContent = `${h}:${m}`;
+  // 日期小字
+  const dateEl = document.getElementById('js-live-date');
+  if(dateEl){
+    const mo=now.getMonth()+1, dy=now.getDate(), wd=WEEKDAYS[now.getDay()];
+    dateEl.textContent=`${now.getFullYear()}.${String(mo).padStart(2,'0')}.${String(dy).padStart(2,'0')}  周${wd}`;
+  }
 }
 setInterval(updateLiveClock, 1000);
 updateLiveClock();
@@ -696,8 +922,20 @@ function refreshStatus() {
 // ══════════════════════════════════════════════
 // AUDIO (shared)
 // ══════════════════════════════════════════════
-const audio = new Audio('raindrops.mp3');
-audio.loop=true; audio.volume=0; let audioPlaying=false;
+const audio = new Audio();
+audio.loop = true; audio.volume = 0; let audioPlaying = false;
+// 兼容两种文件名
+(function(){
+  const names = ['raindrop.mp3','raindrops.mp3'];
+  let idx = 0;
+  function tryNext() {
+    if (idx >= names.length) return;
+    audio.src = names[idx++];
+    audio.load();
+  }
+  audio.onerror = function(){ tryNext(); };
+  tryNext();
+})();
 function fadeAudio(target,cb) {
   const step=audio.volume<target?0.03:-0.03;
   const t=setInterval(()=>{
@@ -710,18 +948,45 @@ function toggleAudio(btn) {
   if (!audioPlaying) {
     audio.play().catch(()=>{});
     audioPlaying=true;
-    // Main btn shows icon only; imm btn shows text
-    if (btn.id==='js-audio-btn') { btn.classList.add('rain-on'); }
-    else { btn.textContent='⏸ 关闭雨声'; }
+    btn.classList.add('rain-on');
     fadeAudio(0.5);
   } else {
     fadeAudio(0,()=>{audio.pause();audioPlaying=false;});
-    if (btn.id==='js-audio-btn') { btn.classList.remove('rain-on'); }
-    else { btn.textContent='🌧 开启雨声'; }
+    btn.classList.remove('rain-on');
   }
 }
 document.getElementById('js-audio-btn').onclick = function(){ toggleAudio(this); };
-document.getElementById('js-imm-audio').onclick = function(){ toggleAudio(this); };
+// 沉浸播放器：镜像主播放器状态
+function syncImmPlayer() {
+  const nameEl = document.getElementById('js-imm-track-name');
+  if (nameEl) nameEl.textContent = TRACKS[currentTrackIdx]?.name || '—';
+  const playBtn = document.getElementById('js-imm-play');
+  if (playBtn) {
+    playBtn.innerHTML = musicPlaying ? '<b style="letter-spacing:1px;font-size:0.65rem">II</b>' : '&#9654;';
+    playBtn.classList.toggle('active', musicPlaying);
+  }
+  const rainBtn = document.getElementById('js-imm-rain');
+  if (rainBtn) rainBtn.classList.toggle('rain-on', audioPlaying);
+}
+
+document.getElementById('js-imm-prev').onclick = () => {
+  const was = musicPlaying; if (was) pauseMusic();
+  loadTrack(currentTrackIdx - 1);
+  if (was) setTimeout(playMusic, 100);
+  syncImmPlayer();
+};
+document.getElementById('js-imm-next').onclick = () => {
+  const was = musicPlaying; if (was) pauseMusic();
+  loadTrack(currentTrackIdx + 1);
+  if (was) setTimeout(playMusic, 100);
+  syncImmPlayer();
+};
+document.getElementById('js-imm-play').onclick = () => {
+  toggleMusic(); syncImmPlayer();
+};
+document.getElementById('js-imm-rain').onclick = function(){
+  toggleAudio(this); syncImmPlayer();
+};
 
 // ══════════════════════════════════════════════
 // RAIN
@@ -743,7 +1008,7 @@ buildRain(70,0.3,0.5);
 // ══════════════════════════════════════════════
 // DRAWER / CALENDAR
 // ══════════════════════════════════════════════
-function openDrawer() { renderCalendar(); document.getElementById('js-history-drawer').classList.add('open'); document.getElementById('js-drawer-overlay').classList.add('show'); }
+function openDrawer() { renderCalendar(); renderCdAllList(); document.getElementById('js-history-drawer').classList.add('open'); document.getElementById('js-drawer-overlay').classList.add('show'); }
 function closeDrawer() { document.getElementById('js-history-drawer').classList.remove('open'); document.getElementById('js-drawer-overlay').classList.remove('show'); }
 document.getElementById('js-open-history').onclick=openDrawer;
 document.getElementById('js-close-drawer').onclick=closeDrawer;
@@ -762,34 +1027,67 @@ function stayToColor(stayMin) {
 function renderCalendar() {
   const container=document.getElementById('js-calendar');
   container.innerHTML='';
-  const today=new Date();
-  for(let mi=5;mi>=0;mi--) {
+  const today=new Date(); today.setHours(0,0,0,0);
+  // 过去6个月 + 未来3个月
+  for(let mi=5;mi>=-3;mi--) {
     const d=new Date(today.getFullYear(),today.getMonth()-mi,1);
     const year=d.getFullYear(),month=d.getMonth();
     const label=document.createElement('div'); label.className='cal-month-label';
-    label.textContent=`${year}年 ${month+1}月`; container.appendChild(label);
+    const isFuture = new Date(year,month,1) > today;
+    label.textContent=`${year}年 ${month+1}月${isFuture?' →':''}`;
+    container.appendChild(label);
     const row=document.createElement('div'); row.className='cal-week-row';
     const days=new Date(year,month+1,0).getDate();
     for(let day=1;day<=days;day++){
       const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const cellDate=new Date(ds+'T00:00:00');
       const entry=appData.history[ds]||{};
       const stayMin=entry.stayMin||0;
       const focusMin=entry.focusMin||0;
       const completedCount=entry.completedCount||0;
       const cell=document.createElement('div'); cell.className='cal-day';
-      cell.style.background=stayToColor(stayMin);
-      if(new Date(ds)>today) cell.style.opacity='0.25';
+      const isToday = ds === todayKey();
+      if(isToday) cell.classList.add('today');
+
+      // 倒数日判断
+      const cdsOnDay = cdForDate(ds);
+      // 热力图底色始终先设置
+      cell.style.background = stayToColor(stayMin);
+      if(cellDate>today) cell.style.opacity='0.22';
+      if(cdsOnDay.length){
+        const firstColor=cdsOnDay[0].color;
+        cell.style.setProperty('--cd-color', firstColor);
+        const allPast = cdsOnDay.every(c=>c.repeat==='once' && cellDate<today);
+        cell.classList.add(allPast ? 'countdown-past' : 'has-countdown');
+      }
+
+      // Tooltip
       let tip=`${month+1}/${day}`;
       if(stayMin||focusMin||completedCount){
         tip+=`  在线 ${stayMin}min`;
         if(focusMin) tip+=`  专注 ${focusMin}min`;
         if(completedCount) tip+=`  完成 ${completedCount} 项`;
-      } else { tip+='  未使用'; }
+      } else if(cellDate<=today){ tip+='  未使用'; }
+      // 倒数日 tip
+      cdsOnDay.forEach(c=>{
+        const dLeft=Math.round((cdNextDate(c)-today)/86400000);
+        const dStr=dLeft===0?'今天':dLeft>0?`还有${dLeft}天`:`已过去${-dLeft}天`;
+        tip+=`\n${c.name} — ${dStr}`;
+      });
       cell.setAttribute('data-tip',tip);
+
+      // 双击添加/删除倒数日
+      cell.ondblclick = (function(dateStr){ return function(e){ e.stopPropagation(); calDblClickDate(dateStr); }; })(ds);
+
       row.appendChild(cell);
     }
     container.appendChild(row);
   }
+  // 滚动到今天所在位置
+  setTimeout(()=>{
+    const wrap=document.querySelector('.calendar-grid-wrap');
+    if(wrap) wrap.scrollTop=wrap.scrollHeight*0.45;
+  },50);
 }
 
 // ══════════════════════════════════════════════
@@ -898,12 +1196,14 @@ function startImmersive(totalSec, taskId) {
 
   // Enhance rain
   buildRain(140,0.55,0.35);
+  hideFloatCards();
 
   const taskLabel=taskId ? appData.todos.find(t=>t.id===taskId)?.title||'专注中' : '专注中';
   document.getElementById('js-imm-task-label').textContent=taskLabel;
 
   // Sync immersive chat display with current topic
   syncImmChatDisplay();
+  syncImmPlayer();
 
   const d=secToDisplay(totalSec);
   ['m0','m1','s0','s1'].forEach(k=>{ prevDigits[k]='?'; }); // force redraw
@@ -1008,9 +1308,16 @@ function getSystem() {
 
 ═══ 规则 ═══
 
-【新增任务】用户提到要做的事不在清单里时：问"加入清单？"，确认后输出：
-[ADD_TASKS][{"title":"任务名","estimatedMin":分钟},…][/ADD_TASKS]
+【新增任务】只有当用户明确表达"今天要做 XX""打算去做 XX"等计划意图时，才问"加入清单？"。
+确认后输出：[ADD_TASKS][{"title":"任务名","estimatedMin":分钟},…][/ADD_TASKS]
 加完问"从哪个开始？"
+- 用户拒绝加入后，不再重复询问同一件事
+- 用户只是随口聊天、问问题、闲聊 → 直接回答，不扯清单
+
+【题外话与闲聊】用户突然问和任务无关的问题（知识、八卦、感受、随机好奇等）：
+- 直接正常回答，就像朋友聊天一样
+- 回答完最后可以轻描淡写加一句提醒，如"回来继续「任务名」吧"或"说完记得回来～"
+- 不要把每一句话都往任务上引，不要强迫用户专注"
 
 【清除任务后的引导】当系统通知你"已清除任务"或"清单已清空"时：
 - 先用一句话自然确认（如"好，清掉了"）
@@ -1052,7 +1359,16 @@ function getSystem() {
 - 需要强调的关键词：用 **粗体**，每条回复最多 2-3 处
 - 禁止：不必要的标题行、过度粗体、超过一层的嵌套列表
 
-【语气】简洁温和，一次只问一个问题，遇到模糊情况主动做决策。`;
+【语气】简洁温和，一次只问一个问题，遇到模糊情况主动做决策。
+
+【倒数日感知】当收到 [系统通知:COUNTDOWN_ADDED] 时：
+- 根据剩余天数判断轻重：
+  ≥365天 → 轻描淡写鼓励一句，不需要提醒准备
+  30~364天 → 简短提及，月初会梳理
+  ≤30天 → 提示用户提前准备，语气温和不焦虑
+  ≤7天 → 明确提醒，问是否需要拆解成任务
+- 每日问候时（收到 [SYSTEM_GREETING]），从倒数日中挑选近期的自然带一句
+- 每月1日问候时，对本月内的倒数日进行简短梳理`;
 }
 
 async function callAI(messages) {
@@ -1525,15 +1841,25 @@ function loadTrack(idx) {
   musicAudio.src = track.src;
   musicAudio.load();
   // 曲目名切换动画：旧名上滑淡出 → 新名下入淡入
+  // 主界面曲目名动画
   const el = document.getElementById('js-track-name');
   el.classList.add('slide-out-up');
+  // 沉浸模式曲目名同步动画
+  const immEl = document.getElementById('js-imm-track-name');
+  if (immEl) immEl.classList.add('slide-out-up');
   setTimeout(() => {
     el.textContent = track.name;
     el.classList.remove('slide-out-up');
     el.classList.add('slide-in-down');
-    // 强制 reflow 触发动画
     void el.offsetWidth;
     el.classList.remove('slide-in-down');
+    if (immEl) {
+      immEl.textContent = track.name;
+      immEl.classList.remove('slide-out-up');
+      immEl.classList.add('slide-in-down');
+      void immEl.offsetWidth;
+      immEl.classList.remove('slide-in-down');
+    }
   }, 200);
   renderTrackDropdown();
 }
@@ -1635,11 +1961,25 @@ refreshStatus();
 
   // Build greeting context
   const pendingTitles = appData.todos.filter(t=>!t.isCompleted).map(t=>t.title);
+  // 倒数日上下文
+  const nowForGreet = new Date(); nowForGreet.setHours(0,0,0,0);
+  const isMonthStart = nowForGreet.getDate() === 1;
+  const upcomingCds = (appData.countdowns||[]).map(c=>({c,d:cdDaysLeft(c)}))
+    .filter(x=>x.d>=0&&x.d<=7).sort((a,b)=>a.d-b.d);
+  const monthlyCds = (appData.countdowns||[]).map(c=>({c,d:cdDaysLeft(c)}))
+    .filter(x=>x.d>=0&&x.d<=31).sort((a,b)=>a.d-b.d);
+  let cdCtx = '';
+  if(isMonthStart && monthlyCds.length){
+    cdCtx = `今天是${nowForGreet.getMonth()+1}月1日，本月内的倒数日：${monthlyCds.map(x=>`「${x.c.name}」还有${x.d}天`).join('、')}。请在问候时自然梳理这些事项。`;
+  } else if(upcomingCds.length){
+    cdCtx = `近期倒数日：${upcomingCds.slice(0,3).map(x=>`「${x.c.name}」还有${x.d}天`).join('、')}。问候时可酌情轻描淡写提一句最近的。`;
+  }
+
   let greetCtx = '';
   if (prevDate && hasTodos) {
-    greetCtx = `昨天遗留的任务：${pendingTitles.join('、')}。先询问用户是否保留这些任务，若不需要让用户直接告诉你清除哪些。完成后，友好地问用户今天的计划。`;
+    greetCtx = `昨天遗留的任务：${pendingTitles.join('、')}。先询问用户是否保留这些任务，若不需要让用户直接告诉你清除哪些。完成后，友好地问用户今天的计划。${cdCtx}`;
   } else {
-    greetCtx = `用户今天第一次上线，用简短温暖的方式问候，然后问今天有什么计划。`;
+    greetCtx = `用户今天第一次上线，用简短温暖的方式问候，然后问今天有什么计划。${cdCtx}`;
   }
 
   // Inject a system-triggered greeting via AI
@@ -1659,6 +1999,351 @@ refreshStatus();
     } catch(e) { UI.hideTyping(); }
   }, 800);
 })();
+
+// ══════════════════════════════════════════════
+// CALENDAR TOOLTIP — JS 实现，绕过 overflow hidden 限制
+// ══════════════════════════════════════════════
+(function(){
+  const tip = document.createElement('div');
+  tip.id = 'cal-tooltip';
+  document.body.appendChild(tip);
+
+  let hideTimer;
+  document.getElementById('js-calendar').addEventListener('mouseover', function(e){
+    const cell = e.target.closest('.cal-day[data-tip]');
+    if(!cell) return;
+    clearTimeout(hideTimer);
+    tip.textContent = cell.getAttribute('data-tip');
+    tip.classList.add('visible');
+    // 位置：格子左上方，动态防溢出
+    const r = cell.getBoundingClientRect();
+    let x = r.left + r.width/2 - tip.offsetWidth/2;
+    let y = r.top - tip.offsetHeight - 6;
+    x = Math.max(8, Math.min(x, window.innerWidth - tip.offsetWidth - 8));
+    if(y < 8) y = r.bottom + 6;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  });
+  document.getElementById('js-calendar').addEventListener('mouseout', function(e){
+    const cell = e.target.closest('.cal-day[data-tip]');
+    if(!cell) return;
+    hideTimer = setTimeout(()=>tip.classList.remove('visible'), 80);
+  });
+})();
+
+// ══════════════════════════════════════════════
+// COUNTDOWN — 倒数日系统（浮动拖拽版）
+// ══════════════════════════════════════════════
+
+const CD_COLORS = [
+  '#74b9ff', // 天蓝
+  '#fd79a8', // 玫红
+  '#a29bfe', // 薰衣草紫
+  '#ffeaa7', // 柠檬黄
+  '#55efc4', // 翠绿
+  '#fab1d3', // 樱花粉
+  '#81ecec', // 青色
+];
+let cdSelectedColor = CD_COLORS[0];
+
+// 计算下一次发生日期
+function cdNextDate(c) {
+  const base = new Date(c.date + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (c.repeat === 'once') return base;
+  if (c.repeat === 'yearly') {
+    const cand = new Date(today.getFullYear(), base.getMonth(), base.getDate());
+    return cand >= today ? cand : new Date(today.getFullYear()+1, base.getMonth(), base.getDate());
+  }
+  if (c.repeat === 'monthly') {
+    const cand = new Date(today.getFullYear(), today.getMonth(), base.getDate());
+    return cand >= today ? cand : new Date(today.getFullYear(), today.getMonth()+1, base.getDate());
+  }
+  if (c.repeat === 'weekly') {
+    const diff = ((base.getDay()-today.getDay())+7)%7;
+    const cand = new Date(today); cand.setDate(today.getDate()+diff);
+    return cand >= today ? cand : new Date(today.getFullYear(), today.getMonth(), today.getDate()+diff+7);
+  }
+  return base;
+}
+
+function cdDaysLeft(c) {
+  const next = cdNextDate(c);
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((next - today) / 86400000);
+}
+
+function cdForDate(ds) {
+  return appData.countdowns.filter(c => {
+    if (c.date === ds) return true;
+    if (c.repeat === 'once') return c.date === ds;
+    const d = new Date(ds+'T00:00:00');
+    const base = new Date(c.date+'T00:00:00');
+    if (c.repeat === 'yearly') return base.getMonth()===d.getMonth() && base.getDate()===d.getDate();
+    if (c.repeat === 'monthly') return base.getDate()===d.getDate();
+    if (c.repeat === 'weekly') return base.getDay()===d.getDay();
+    return false;
+  });
+}
+
+function cdNewId() { return 'cd-'+Date.now()+Math.random().toString(36).slice(2,5); }
+
+// ── 浮动卡片 DOM 管理 ───────────────────────────────────────
+// 从 appData 中读取 pinnedCards: [{id, x, y}]
+function getPinnedCards() { return appData.pinnedCards || []; }
+function setPinnedCards(arr) { appData.pinnedCards = arr; save(); }
+
+function makeDaysLabel(days) {
+  if (days === 0) return {num:'今天', unit:'', cls:'cd-float-today'};
+  if (days > 0) return {num: String(days), unit:'天后', cls:''};
+  return {num: String(-days), unit:'天前', cls:''};
+}
+
+function createFloatCard(cdId, x, y) {
+  const c = appData.countdowns.find(x=>x.id===cdId);
+  if (!c) return;
+  const existing = document.getElementById('cd-float-'+cdId);
+  if (existing) { existing.style.left=x+'px'; existing.style.top=y+'px'; return; }
+
+  const days = cdDaysLeft(c);
+  const {num, unit, cls} = makeDaysLabel(days);
+  const div = document.createElement('div');
+  div.className = 'cd-float';
+  div.id = 'cd-float-'+cdId;
+  div.style.left = x+'px';
+  div.style.top  = y+'px';
+  div.innerHTML = `
+    <div class="cd-float-dot" style="background:${c.color}"></div>
+    <button class="cd-float-del" onclick="unpinCard('${c.id}')">✕</button>
+    <div class="cd-float-days ${cls}">${num}<span class="cd-float-unit">${unit}</span></div>
+    <div class="cd-float-name">${c.name}</div>`;
+
+  // 拖拽
+  let ox, oy, dragging=false;
+  div.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('cd-float-del')) return;
+    dragging=true; ox=e.clientX-div.offsetLeft; oy=e.clientY-div.offsetTop;
+    div.style.transition='none'; div.style.opacity='0.85';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    let nx = e.clientX-ox, ny = e.clientY-oy;
+    nx = Math.max(0, Math.min(nx, window.innerWidth-div.offsetWidth));
+    ny = Math.max(0, Math.min(ny, window.innerHeight-div.offsetHeight));
+    div.style.left=nx+'px'; div.style.top=ny+'px';
+  });
+  document.addEventListener('mouseup', e => {
+    if (!dragging) return; dragging=false;
+    div.style.transition=''; div.style.opacity='';
+    // 保存新位置
+    const cards = getPinnedCards();
+    const idx = cards.findIndex(p=>p.id===cdId);
+    const pos = {id:cdId, x:parseInt(div.style.left), y:parseInt(div.style.top)};
+    if (idx>=0) cards[idx]=pos; else cards.push(pos);
+    setPinnedCards(cards);
+  });
+
+  document.body.appendChild(div);
+}
+
+function unpinCard(cdId) {
+  const el = document.getElementById('cd-float-'+cdId);
+  if (el) { el.style.opacity='0'; setTimeout(()=>el.remove(),200); }
+  setPinnedCards(getPinnedCards().filter(p=>p.id!==cdId));
+  renderCdAllList();
+}
+
+function pinCard(cdId) {
+  const cards = getPinnedCards();
+  if (cards.find(p=>p.id===cdId)) return;
+  const n = cards.length;
+  const x = window.innerWidth - 140 - n*8;
+  const y = 80 + n*20;
+  cards.push({id:cdId, x, y});
+  setPinnedCards(cards);
+  createFloatCard(cdId, x, y);
+  renderCdAllList();
+}
+
+function restoreFloatCards() {
+  getPinnedCards().forEach(p => {
+    // 清理已删除的倒数日
+    if (!appData.countdowns.find(c=>c.id===p.id)) return;
+    createFloatCard(p.id, p.x, p.y);
+  });
+}
+
+function updateAllFloatCards() {
+  getPinnedCards().forEach(p => {
+    const el = document.getElementById('cd-float-'+p.id);
+    if (!el) return;
+    const c = appData.countdowns.find(x=>x.id===p.id);
+    if (!c) { el.remove(); return; }
+    const days = cdDaysLeft(c);
+    const {num, unit, cls} = makeDaysLabel(days);
+    const daysEl = el.querySelector('.cd-float-days');
+    if (daysEl) { daysEl.textContent=''; daysEl.className='cd-float-days '+(cls||''); daysEl.innerHTML=`${num}<span class="cd-float-unit">${unit}</span>`; }
+    const nameEl = el.querySelector('.cd-float-name');
+    if (nameEl) nameEl.textContent=c.name;
+  });
+}
+
+// 沉浸模式隐藏/恢复浮动卡片
+function hideFloatCards() {
+  document.querySelectorAll('.cd-float').forEach(el=>el.style.visibility='hidden');
+}
+function showFloatCards() {
+  document.querySelectorAll('.cd-float').forEach(el=>el.style.visibility='');
+}
+
+// ── 侧边栏倒数日列表 ────────────────────────────────────────
+let cdListExpanded = false;
+
+function renderCdAllList() {
+  const list = document.getElementById('js-cd-all-list');
+  const mgr  = document.getElementById('js-cd-manager');
+  if (!list || !mgr) return;
+  const sorted = [...appData.countdowns].sort((a,b)=>cdDaysLeft(a)-cdDaysLeft(b));
+
+  // 没有倒数日：整块隐藏
+  if (!sorted.length) { mgr.style.display=''; list.innerHTML=''; return; }
+  mgr.style.display='';
+
+  const toShow = cdListExpanded ? sorted : sorted.slice(0,1);
+  const pinned = getPinnedCards();
+  const expandBtn = document.getElementById('js-cd-expand-btn');
+  if (expandBtn) {
+    expandBtn.textContent = cdListExpanded ? '收起' : `全部(${sorted.length})`;
+  }
+
+  list.innerHTML = toShow.map(c => {
+    const days = cdDaysLeft(c);
+    let daysTxt, cls='';
+    if(days===0){daysTxt='就是今天';cls='today';}
+    else if(days>0){daysTxt=`还有 ${days} 天`;}
+    else{daysTxt=`已过去 ${-days} 天`;cls='past';}
+    const isPinned = pinned.some(p=>p.id===c.id);
+    return `<div class="cd-item">
+      <div class="cd-dot" style="background:${c.color}"></div>
+      <div class="cd-info">
+        <div class="cd-name">${c.name}</div>
+        <div class="cd-days ${cls}">${daysTxt}</div>
+      </div>
+      <button class="cd-pin-btn ${isPinned?'pinned':''}" onclick="${isPinned?`unpinCard('${c.id}')`:`pinCard('${c.id}')`}">${isPinned?'收回':'悬浮'}</button>
+      <button class="cd-del" onclick="deleteCd('${c.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteCd(id) {
+  appData.countdowns = appData.countdowns.filter(c=>c.id!==id);
+  const el = document.getElementById('cd-float-'+id);
+  if (el) el.remove();
+  setPinnedCards(getPinnedCards().filter(p=>p.id!==id));
+  save(); renderCdAllList(); renderCalendar();
+}
+
+// ── 颜色选择器 ──────────────────────────────────────────────
+function renderCdColors() {
+  const wrap = document.getElementById('js-cd-colors');
+  if (!wrap) return;
+  wrap.innerHTML = CD_COLORS.map(color =>
+    `<div class="cd-color-swatch ${color===cdSelectedColor?'selected':''}"
+      style="background:${color}"
+      onclick="cdSelectColor('${color}')"></div>`
+  ).join('');
+}
+function cdSelectColor(color) { cdSelectedColor=color; renderCdColors(); }
+
+// ── 保存新倒数日 ────────────────────────────────────────────
+function saveCd() {
+  const name = document.getElementById('js-cd-name').value.trim();
+  const date = document.getElementById('js-cd-date').value;
+  const repeat = document.getElementById('js-cd-repeat').value;
+  if (!name||!date) { document.getElementById('js-cd-name').focus(); return; }
+  const cd = {id:cdNewId(),name,date,color:cdSelectedColor,repeat,createdAt:new Date().toISOString()};
+  appData.countdowns.push(cd);
+  save(); renderCdAllList(); renderCalendar();
+  document.getElementById('js-cd-form').classList.add('hidden');
+  document.getElementById('js-cd-name').value='';
+  document.getElementById('js-cd-date').value='';
+  notifyAiCountdownAdded(cd);
+}
+
+// ── 双击日历格子 ────────────────────────────────────────────
+function calDblClickDate(ds) {
+  const existing = cdForDate(ds);
+  if (existing.length) {
+    existing.forEach(c => deleteCd(c.id));
+    return;
+  }
+  document.getElementById('js-cd-date').value = ds;
+  const form = document.getElementById('js-cd-form');
+  form.classList.remove('hidden');
+  renderCdColors();
+  // 打开日历抽屉（如果没开）
+  openDrawer();
+  setTimeout(()=>document.getElementById('js-cd-name').focus(), 80);
+}
+
+// ── AI 通知 ─────────────────────────────────────────────────
+function notifyAiCountdownAdded(cd) {
+  const days = cdDaysLeft(cd);
+  const daysTxt = days===0?'就是今天':days>0?`${days}天后（${cd.date}）`:`已过去${-days}天`;
+  const repeatTxt = cd.repeat==='once'?'仅此一次':{'yearly':'每年重复','monthly':'每月重复','weekly':'每周重复'}[cd.repeat];
+  const sysMsg = `[系统通知:COUNTDOWN_ADDED] 用户刚添加倒数日「${cd.name}」，${daysTxt}，${repeatTxt}。请根据轻重缓急用一两句话自然回应，口语化，不列清单。`;
+  const topic = appData.topics[appData.activeTopicId];
+  if (!topic||!apiKey) return;
+  callAIAndRespond(sysMsg, topic, false, false);
+}
+
+// ── 表单事件绑定 ─────────────────────────────────────────────
+document.getElementById('js-cd-expand-btn').onclick = () => {
+  cdListExpanded = !cdListExpanded;
+  renderCdAllList();
+};
+
+document.getElementById('js-cd-add-btn').onclick = () => {
+  const form = document.getElementById('js-cd-form');
+  const isHidden = form.classList.toggle('hidden');
+  if (!isHidden) {
+    renderCdColors();
+    if (!document.getElementById('js-cd-date').value)
+      document.getElementById('js-cd-date').value = todayKey();
+    setTimeout(()=>document.getElementById('js-cd-name').focus(), 50);
+  }
+};
+document.getElementById('js-cd-cancel').onclick = ()=>document.getElementById('js-cd-form').classList.add('hidden');
+document.getElementById('js-cd-save').onclick = saveCd;
+document.getElementById('js-cd-name').addEventListener('keydown', e=>{if(e.key==='Enter')saveCd();});
+
+// 点击表单外关闭
+document.addEventListener('mousedown', e => {
+  const form = document.getElementById('js-cd-form');
+  if (!form.classList.contains('hidden') && !form.contains(e.target) && !e.target.closest('#js-cd-add-btn'))
+    form.classList.add('hidden');
+});
+
+// ── 沉浸模式联动 ─────────────────────────────────────────────
+const origStartImm = startImmersive;
+// patch: hide/show float cards when entering/exiting immersive
+const _origFinishTimer = finishTimer;
+// Will hook into startImmersive & exitImmersive directly in those functions below via monkey-patch
+(function(){
+  const _exit = exitImmersive;
+  window.exitImmersive = function(){
+    _exit();
+    showFloatCards();
+  };
+})();
+
+// ── 初始化 ──────────────────────────────────────────────────
+if (!appData.pinnedCards) appData.pinnedCards = [];
+restoreFloatCards();
+renderCdAllList();
+renderCdColors();
+
 </script>
 </body>
 </html>
