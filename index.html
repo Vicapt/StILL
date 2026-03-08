@@ -104,7 +104,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .progress-fill{position:absolute;top:0;left:0;height:100%;background:rgba(255,160,80,0.17);z-index:0;transition:width 0.7s cubic-bezier(.4,0,.2,1)}
 .task-inner{position:relative;z-index:1;display:flex;align-items:center;gap:6px}
 .task-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.task-pct{font-size:0.68rem;opacity:0.5;flex-shrink:0}
+.task-pct{font-size:0.68rem;color:rgba(255,255,255,0.9);flex-shrink:0;font-weight:500}
 .task-actions{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:none;gap:3px;z-index:2;align-items:center}
 .task-item:hover .task-actions{display:flex}
 .task-btn{background:rgba(8,14,26,0.6);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);border-radius:6px;padding:2px 6px;font-size:0.65rem;cursor:pointer;font-family:inherit;transition:0.15s;white-space:nowrap}
@@ -230,9 +230,9 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 /* 今天高亮：白色光晕边框 */
 .cal-day.today{box-shadow:0 0 0 1px rgba(255,255,255,0.95),0 0 4px rgba(255,255,255,0.3);border-radius:4px}
 /* 倒数日：彩色半透明遮罩 */
-.cal-day.has-countdown::before{content:'';position:absolute;inset:0;border-radius:3px;background:var(--cd-color,rgba(255,160,80,0.5));opacity:0.75;pointer-events:none;z-index:1}
+.cal-day.has-countdown::before{content:'';position:absolute;inset:0;border-radius:3px;background:var(--cd-color,rgba(255,160,80,0.6));opacity:0.82;pointer-events:none;z-index:1}
 /* 已过期倒数日 */
-.cal-day.countdown-past::before{content:'';position:absolute;inset:0;border-radius:3px;background:var(--cd-color,rgba(255,255,255,0.2));opacity:0.3;pointer-events:none;z-index:1}
+.cal-day.countdown-past::before{content:'';position:absolute;inset:0;border-radius:3px;background:var(--cd-color,rgba(200,200,200,0.3));opacity:0.38;pointer-events:none;z-index:1}
 /* JS tooltip */
 #cal-tooltip{position:fixed;z-index:9999;pointer-events:none;background:rgba(6,12,28,0.97);border:1px solid rgba(255,160,80,0.22);border-radius:9px;padding:6px 11px;font-size:0.63rem;color:rgba(255,255,255,0.88);white-space:pre;line-height:1.65;letter-spacing:0.4px;box-shadow:0 4px 20px rgba(0,0,0,0.55);opacity:0;transition:opacity 0.1s;max-width:200px}
 #cal-tooltip.visible{opacity:1}
@@ -367,8 +367,9 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .subtask-item.done .subtask-dot{
   background:rgba(255,255,255,0.15);
 }
-.subtask-weight{
-  font-size:0.65rem;opacity:0.3;margin-left:auto;flex-shrink:0;
+.subtask-weight{display:none}
+.subtask-pct{
+  font-size:0.65rem;color:rgba(255,255,255,0.85);margin-left:auto;flex-shrink:0;font-weight:500;
 }
 .subtask-node{
   display:inline-flex;align-items:center;gap:4px;
@@ -514,6 +515,156 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 .cd-btn.cancel:hover{background:rgba(255,255,255,0.12);color:white}
 /* 热力图上的倒数日标记 */
 
+
+/* ══════════════════════════════════════════════
+   手账侧边栏
+══════════════════════════════════════════════ */
+.journal-drawer{position:fixed;right:0;top:0;height:100vh;width:340px;background:rgba(8,14,26,0.97);border-left:1px solid var(--glass-b);backdrop-filter:blur(30px);z-index:50;transform:translateX(100%);transition:transform 0.38s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding:0;overflow:hidden}
+.journal-drawer.open{transform:translateX(0)}
+
+/* 顶部标题栏 */
+.journal-header{display:flex;align-items:center;justify-content:space-between;padding:26px 20px 14px;border-bottom:1px solid var(--glass-b);flex-shrink:0}
+.journal-title{font-family:'DM Serif Display',serif;font-size:1.05rem;letter-spacing:3px;opacity:0.75}
+.journal-tabs{display:flex;gap:2px;background:rgba(255,255,255,0.05);border-radius:8px;padding:2px}
+.journal-tab{background:transparent;border:none;color:rgba(255,255,255,0.38);font-size:0.68rem;font-family:inherit;padding:4px 10px;border-radius:6px;cursor:pointer;transition:0.15s;letter-spacing:0.5px}
+.journal-tab.active{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85)}
+
+/* 历史时间轴 */
+.journal-timeline{flex-shrink:0;max-height:140px;overflow-y:auto;padding:8px 16px 10px;border-top:1px solid var(--glass-b)}
+.journal-timeline::-webkit-scrollbar{width:2px}
+.journal-timeline::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.jt-month{font-size:0.58rem;letter-spacing:2px;opacity:0.3;text-transform:uppercase;margin:8px 0 4px}
+.jt-month:first-child{margin-top:0}
+.jt-days{display:flex;flex-wrap:wrap;gap:4px}
+.jt-day{font-size:0.65rem;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.45);cursor:pointer;transition:0.15s;white-space:nowrap}
+.jt-day:hover{background:rgba(255,160,80,0.15);border-color:rgba(255,160,80,0.3);color:rgba(255,200,120,0.9)}
+.jt-day.has-bill{border-color:rgba(120,200,160,0.3)}
+.jt-day.today-mark{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.09)}
+
+/* 今日区域（两栏） */
+.journal-today{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* 左：小纸条 */
+.note-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--glass-b);min-width:0}
+.note-panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 8px;flex-shrink:0}
+.note-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase}
+.note-float-btn{background:transparent;border:1px solid var(--glass-b);color:rgba(255,255,255,0.3);border-radius:6px;padding:2px 6px;font-size:0.62rem;cursor:pointer;font-family:inherit;transition:0.15s}
+.note-float-btn:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7)}
+.note-list{flex:1;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:6px}
+.note-list::-webkit-scrollbar{width:2px}
+.note-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.note-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:7px 9px;position:relative}
+.note-time{font-size:0.58rem;opacity:0.28;letter-spacing:0.5px;margin-bottom:3px}
+.note-text{font-size:0.74rem;color:rgba(255,255,255,0.75);line-height:1.55;word-break:break-all}
+.note-del{position:absolute;top:5px;right:6px;background:transparent;border:none;color:rgba(255,80,60,0.35);font-size:0.7rem;cursor:pointer;opacity:0;transition:0.15s;padding:1px 3px}
+.note-item:hover .note-del{opacity:1}
+.note-input-row{display:flex;gap:6px;padding:8px 12px;flex-shrink:0;border-top:1px solid var(--glass-b);align-items:flex-end}
+.note-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--glass-b);border-radius:8px;color:white;font-size:0.72rem;padding:4px 8px;outline:none;font-family:inherit;resize:none;height:28px;min-height:28px;max-height:80px;overflow-y:auto;line-height:1.4}
+.note-input::placeholder{color:rgba(255,255,255,0.2)}
+.note-input:focus{border-color:rgba(255,160,80,0.3)}
+.note-send{background:rgba(255,160,80,0.2);border:1px solid rgba(255,160,80,0.3);color:rgba(255,200,120,0.9);border-radius:8px;padding:0 10px;font-size:0.75rem;cursor:pointer;transition:0.15s;flex-shrink:0;height:28px}
+.note-send:hover{background:rgba(255,160,80,0.35)}
+
+/* 右：账单 */
+.bill-panel{width:130px;flex-shrink:0;display:flex;flex-direction:column}
+.bill-panel-header{padding:10px 10px 8px;flex-shrink:0;border-bottom:1px solid var(--glass-b)}
+.bill-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase}
+.bill-total{font-size:0.68rem;color:rgba(120,210,160,0.85);margin-top:3px;font-weight:500}
+.bill-list{flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:5px}
+.bill-list::-webkit-scrollbar{width:2px}
+.bill-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.bill-item{background:rgba(120,200,160,0.06);border:1px solid rgba(120,200,160,0.12);border-radius:8px;padding:5px 7px;position:relative}
+.bill-item-name{font-size:0.68rem;color:rgba(255,255,255,0.65);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bill-item-amount{font-size:0.78rem;color:rgba(120,210,160,0.9);font-weight:500;margin-top:1px}
+.bill-item-edit{width:100%;background:transparent;border:none;border-top:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);font-size:0.6rem;cursor:pointer;padding:3px 0 0;text-align:left;font-family:inherit;margin-top:4px;transition:0.15s}
+.bill-item-edit:hover{color:rgba(255,200,120,0.8)}
+.bill-del{position:absolute;top:4px;right:5px;background:transparent;border:none;color:rgba(255,80,60,0.3);font-size:0.65rem;cursor:pointer;opacity:0;transition:0.15s;padding:1px 2px}
+.bill-item:hover .bill-del{opacity:1}
+.bill-add-row{display:flex;gap:4px;padding:8px 8px;flex-shrink:0;border-top:1px solid var(--glass-b);align-items:flex-end}
+.bill-add-btn{flex:1;background:rgba(120,200,160,0.1);border:1px solid rgba(120,200,160,0.2);color:rgba(120,210,160,0.7);border-radius:7px;font-size:0.72rem;padding:0 4px;height:28px;cursor:pointer;font-family:inherit;transition:0.15s}
+.bill-add-btn:hover{background:rgba(120,200,160,0.2);color:rgba(120,210,160,0.95)}
+
+/* 历史查看模式 */
+.journal-history-view{flex:1;overflow-y:auto;display:none;flex-direction:column;gap:0}
+.journal-history-view.active{display:flex}
+.journal-today{flex:1;min-height:0}
+.jhv-date{font-size:0.62rem;letter-spacing:1.5px;opacity:0.35;margin-bottom:6px;text-transform:uppercase}
+.jhv-note{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:8px 10px;font-size:0.74rem;color:rgba(255,255,255,0.7);line-height:1.6}
+.jhv-note-time{font-size:0.58rem;opacity:0.3;margin-bottom:2px}
+.jhv-bill-row{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:5px 8px;background:rgba(120,200,160,0.06);border:1px solid rgba(120,200,160,0.12);border-radius:7px;font-size:0.72rem;position:relative}
+.jhv-bill-name{color:rgba(255,255,255,0.6)}
+.jhv-bill-amt{color:rgba(120,210,160,0.9);font-weight:500}
+.jhv-bill-del{background:transparent;border:none;color:rgba(255,80,60,0.35);font-size:0.65rem;cursor:pointer;padding:0 2px;opacity:0;transition:0.15s;flex-shrink:0}
+.jhv-bill-row:hover .jhv-bill-del{opacity:1}
+
+/* 悬浮废纸篓 */
+.note-floater{position:fixed;z-index:200;width:220px;background:rgba(8,14,26,0.93);border:1px solid var(--glass-b);border-radius:16px;padding:12px;backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.5);cursor:grab;display:none}
+.note-floater.visible{display:flex;flex-direction:column;gap:8px}
+.note-floater:active{cursor:grabbing}
+.note-floater-header{display:flex;align-items:center;justify-content:space-between}
+.note-floater-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase}
+.note-floater-close{background:transparent;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:0.75rem;padding:1px 4px;line-height:1}
+.note-floater-close:hover{color:rgba(255,80,60,0.7)}
+.note-floater-input{background:rgba(255,255,255,0.05);border:1px solid var(--glass-b);border-radius:8px;color:white;font-size:0.76rem;padding:7px 9px;outline:none;font-family:inherit;resize:none;min-height:60px;max-height:120px;line-height:1.5;width:100%}
+.note-floater-input::placeholder{color:rgba(255,255,255,0.18)}
+.note-floater-input:focus{border-color:rgba(255,160,80,0.3)}
+.note-floater-send{align-self:flex-end;background:rgba(255,160,80,0.2);border:1px solid rgba(255,160,80,0.3);color:rgba(255,200,120,0.9);border-radius:7px;padding:4px 12px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s}
+.note-floater-send:hover{background:rgba(255,160,80,0.35)}
+
+/* 账单编辑弹窗 */
+.bill-edit-modal{position:fixed;z-index:400;background:rgba(8,14,28,0.97);border:1px solid var(--glass-b);border-radius:14px;padding:14px;width:220px;box-shadow:0 12px 40px rgba(0,0,0,0.6);display:none}
+.bill-edit-modal.visible{display:flex;flex-direction:column;gap:8px}
+.bill-edit-title{font-size:0.62rem;letter-spacing:1.5px;opacity:0.35;text-transform:uppercase}
+.bill-edit-input{background:rgba(255,255,255,0.05);border:1px solid var(--glass-b);border-radius:7px;color:white;font-size:0.76rem;padding:5px 8px;outline:none;font-family:inherit}
+.bill-edit-input:focus{border-color:rgba(255,160,80,0.3)}
+.bill-edit-row{display:flex;gap:6px}
+.bill-edit-save{flex:1;background:rgba(255,160,80,0.2);border:1px solid rgba(255,160,80,0.3);color:rgba(255,200,120,0.9);border-radius:7px;padding:5px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s}
+.bill-edit-save:hover{background:rgba(255,160,80,0.35)}
+.bill-edit-cancel{background:rgba(255,255,255,0.05);border:1px solid var(--glass-b);color:rgba(255,255,255,0.4);border-radius:7px;padding:5px 10px;font-size:0.72rem;cursor:pointer;font-family:inherit}
+
+/* 心情晴雨表 */
+.mood-chart-wrap{flex-shrink:0;padding:12px 16px 8px;border-bottom:1px solid var(--glass-b);position:relative}
+.mood-chart-title{font-size:0.58rem;letter-spacing:2px;opacity:0.3;text-transform:uppercase;margin-bottom:6px}
+#js-mood-canvas{width:100%;height:72px;display:block}
+.mood-axis-labels{position:absolute;right:10px;top:26px;display:flex;flex-direction:column;justify-content:space-between;height:72px;font-size:0.65rem;opacity:0.4;pointer-events:none}
+#js-journal-history-detail{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+#js-journal-history-detail::-webkit-scrollbar{width:2px}
+#js-journal-history-detail::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+
+/* 历史视图分区 */
+.hv-section{flex-shrink:0;border-bottom:1px solid var(--glass-b)}
+.hv-section-flush{border-bottom:none}
+.hv-section-header{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;cursor:pointer;user-select:none;transition:background 0.15s}
+.hv-section-header:hover{background:rgba(255,255,255,0.03)}
+.hv-section-title{font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;opacity:0.38}
+.hv-section-toggle{font-size:0.7rem;opacity:0.35;transition:transform 0.2s}
+.hv-section-toggle.collapsed{transform:rotate(-90deg)}
+.hv-section-body{overflow:hidden;transition:max-height 0.28s cubic-bezier(.4,0,.2,1),opacity 0.2s;max-height:300px;opacity:1}
+.hv-section-body.collapsed{max-height:0;opacity:0;pointer-events:none}
+/* mood canvas */
+#js-mood-canvas{width:100%;height:72px;display:block;padding:4px 16px 0;box-sizing:border-box}
+.mood-axis-labels{display:flex;flex-direction:column;justify-content:space-between;height:72px;font-size:0.65rem;opacity:0.38;pointer-events:none;position:absolute;right:12px;top:32px}
+.mood-chart-wrap{position:relative}
+/* 资产 */
+.asset-row{display:flex;align-items:center;gap:6px;padding:8px 16px 4px}
+.asset-label{font-size:0.62rem;opacity:0.38;white-space:nowrap;flex-shrink:0}
+.asset-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--glass-b);border-radius:7px;color:white;font-size:0.72rem;padding:4px 8px;outline:none;font-family:inherit;color-scheme:dark;min-width:0}
+.asset-input:focus{border-color:rgba(120,200,160,0.4)}
+.asset-save-btn{background:rgba(120,200,160,0.12);border:1px solid rgba(120,200,160,0.25);color:rgba(120,210,160,0.8);border-radius:7px;padding:4px 9px;font-size:0.65rem;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:0.15s}
+.asset-save-btn:hover{background:rgba(120,200,160,0.25)}
+.asset-hint{font-size:0.6rem;opacity:0.28;padding:0 16px 4px;min-height:14px}
+#js-bill-canvas{width:100%;height:80px;display:block;padding:2px 16px 6px;box-sizing:border-box}
+/* 时间轴月份折叠 */
+.jt-month-row{display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0;user-select:none}
+.jt-month-row:hover .jt-month{opacity:0.6}
+.jt-month-arrow{font-size:0.55rem;opacity:0.25;transition:transform 0.18s}
+.jt-month-arrow.open{transform:rotate(90deg)}
+.jt-days{display:flex;flex-wrap:wrap;gap:4px;overflow:hidden;max-height:0;transition:max-height 0.22s ease,opacity 0.18s;opacity:0;margin-bottom:0}
+.jt-days.open{max-height:200px;opacity:1;margin-bottom:6px}
+.jt-day.selected{background:rgba(255,160,80,0.22)!important;border-color:rgba(255,160,80,0.45)!important;color:rgba(255,200,120,0.95)!important}
+/* jhv 收支颜色 */
+.jhv-bill-amt.income{color:rgba(120,210,160,0.9)}
+.jhv-bill-amt.expense{color:rgba(255,120,100,0.9)}
 </style>
 </head>
 <body>
@@ -544,6 +695,104 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 
 <!-- HISTORY DRAWER -->
 <div class="drawer-overlay" id="js-drawer-overlay"></div>
+
+<!-- JOURNAL DRAWER -->
+<div class="journal-drawer" id="js-journal-drawer">
+  <div class="journal-header">
+    <div class="journal-title">手账</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="journal-tabs">
+        <button class="journal-tab active" id="js-jt-today" onclick="journalShowToday()">今日</button>
+        <button class="journal-tab" id="js-jt-history" onclick="journalShowHistory()">历史</button>
+      </div>
+      <button class="btn-close-drawer" id="js-close-journal">关闭</button>
+    </div>
+  </div>
+
+  <!-- 今日视图 -->
+  <div class="journal-today" id="js-journal-today-view">
+    <!-- 左：小纸条 -->
+    <div class="note-panel">
+      <div class="note-panel-header">
+        <div class="note-panel-title">小纸条</div>
+        <button class="note-float-btn" id="js-note-float-btn" onclick="openNoteFloater()">悬浮</button>
+      </div>
+      <div class="note-list" id="js-note-list"></div>
+      <div class="note-input-row">
+        <textarea class="note-input" id="js-note-input" placeholder="写点什么…" rows="1"></textarea>
+        <button class="note-send" id="js-note-send">↑</button>
+      </div>
+    </div>
+    <!-- 右：账单 -->
+    <div class="bill-panel">
+      <div class="bill-panel-header">
+        <div class="bill-panel-title">今日账单</div>
+        <div class="bill-total" id="js-bill-total">¥ 0.00</div>
+      </div>
+      <div class="bill-list" id="js-bill-list"></div>
+      <div class="bill-add-row">
+        <button class="bill-add-btn" onclick="openBillEdit(null)">＋ 手动添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 历史视图 -->
+  <div class="journal-history-view" id="js-journal-history-view">
+
+    <!-- 心情晴雨表（可最小化） -->
+    <div class="hv-section" id="js-mood-section">
+      <div class="hv-section-header" onclick="toggleHvSection('mood')">
+        <span class="hv-section-title">心情晴雨表</span>
+        <span class="hv-section-toggle" id="js-mood-toggle">▾</span>
+      </div>
+      <div class="hv-section-body" id="js-mood-body">
+        <canvas id="js-mood-canvas" width="280" height="72"></canvas>
+        <div class="mood-axis-labels"><span>☀️</span><span>🌧</span></div>
+      </div>
+    </div>
+
+    <!-- 账单统计（可最小化） -->
+    <div class="hv-section" id="js-bill-stat-section">
+      <div class="hv-section-header" onclick="toggleHvSection('bill-stat')">
+        <span class="hv-section-title">账单统计</span>
+        <span class="hv-section-toggle" id="js-bill-stat-toggle">▾</span>
+      </div>
+      <div class="hv-section-body" id="js-bill-stat-body">
+        <canvas id="js-bill-canvas" width="280" height="80"></canvas>
+      </div>
+    </div>
+
+    <!-- 时间轴（按月折叠） -->
+    <div class="hv-section hv-section-flush" id="js-timeline-section">
+      <div class="journal-timeline" id="js-journal-timeline"></div>
+    </div>
+
+    <!-- 日期详情 -->
+    <div id="js-journal-history-detail"></div>
+  </div>
+</div>
+
+<!-- 悬浮废纸篓 -->
+<div class="note-floater" id="js-note-floater">
+  <div class="note-floater-header">
+    <div class="note-floater-title">小纸条</div>
+    <button class="note-floater-close" onclick="closeNoteFloater()">✕</button>
+  </div>
+  <textarea class="note-floater-input" id="js-floater-input" placeholder="随手记下…"></textarea>
+  <button class="note-floater-send" onclick="sendFloaterNote()">记下 ↑</button>
+</div>
+
+<!-- 账单编辑弹窗 -->
+<div class="bill-edit-modal" id="js-bill-edit-modal">
+  <div class="bill-edit-title">编辑账单</div>
+  <input class="bill-edit-input" id="js-bill-edit-name" placeholder="项目名称" style="width:100%">
+  <input class="bill-edit-input" id="js-bill-edit-amount" placeholder="金额" type="number" step="0.01" style="width:100%">
+  <div class="bill-edit-row">
+    <button class="bill-edit-cancel" onclick="closeBillEdit()">取消</button>
+    <button class="bill-edit-save" onclick="saveBillEdit()">保存</button>
+  </div>
+</div>
+
 <div class="history-drawer" id="js-history-drawer">
   <div class="drawer-header">
     <div class="drawer-title">专注日历</div>
@@ -685,6 +934,7 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
   <div class="corner-tl">
     <div class="app-title">StILL</div>
     <button class="btn-topbar" id="js-open-history">📅</button>
+    <button class="btn-topbar" id="js-open-journal">📝</button>
     <button class="btn-topbar" id="js-open-settings">⚙</button>
   </div>
 
@@ -802,6 +1052,9 @@ function defaultState() {
     ],
     history:{}, // { 'YYYY-MM-DD': { focusMin:N, stayMin:N, completedCount:N } }
     countdowns:[], // [{id,name,date,color,repeat,createdAt}]
+    notes:{},  // { 'YYYY-MM-DD': [{id,time,text,isBill}] }
+    bills:{},  // { 'YYYY-MM-DD': [{id,item,amount,noteId}] }
+    assetSnapshots:[], // [{ts:timestamp, value:number}]
     lastVisitDate: null
   };
 }
@@ -812,6 +1065,9 @@ let appData = (() => {
     if (!d) return defaultState();
     if (!d.history) d.history = {};
     d.todos = d.todos.map(t=>({...t,lastMilestone:t.lastMilestone||0,isActive:t.isActive||false,subtasks:t.subtasks||[]}));
+    if (!d.notes) d.notes = {};
+    if (!d.bills) d.bills = {};
+    if (!d.assetSnapshots) d.assetSnapshots = [];
     if (!('lastVisitDate' in d)) d.lastVisitDate = null;
     if (!d.countdowns) d.countdowns = [];
     return d;
@@ -1057,7 +1313,9 @@ function renderCalendar() {
       if(cdsOnDay.length){
         const firstColor=cdsOnDay[0].color;
         cell.style.setProperty('--cd-color', firstColor);
-        const allPast = cdsOnDay.every(c=>c.repeat==='once' && cellDate<today);
+        // 重复类型（weekly/monthly/yearly）永远显示为 has-countdown
+        // once 且格子日期已过才算 past
+        const allPast = cdsOnDay.every(c => c.repeat==='once' && cellDate<today);
         cell.classList.add(allPast ? 'countdown-past' : 'has-countdown');
       }
 
@@ -1347,7 +1605,9 @@ function getSystem() {
 [SUBTASKS:任务id][{"id":"s1","title":"步骤名","weight":分钟},…][/SUBTASKS]
 输出后说"拆好了，从第一步开始吧"
 
-【进度】完成子步骤时：[SUBTASK_DONE:任务id:子任务id][/SUBTASK_DONE]
+【进度】用户说完成了某步骤，或说"好了""完成了""下一步"时，立即输出：
+[SUBTASK_DONE:任务id:子任务id][/SUBTASK_DONE]
+每完成一步必须输出一次，不可省略，id必须精确匹配清单里的值。
 无子任务时：[TASK_UPDATE]{"id":"任务id","progress":数字,"isCompleted":布尔}[/TASK_UPDATE]
 
 【重要】清除任务、完成任务这类操作由前端系统直接处理，你不需要输出任何指令。
@@ -1556,11 +1816,18 @@ const UI={
       let subHtml='';
       if(subs.length){
         if(t.isActive){
-          subHtml=`<div class="subtask-list expanded" id="subs-${t.id}">${subs.map(s=>`
-            <div class="subtask-item ${s.done?'done':''}">
+          // 计算每个子任务完成时对应的累计进度
+          const totalW=subs.reduce((a,s)=>a+(s.weight||1),0);
+          let cumW=0;
+          const subItems=subs.map(s=>{
+            cumW+=(s.weight||1);
+            const pct=totalW>0?Math.round(cumW/totalW*100):0;
+            return `<div class="subtask-item ${s.done?'done':''}">
               <div class="subtask-dot"></div><span>${s.title}</span>
-              <span class="subtask-weight">${s.weight}min</span>
-            </div>`).join('')}</div>`;
+              <span class="subtask-pct">${pct}%</span>
+            </div>`;
+          }).join('');
+          subHtml=`<div class="subtask-list expanded" id="subs-${t.id}">${subItems}</div>`;
         } else {
           const done=subs.filter(s=>s.done).length;
           subHtml=`<div class="subtask-node" ondblclick="event.stopPropagation();UI.switchTask('${t.id}')">⋯ ${done}/${subs.length} 步</div>`;
@@ -1569,7 +1836,7 @@ const UI={
       return`
       <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''}" data-id="${t.id}" ondblclick="UI.switchTask('${t.id}')">
         <div class="progress-fill" style="width:${t.progress}%"></div>
-        <div class="task-inner"><span class="task-name">${t.title}</span>${t.progress>0?`<span class="task-pct">${t.progress}%</span>`:''}</div>
+        <div class="task-inner"><span class="task-name">${t.title}</span>${(t.progress>0||subs.length>0&&t.isActive)?`<span class="task-pct">${t.progress}%</span>`:''}</div>
         <div class="task-actions">
           <button class="task-btn timer-btn" onclick="event.stopPropagation();openTimerPicker('${t.id}')" title="番茄钟">⏱</button>
           ${!t.isCompleted?`<button class="task-btn done-btn" onclick="event.stopPropagation();UI.completeTask('${t.id}')">✓</button>`:''}
@@ -2075,13 +2342,12 @@ function cdDaysLeft(c) {
 
 function cdForDate(ds) {
   return appData.countdowns.filter(c => {
-    if (c.date === ds) return true;
-    if (c.repeat === 'once') return c.date === ds;
-    const d = new Date(ds+'T00:00:00');
+    const d    = new Date(ds+'T00:00:00');
     const base = new Date(c.date+'T00:00:00');
-    if (c.repeat === 'yearly') return base.getMonth()===d.getMonth() && base.getDate()===d.getDate();
+    if (c.repeat === 'once')    return c.date === ds;
+    if (c.repeat === 'yearly')  return base.getMonth()===d.getMonth() && base.getDate()===d.getDate();
     if (c.repeat === 'monthly') return base.getDate()===d.getDate();
-    if (c.repeat === 'weekly') return base.getDay()===d.getDay();
+    if (c.repeat === 'weekly')  return base.getDay()===d.getDay();
     return false;
   });
 }
@@ -2343,6 +2609,669 @@ if (!appData.pinnedCards) appData.pinnedCards = [];
 restoreFloatCards();
 renderCdAllList();
 renderCdColors();
+
+
+
+// ══════════════════════════════════════════════
+// JOURNAL — 手账系统
+// ══════════════════════════════════════════════
+
+// ── 工具 ────────────────────────────────────
+function journalNewId() { return 'j'+Date.now()+Math.random().toString(36).slice(2,5); }
+function nowTimeStr() {
+  const n=new Date();
+  return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+}
+
+// ── 抽屉开关 ─────────────────────────────────
+function openJournal() {
+  renderNoteList();
+  renderBillList();
+  document.getElementById('js-journal-drawer').classList.add('open');
+  document.getElementById('js-drawer-overlay').classList.add('show');
+}
+function closeJournal() {
+  document.getElementById('js-journal-drawer').classList.remove('open');
+  document.getElementById('js-drawer-overlay').classList.remove('show');
+}
+document.getElementById('js-open-journal').onclick = openJournal;
+document.getElementById('js-close-journal').onclick = closeJournal;
+// overlay 点击关闭（兼容已有日历抽屉）
+const _origOverlayClick = document.getElementById('js-drawer-overlay').onclick;
+document.getElementById('js-drawer-overlay').onclick = function(){
+  closeDrawer(); closeJournal();
+};
+
+// ── 今日 / 历史 切换 ──────────────────────────
+function journalShowToday() {
+  document.getElementById('js-jt-today').classList.add('active');
+  document.getElementById('js-jt-history').classList.remove('active');
+  document.getElementById('js-journal-today-view').style.display='flex';
+  document.getElementById('js-journal-history-view').classList.remove('active');
+}
+function journalShowHistory() {
+  document.getElementById('js-jt-today').classList.remove('active');
+  document.getElementById('js-jt-history').classList.add('active');
+  document.getElementById('js-journal-today-view').style.display='none';
+  document.getElementById('js-journal-history-view').classList.add('active');
+  const ym = (activeJournalMonth || todayKey().slice(0,7));
+  activeJournalMonth = ym;
+  renderJournalTimeline();
+  renderMoodChart(ym, activeJournalDay);
+  renderBillChart(ym, activeJournalDay);
+  renderJournalHistoryView(activeJournalDay || todayKey());
+}
+
+// ── 时间轴 ────────────────────────────────────
+
+// ── 心情晴雨表 ────────────────────────────────
+// mood: 1=晴(好) → 0=雨(差)，存在 appData.notes[ds][i].mood
+async function detectMood(text) {
+  if (!apiKey || !PROXY_URL) return 0.5;
+  try {
+    const res = await fetch(PROXY_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        apiKey, model: currentPlatform?.model||'deepseek-chat',
+        messages:[
+          {role:'system', content:'判断这句话透露的情绪倾向，只输出一个0到1之间的小数：1代表非常愉快积极(晴天)，0代表低落消极(雨天)，0.5代表中性。只输出数字，不要其他内容。'},
+          {role:'user', content:text}
+        ],
+        temperature:0.1, max_tokens:10
+      })
+    });
+    const data = await res.json();
+    const raw = (data.choices?.[0]?.message?.content||'0.5').trim();
+    const val = parseFloat(raw);
+    return isNaN(val) ? 0.5 : Math.max(0, Math.min(1, val));
+  } catch(e) { return 0.5; }
+}
+
+function renderMoodChart(ym, highlightDs) {
+  const canvas = document.getElementById('js-mood-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 280;
+  const H = 72;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0,0,W,H);
+
+  // 收集指定月份（或近30天）有情绪数据的点
+  const points = [];
+  if (ym) {
+    const [y,m] = ym.split('-').map(Number);
+    const daysInMonth = new Date(y,m,0).getDate();
+    for (let d=1; d<=daysInMonth; d++) {
+      const ds = y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const dayNotes = (appData.notes[ds]||[]).filter(n=>!n.isBill && n.mood!==undefined);
+      if (!dayNotes.length) continue;
+      const avg = dayNotes.reduce((s,n)=>s+n.mood,0)/dayNotes.length;
+      points.push({ ds, x:(d-1)/(daysInMonth-1||1), y:avg });
+    }
+  } else {
+    const today = new Date(); today.setHours(0,0,0,0);
+    for (let i=29; i>=0; i--) {
+      const d = new Date(today); d.setDate(today.getDate()-i);
+      const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      const dayNotes = (appData.notes[ds]||[]).filter(n=>!n.isBill && n.mood!==undefined);
+      if (!dayNotes.length) continue;
+      const avg = dayNotes.reduce((s,n)=>s+n.mood,0)/dayNotes.length;
+      points.push({ ds, x: (29-i)/29, y: avg });
+    }
+  }
+
+  if (points.length < 1) {
+    ctx.fillStyle='rgba(255,255,255,0.12)';
+    ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('记录小纸条后显示心情走势', W/2, H/2+4);
+    return;
+  }
+
+  const pad = { l:8, r:8, t:8, b:12 };
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+
+  // 网格线
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  [0,0.5,1].forEach(v=>{
+    const py=pad.t+ch*(1-v);
+    ctx.beginPath(); ctx.moveTo(pad.l,py); ctx.lineTo(pad.l+cw,py); ctx.stroke();
+  });
+
+  if (points.length === 1) {
+    // 单点：画一个圆
+    const px = pad.l + points[0].x*cw;
+    const py = pad.t + ch*(1-points[0].y);
+    ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,200,120,0.85)'; ctx.fill();
+    return;
+  }
+
+  // 渐变填充区域
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t+ch);
+  grad.addColorStop(0,'rgba(255,220,100,0.18)');
+  grad.addColorStop(1,'rgba(100,160,255,0.08)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  points.forEach((p,i)=>{
+    const px=pad.l+p.x*cw, py=pad.t+ch*(1-p.y);
+    i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+  });
+  ctx.lineTo(pad.l+points[points.length-1].x*cw, pad.t+ch);
+  ctx.lineTo(pad.l+points[0].x*cw, pad.t+ch);
+  ctx.closePath(); ctx.fill();
+
+  // 折线
+  ctx.beginPath(); ctx.strokeStyle='rgba(255,200,100,0.7)'; ctx.lineWidth=1.5; ctx.lineJoin='round';
+  points.forEach((p,i)=>{
+    const px=pad.l+p.x*cw, py=pad.t+ch*(1-p.y);
+    i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+  });
+  ctx.stroke();
+
+  // 数据点
+  points.forEach(p=>{
+    const px=pad.l+p.x*cw, py=pad.t+ch*(1-p.y);
+    const isHL = p.ds === highlightDs;
+    ctx.beginPath(); ctx.arc(px, py, isHL?4.5:2.5, 0, Math.PI*2);
+    const mood=p.y;
+    ctx.fillStyle=mood>0.6?'rgba(255,220,100,0.9)':mood<0.4?'rgba(100,160,255,0.9)':'rgba(200,200,200,0.7)';
+    ctx.fill();
+    if (isHL) {
+      ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=1.5; ctx.stroke();
+      // 高亮日期标签
+      ctx.fillStyle='rgba(255,255,255,0.6)';
+      ctx.font='bold 8px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(p.ds.slice(5).replace('-','/'), px, py>pad.t+10?py-8:py+14);
+    } else if (p===points[0]||p===points[points.length-1]) {
+      ctx.fillStyle='rgba(255,255,255,0.22)';
+      ctx.font='8px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(p.ds.slice(5).replace('-','/'), px, pad.t+ch+10);
+    }
+  });
+}
+
+
+// ── 账单柱状图（无资产依赖） ──────────────────
+// tooltip 全局元素
+(function(){
+  if (document.getElementById('bill-tip')) return;
+  const t = document.createElement('div');
+  t.id = 'bill-tip';
+  t.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;background:rgba(6,12,28,0.97);border:1px solid rgba(255,160,80,0.22);border-radius:9px;padding:5px 10px;font-size:0.63rem;color:rgba(255,255,255,0.88);white-space:pre;line-height:1.65;box-shadow:0 4px 20px rgba(0,0,0,0.55);opacity:0;transition:opacity 0.1s';
+  document.body.appendChild(t);
+})();
+
+function renderBillChart(ym, highlightDs) {
+  const canvas = document.getElementById('js-bill-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 280;
+  const H = 80;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0,0,W,H);
+
+  // 收集数据：今天也包含
+  const days = [];
+  const td = todayKey();
+  if (ym) {
+    const [y,m] = ym.split('-').map(Number);
+    const daysInMonth = new Date(y,m,0).getDate();
+    for (let d=1; d<=daysInMonth; d++) {
+      const ds = y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      // 未来日期跳过（除非是今天有数据）
+      if (ds > td) continue;
+      const bills = appData.bills[ds]||[];
+      if (!bills.length) continue;
+      const income  = bills.filter(b=>b.amount>0).reduce((s,b)=>s+b.amount,0);
+      const expense = bills.filter(b=>b.amount<0).reduce((s,b)=>s+b.amount,0);
+      const total = income + expense;
+      days.push({ ds, d, income, expense, total });
+    }
+  }
+
+  if (!days.length) {
+    ctx.fillStyle='rgba(255,255,255,0.1)';
+    ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('当月暂无账单', W/2, H/2+4);
+    // 清除旧 tooltip 数据
+    canvas._billDays = [];
+    return;
+  }
+
+  const pad = {l:8,r:8,t:6,b:14};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+  const maxAbs = Math.max(...days.map(d=>Math.max(Math.abs(d.income),Math.abs(d.expense),0.01)));
+  const barW = Math.max(3, Math.floor(cw/days.length)-2);
+  const zero = pad.t + ch/2;
+
+  // 零线
+  ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad.l,zero); ctx.lineTo(pad.l+cw,zero); ctx.stroke();
+
+  // 存储柱位置供 tooltip
+  canvas._billDays = days.map((item,i) => {
+    const x = pad.l + i*(cw/days.length) + (cw/days.length-barW)/2;
+    const isHL = item.ds === highlightDs;
+
+    // 收入柱（绿，向上）
+    if (item.income > 0) {
+      const bh = Math.max(2, item.income/maxAbs*(ch/2-2));
+      ctx.fillStyle = isHL ? 'rgba(120,220,160,0.95)' : 'rgba(120,200,160,0.55)';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, zero-bh, barW, bh, [2,2,0,0]);
+      else ctx.rect(x, zero-bh, barW, bh);
+      ctx.fill();
+    }
+    // 支出柱（红，向下）
+    if (item.expense < 0) {
+      const bh = Math.max(2, Math.abs(item.expense)/maxAbs*(ch/2-2));
+      ctx.fillStyle = isHL ? 'rgba(255,120,100,0.95)' : 'rgba(255,100,80,0.5)';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, zero, barW, bh, [0,0,2,2]);
+      else ctx.rect(x, zero, barW, bh);
+      ctx.fill();
+    }
+    // 高亮标注
+    if (isHL) {
+      ctx.fillStyle='rgba(255,255,255,0.5)';
+      ctx.font='8px sans-serif'; ctx.textAlign='center';
+      ctx.fillText(item.d+'日', x+barW/2, pad.t+ch+12);
+    }
+    return { x: x+barW/2, item };
+  });
+
+  // 轴标注
+  ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.font='8px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('+', pad.l, pad.t+8);
+  ctx.fillText('-', pad.l, pad.t+ch-1);
+}
+
+// 柱状图 tooltip
+document.addEventListener('DOMContentLoaded', function(){
+  const canvas = document.getElementById('js-bill-canvas');
+  if (!canvas) return;
+  canvas.addEventListener('mousemove', function(e){
+    const tip = document.getElementById('bill-tip');
+    if (!tip || !canvas._billDays) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const found = canvas._billDays.find(p => Math.abs(p.x - mx) < 10);
+    if (found) {
+      const {income, expense, ds} = found.item;
+      const d = parseInt(ds.slice(8));
+      let lines = [d+'日'];
+      if (income > 0) lines.push('收入 +¥'+income.toFixed(2));
+      if (expense < 0) lines.push('支出 -¥'+Math.abs(expense).toFixed(2));
+      lines.push('合计 '+(income+expense>=0?'+':'')+((income+expense).toFixed(2)));
+      tip.textContent = lines.join('\n');
+      tip.style.opacity = '1';
+      const tx = Math.min(e.clientX+12, window.innerWidth-160);
+      tip.style.left = tx+'px';
+      tip.style.top = (e.clientY-10)+'px';
+    } else {
+      tip.style.opacity = '0';
+    }
+  });
+  canvas.addEventListener('mouseleave', function(){
+    const tip = document.getElementById('bill-tip');
+    if (tip) tip.style.opacity = '0';
+  });
+});
+
+// ── 历史视图删除账单 ──────────────────────────
+function deleteBillFromHistory(billId, ds) {
+  appData.bills[ds] = (appData.bills[ds]||[]).filter(b=>b.id!==billId);
+  save();
+  renderJournalHistoryView(ds);
+  renderBillChart(activeJournalMonth, activeJournalDay);
+}
+
+// ── 时间轴包含今天 ────────────────────────────
+// ── 最小化切换 ────────────────────────────────
+function toggleHvSection(key) {
+  const body = document.getElementById('js-'+key+'-body');
+  const toggle = document.getElementById('js-'+key+'-toggle');
+  if (!body) return;
+  const collapsed = body.classList.toggle('collapsed');
+  if (toggle) toggle.classList.toggle('collapsed', collapsed);
+}
+
+// 当前选中月份
+let activeJournalMonth = null;
+
+function renderJournalTimeline() {
+  const tl = document.getElementById('js-journal-timeline');
+  if (!tl) return;
+  const allDates = new Set([
+    ...Object.keys(appData.notes||{}),
+    ...Object.keys(appData.bills||{})
+  ]);
+  const sorted = [...allDates].sort().reverse();
+  if (!sorted.length) {
+    tl.innerHTML='<div style="font-size:0.65rem;opacity:0.25;text-align:center;padding:8px 0">还没有记录</div>';
+    return;
+  }
+  const byMonth = {};
+  sorted.forEach(ds => {
+    const ym = ds.slice(0,7);
+    if (!byMonth[ym]) byMonth[ym]= [];
+    byMonth[ym].push(ds);
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+  // 默认展开最新一个月
+  if (!activeJournalMonth || !byMonth[activeJournalMonth]) {
+    activeJournalMonth = months[0];
+  }
+  tl.innerHTML = months.map(ym => {
+    const [y,m] = ym.split('-');
+    const isOpen = ym === activeJournalMonth;
+    const days = byMonth[ym];
+    const dayBtns = days.map(ds => {
+      const isToday = ds === todayKey();
+      const hasBill = (appData.bills[ds]||[]).length > 0;
+      return `<div class="jt-day ${isToday?'today-mark':''} ${hasBill?'has-bill':''}"
+        id="jt-day-${ds}" onclick="journalGoDate('${ds}')">${parseInt(ds.slice(8))}日</div>`;
+    }).join('');
+    return `<div class="jt-month-row" onclick="toggleJournalMonth('${ym}')">
+        <span class="jt-month-arrow ${isOpen?'open':''}">▶</span>
+        <span class="jt-month">${y}年${parseInt(m)}月（${days.length}）</span>
+      </div>
+      <div class="jt-days ${isOpen?'open':''}" id="jt-days-${ym}">${dayBtns}</div>`;
+  }).join('');
+}
+
+function toggleJournalMonth(ym) {
+  const wasOpen = activeJournalMonth === ym;
+  activeJournalMonth = wasOpen ? null : ym;
+  renderJournalTimeline();
+  if (!wasOpen) {
+    // 切换月份时更新图表
+    renderMoodChart(ym);
+    renderBillChart(ym);
+  }
+}
+
+let activeJournalDay = null;
+
+function journalGoDate(ds) {
+  // 切换到历史 tab
+  document.getElementById('js-jt-today').classList.remove('active');
+  document.getElementById('js-jt-history').classList.add('active');
+  document.getElementById('js-journal-today-view').style.display='none';
+  document.getElementById('js-journal-history-view').classList.add('active');
+
+  // 确保对应月份展开
+  const ym = ds.slice(0,7);
+  if (activeJournalMonth !== ym) {
+    activeJournalMonth = ym;
+    renderJournalTimeline();
+  }
+  // 高亮选中日
+  activeJournalDay = ds;
+  document.querySelectorAll('.jt-day').forEach(el => el.classList.remove('selected'));
+  const dayEl = document.getElementById('jt-day-'+ds);
+  if (dayEl) dayEl.classList.add('selected');
+
+  // 更新图表（显示当月，高亮当天）
+  renderMoodChart(ym, ds);
+  renderBillChart(ym, ds);
+  renderJournalHistoryView(ds);
+}
+
+// ── 历史详情视图 ──────────────────────────────
+function renderJournalHistoryView(ds) {
+  const detail = document.getElementById('js-journal-history-detail');
+  if (!detail) return;
+  const notes = (appData.notes[ds]||[]).filter(n=>!n.isBill);
+  const bills = appData.bills[ds]||[];
+  const [y,m,d]=ds.split('-');
+  let h = `<div class="jhv-date">${y}年${parseInt(m)}月${parseInt(d)}日</div>`;
+  if (notes.length) {
+    h += notes.map(n=>`<div class="jhv-note"><div class="jhv-note-time">${n.time||''}</div>${escapeHtml(n.text)}</div>`).join('');
+  } else {
+    h += '<div style="font-size:0.7rem;opacity:0.25;padding:4px 0">当日无小纸条</div>';
+  }
+  if (bills.length) {
+    const total = bills.reduce((s,b)=>s+b.amount,0);
+    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.3;margin-top:10px;text-transform:uppercase">账单 · ¥${total.toFixed(2)}</div>`;
+    h += bills.map(b=>{
+      const isInc=b.amount>=0;
+      return `<div class="jhv-bill-row">
+        <span class="jhv-bill-name">${escapeHtml(b.item)}</span>
+        <span class="jhv-bill-amt ${isInc?'income':'expense'}">${isInc?'+':''} ¥${Math.abs(b.amount).toFixed(2)}</span>
+        <button class="jhv-bill-del" onclick="deleteBillFromHistory('${b.id}','${b.ds||ds}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+  detail.innerHTML = h;
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ── 小纸条 ────────────────────────────────────
+function renderNoteList() {
+  const list = document.getElementById('js-note-list');
+  if (!list) return;
+  const ds = todayKey();
+  const notes = (appData.notes[ds]||[]).filter(n=>!n.isBill);
+  if (!notes.length) {
+    list.innerHTML='<div style="font-size:0.7rem;opacity:0.22;text-align:center;padding:16px 0">今天还没有小纸条</div>';
+    return;
+  }
+  list.innerHTML = notes.map(n=>`
+    <div class="note-item">
+      <div class="note-time">${n.time||''}</div>
+      <div class="note-text">${escapeHtml(n.text)}</div>
+      <button class="note-del" onclick="deleteNote('${n.id}')">✕</button>
+    </div>`).join('');
+  // 滚到最新
+  list.scrollTop = list.scrollHeight;
+}
+
+async function sendNote(text) {
+  if (!text.trim()) return;
+  const ds = todayKey();
+  if (!appData.notes[ds]) appData.notes[ds] = [];
+  const note = { id:journalNewId(), time:nowTimeStr(), text:text.trim(), isBill:false };
+
+  // 并行：账单识别 + 心情识别
+  const [billData, moodVal] = await Promise.all([
+    detectBill(text.trim()),
+    detectMood(text.trim())
+  ]);
+  note.mood = moodVal;
+  if (billData) {
+    note.isBill = true;
+    addBill(ds, billData.item, billData.amount, note.id);
+  } else {
+    appData.notes[ds].push(note);
+  }
+  save();
+  renderNoteList();
+  renderBillList();
+  renderJournalTimeline();
+}
+
+function deleteNote(id) {
+  const ds = todayKey();
+  appData.notes[ds] = (appData.notes[ds]||[]).filter(n=>n.id!==id);
+  save(); renderNoteList();
+}
+
+// ── AI 账单识别 ───────────────────────────────
+async function detectBill(text) {
+  if (!apiKey || !PROXY_URL) return null;
+  // 正则快速过滤：没有数字就不发请求
+  if (!/[0-9一二三四五六七八九十百]/.test(text)) return null;
+
+  try {
+    const res = await fetch(PROXY_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        apiKey, model: currentPlatform?.model||'deepseek-chat',
+        messages:[
+          {role:'system', content:'判断这句话是否是一条消费/购物记录。如果是，提取商品/服务名称和金额，用JSON回复：{"isBill":true,"item":"名称","amount":数字}；如果不是消费记录，回复：{"isBill":false}。只输出JSON，不要其他内容。'},
+          {role:'user', content:text}
+        ],
+        temperature:0.1, max_tokens:60
+      })
+    });
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content||'{}';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if (parsed.isBill && parsed.amount > 0) return { item: parsed.item||text, amount: Number(parsed.amount) };
+  } catch(e) {}
+  return null;
+}
+
+// ── 账单 ─────────────────────────────────────
+function addBill(ds, item, amount, noteId=null) {
+  if (!appData.bills[ds]) appData.bills[ds] = [];
+  appData.bills[ds].push({ id:journalNewId(), item, amount:Number(amount), noteId });
+  save(); renderBillList();
+}
+
+function renderBillList() {
+  const list = document.getElementById('js-bill-list');
+  const totalEl = document.getElementById('js-bill-total');
+  if (!list) return;
+  const ds = todayKey();
+  const bills = appData.bills[ds]||[];
+  const total = bills.reduce((s,b)=>s+b.amount, 0);
+  if (totalEl) totalEl.textContent = '¥ '+total.toFixed(2);
+  if (!bills.length) {
+    list.innerHTML='<div style="font-size:0.65rem;opacity:0.22;text-align:center;padding:12px 4px">暂无账单</div>';
+    return;
+  }
+  list.innerHTML = bills.map(b=>`
+    <div class="bill-item">
+      <div class="bill-item-name">${escapeHtml(b.item)}</div>
+      <div class="bill-item-amount">¥ ${b.amount.toFixed(2)}</div>
+      <button class="bill-del" onclick="deleteBill('${b.id}')">✕</button>
+      <button class="bill-item-edit" onclick="openBillEdit('${b.id}')">编辑</button>
+    </div>`).join('');
+}
+
+function deleteBill(id) {
+  const ds = todayKey();
+  appData.bills[ds] = (appData.bills[ds]||[]).filter(b=>b.id!==id);
+  save(); renderBillList();
+}
+
+// ── 账单编辑弹窗 ──────────────────────────────
+let editingBillId = null;
+function openBillEdit(id) {
+  editingBillId = id;
+  const modal = document.getElementById('js-bill-edit-modal');
+  if (id) {
+    const ds = todayKey();
+    const bill = (appData.bills[ds]||[]).find(b=>b.id===id);
+    if (bill) {
+      document.getElementById('js-bill-edit-name').value = bill.item;
+      document.getElementById('js-bill-edit-amount').value = bill.amount;
+    }
+  } else {
+    document.getElementById('js-bill-edit-name').value = '';
+    document.getElementById('js-bill-edit-amount').value = '';
+  }
+  // 定位到账单面板旁
+  const panel = document.querySelector('.bill-panel');
+  if (panel) {
+    const r = panel.getBoundingClientRect();
+    modal.style.right = (window.innerWidth - r.left + 6)+'px';
+    modal.style.top = r.top+'px';
+  } else {
+    modal.style.right='360px'; modal.style.top='50%';
+  }
+  modal.classList.add('visible');
+  document.getElementById('js-bill-edit-name').focus();
+}
+function closeBillEdit() {
+  document.getElementById('js-bill-edit-modal').classList.remove('visible');
+  editingBillId = null;
+}
+function saveBillEdit() {
+  const item = document.getElementById('js-bill-edit-name').value.trim();
+  const amount = parseFloat(document.getElementById('js-bill-edit-amount').value);
+  if (!item || isNaN(amount) || amount===0) return;
+  const ds = todayKey();
+  if (editingBillId) {
+    const bill = (appData.bills[ds]||[]).find(b=>b.id===editingBillId);
+    if (bill) { bill.item=item; bill.amount=amount; }
+  } else {
+    addBill(ds, item, amount);
+  }
+  save(); renderBillList(); closeBillEdit();
+}
+
+// ── 悬浮废纸篓 ───────────────────────────────
+let floaterPos = { x: window.innerWidth/2 - 110, y: 120 };
+function openNoteFloater() {
+  const el = document.getElementById('js-note-floater');
+  el.classList.add('visible');
+  el.style.left = floaterPos.x+'px';
+  el.style.top  = floaterPos.y+'px';
+  document.getElementById('js-floater-input').focus();
+}
+function closeNoteFloater() {
+  document.getElementById('js-note-floater').classList.remove('visible');
+}
+async function sendFloaterNote() {
+  const inp = document.getElementById('js-floater-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  await sendNote(text);
+  inp.focus();
+}
+
+// 悬浮拖拽
+(function(){
+  const el = document.getElementById('js-note-floater');
+  let dragging=false, ox, oy;
+  el.querySelector('.note-floater-header').addEventListener('mousedown', e=>{
+    if(e.target.classList.contains('note-floater-close')) return;
+    dragging=true; ox=e.clientX-el.offsetLeft; oy=e.clientY-el.offsetTop;
+    el.style.transition='none'; e.preventDefault();
+  });
+  document.addEventListener('mousemove', e=>{
+    if(!dragging)return;
+    let nx=e.clientX-ox, ny=e.clientY-oy;
+    nx=Math.max(0,Math.min(nx,window.innerWidth-el.offsetWidth));
+    ny=Math.max(0,Math.min(ny,window.innerHeight-el.offsetHeight));
+    el.style.left=nx+'px'; el.style.top=ny+'px';
+  });
+  document.addEventListener('mouseup', ()=>{
+    if(!dragging)return; dragging=false; el.style.transition='';
+    floaterPos={x:parseInt(el.style.left),y:parseInt(el.style.top)};
+  });
+})();
+
+// ── 输入框事件 ────────────────────────────────
+document.getElementById('js-note-send').onclick = async function(){
+  const inp=document.getElementById('js-note-input');
+  await sendNote(inp.value); inp.value=''; inp.style.height='34px';
+};
+document.getElementById('js-note-input').addEventListener('keydown', async function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('js-note-send').click(); }
+});
+document.getElementById('js-note-input').addEventListener('input', function(){
+  this.style.height='34px';
+  this.style.height=Math.min(this.scrollHeight, 80)+'px';
+});
+document.getElementById('js-floater-input').addEventListener('keydown', function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendFloaterNote(); }
+});
+// 点击外部关闭账单弹窗
+document.addEventListener('mousedown', e=>{
+  const modal=document.getElementById('js-bill-edit-modal');
+  if(modal.classList.contains('visible') && !modal.contains(e.target) && !e.target.closest('.bill-add-btn') && !e.target.closest('.bill-item-edit'))
+    closeBillEdit();
+});
 
 </script>
 </body>
