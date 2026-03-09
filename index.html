@@ -663,6 +663,18 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 /* jhv 收支颜色 */
 .jhv-bill-amt.income{color:rgba(120,210,160,0.9)}
 .jhv-bill-amt.expense{color:rgba(255,120,100,0.9)}
+
+/* 更新日志 */
+.changelog-dot{position:absolute;top:0;right:-1px;width:5px;height:5px;border-radius:50%;background:#f5c842;display:none;box-shadow:0 0 5px rgba(245,200,66,0.8)}
+.changelog-dot.show{display:block}
+.cl-entry{display:flex;flex-direction:column;gap:6px}
+.cl-version{font-size:0.6rem;letter-spacing:2px;opacity:0.3;text-transform:uppercase}
+.cl-date{font-size:0.58rem;opacity:0.22}
+.cl-title{font-size:0.82rem;color:rgba(255,255,255,0.85);font-weight:500;letter-spacing:0.5px}
+.cl-items{display:flex;flex-direction:column;gap:4px;margin-top:2px}
+.cl-item{font-size:0.7rem;color:rgba(255,255,255,0.5);line-height:1.6;padding-left:10px;position:relative}
+.cl-item::before{content:'·';position:absolute;left:0;opacity:0.4}
+.cl-divider{border:none;border-top:1px solid var(--glass-b);margin:0}
 </style>
 </head>
 <body>
@@ -770,6 +782,16 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
     <!-- 日期详情 -->
     <div id="js-journal-history-detail"></div>
   </div>
+</div>
+
+
+<!-- 更新日志抽屉 -->
+<div class="journal-drawer" id="js-changelog-drawer" style="width:320px">
+  <div class="journal-header">
+    <div class="journal-title" style="letter-spacing:4px;font-size:0.85rem">StILL</div>
+    <button class="btn-close-drawer" onclick="closeChangelog()">关闭</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:18px" id="js-changelog-body"></div>
 </div>
 
 <!-- 悬浮废纸篓 -->
@@ -932,7 +954,9 @@ body,html{height:100%;overflow:hidden;color:white;font-family:'DM Sans',sans-ser
 
   <!-- Top-left -->
   <div class="corner-tl">
-    <div class="app-title">StILL</div>
+    <div class="app-title" id="js-open-changelog" onclick="openChangelog()" style="cursor:pointer">
+      StIL<span style="position:relative;display:inline-block">L<span class="changelog-dot" id="js-changelog-dot"></span></span>
+    </div>
     <button class="btn-topbar" id="js-open-history">📅</button>
     <button class="btn-topbar" id="js-open-journal">📝</button>
     <button class="btn-topbar" id="js-open-settings">⚙</button>
@@ -3108,7 +3132,7 @@ function deleteNote(id) {
 async function detectBill(text) {
   if (!apiKey || !PROXY_URL) return null;
   // 没有任何数字/金额关键词就不发请求
-  if (!/[0-9零一二三四五六七八九十百千万元块角分￥¥]/.test(text)) return null;
+  if (!/[0-9零一二三四五六七八九十百千万元块角分￥¥]/.test(text) && !/工资|红包|收入|奖金|转账|花了|买了|消费|付了|赚/.test(text)) return null;
 
   try {
     const res = await fetch(PROXY_URL, {
@@ -3116,19 +3140,28 @@ async function detectBill(text) {
       body: JSON.stringify({
         apiKey, model: currentPlatform?.model||'deepseek-chat',
         messages:[
-          {role:'system', content:`你是记账助手。判断这句话是否包含消费或收入信息，并提取金额。
-规则：
-- 餐饮/购物/交通/娱乐/服务等日常花费 → 支出，amount为负数
-- 明确获得金钱（收入/工资/奖金/红包/给我/转账/赚到/入账）→ 收入，amount为正数
-- 有金额但无法判断方向 → 默认支出，amount为负数
-- 完全没有收支内容 → isBill:false
+          {role:'system', content:`你是记账助手。判断这句话描述的是否是一笔**已经发生**的收入或支出，并提取金额。
 
-示例：
+【关键判断：只记录已发生的账单】
+- 已发生 → isBill:true（用了过去式/完成时：花了、买了、吃了、收到、发了、付了、赚了、给我）
+- 计划/意愿/假设 → isBill:false（想买、打算、准备、要买、可以买、如果买）
+- 描述价格但没说买没买 → isBill:false（这个蛋糕200元、那双鞋挺贵的）
+
+【收支方向】
+- 支出（amount为负数）：餐饮、购物、交通、娱乐、服务、任何花钱行为
+- 收入（amount为正数）：工资、奖金、红包、收到转账、别人给钱、赚到钱、入账
+- 有金额但方向不明 → 默认支出（负数）
+
+【示例】
 "吃了16元的肯德基" → {"isBill":true,"item":"肯德基早餐","amount":-16}
 "午餐18元" → {"isBill":true,"item":"午餐","amount":-18}
 "打车花了23块" → {"isBill":true,"item":"打车","amount":-23}
+"买玩具花了500" → {"isBill":true,"item":"玩具","amount":-500}
+"发了3500工资" → {"isBill":true,"item":"工资","amount":3500}
+"收红包收了500" → {"isBill":true,"item":"红包","amount":500}
 "妈妈给我200元" → {"isBill":true,"item":"妈妈转账","amount":200}
-"工资收入3500" → {"isBill":true,"item":"工资","amount":3500}
+"想买200的蛋糕" → {"isBill":false}
+"打算存3000" → {"isBill":false}
 "今天天气真好" → {"isBill":false}
 
 只输出JSON，不要其他内容。`},
@@ -3280,6 +3313,7 @@ document.getElementById('js-note-input').addEventListener('input', function(){
   this.style.height='34px';
   this.style.height=Math.min(this.scrollHeight, 80)+'px';
 });
+checkChangelogDot();
 document.getElementById('js-floater-input').addEventListener('keydown', function(e){
   if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendFloaterNote(); }
 });
@@ -3289,6 +3323,85 @@ document.addEventListener('mousedown', e=>{
   if(modal.classList.contains('visible') && !modal.contains(e.target) && !e.target.closest('.bill-add-btn') && !e.target.closest('.bill-item-edit'))
     closeBillEdit();
 });
+
+
+// ══════════════════════════════════════════════
+// 更新日志
+// ══════════════════════════════════════════════
+
+// ▼▼▼ 修改这里来发布新版本 ▼▼▼
+// 每次更新：1. 在 CHANGELOG 数组最前面加一条新记录
+//           2. 把 CHANGELOG_LATEST_VERSION 改成新版本号
+var CHANGELOG_LATEST_VERSION = 'v0.1.1';
+
+var CHANGELOG = [
+  {
+    version: 'v0.1.1',
+    date: '2026-03-09',
+    title: '手账',
+    items: [
+      '📝 手账入口（左上角），账单与日记碎碎念均在手账栏目输入，不占用主对话界面',
+      '碎碎念随时输入，AI 自动识别是否为消费/收入并入账',
+      '已发生的支出/收入自动记录，计划与预期归入碎碎念不入账',
+      '账单正负金额：支出为负，收入为正，支持手动添加/编辑/删除',
+      'AI 心情识别：每条碎碎念自动打情绪分（晴☀️～雨🌧）',
+      '心情晴雨表：按月显示情绪折线，点击日期高亮当天心情',
+      '账单柱状图：每日收支可视化，悬浮查看收入/支出明细',
+      '时间轴按月折叠，心情图与账单图可最小化',
+      '🌧 雨声氛围音效',
+    ]
+  },
+  {
+    version: 'v0.1.0',
+    date: '2026-03-08',
+    title: '初始发布',
+    items: [
+      'AI 对话驱动的任务管理与进度追踪',
+      '子任务进度百分比显示',
+      '专注计时器，沉浸模式',
+      '多话题聊天，对话历史',
+      '热力日历：每日专注时长可视化',
+      '倒数日：悬浮卡片，可拖拽，支持重复周期',
+      '音乐播放器',
+    ]
+  },
+];
+// ▲▲▲ 修改到这里为止 ▲▲▲
+
+function openChangelog() {
+  // 标记已读：存当前最新版本
+  localStorage.setItem('cl_read', CHANGELOG_LATEST_VERSION);
+  document.getElementById('js-changelog-dot').classList.remove('show');
+  // 渲染内容
+  const body = document.getElementById('js-changelog-body');
+  body.innerHTML = CHANGELOG.map((entry, i) => `
+    <div class="cl-entry">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span class="cl-version">${entry.version}</span>
+        <span class="cl-date">${entry.date}</span>
+      </div>
+      <div class="cl-title">${entry.title}</div>
+      <div class="cl-items">
+        ${entry.items.map(it=>`<div class="cl-item">${it}</div>`).join('')}
+      </div>
+    </div>
+    ${i < CHANGELOG.length-1 ? '<hr class="cl-divider">' : ''}
+  `).join('');
+  document.getElementById('js-changelog-drawer').classList.add('open');
+  document.getElementById('js-drawer-overlay').classList.add('show');
+}
+
+function closeChangelog() {
+  document.getElementById('js-changelog-drawer').classList.remove('open');
+  document.getElementById('js-drawer-overlay').classList.remove('show');
+}
+
+function checkChangelogDot() {
+  const read = localStorage.getItem('cl_read');
+  if (read !== CHANGELOG_LATEST_VERSION) {
+    document.getElementById('js-changelog-dot').classList.add('show');
+  }
+}
 
 </script>
 </body>
