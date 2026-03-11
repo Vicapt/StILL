@@ -310,6 +310,9 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .api-status.set{background:var(--api-set-bg);color:var(--api-set-color)}
 .api-status.unset{background:var(--api-unset-bg);color:var(--api-unset-color)}
 .ai-badge{font-size:0.68rem;padding:2px 8px;border-radius:20px;background:var(--key-badge-bg);color:var(--key-badge-color);border:1px solid var(--key-badge-b)}
+.btn-key-settings{background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:6px;padding:0 7px;font-size:0.68rem;cursor:pointer;font-family:inherit;transition:0.15s;align-self:stretch;display:inline-flex;align-items:center}
+.btn-key-settings:hover{background:var(--glass-h);color:var(--txt)}
+.btn-key-settings.hidden{display:none}
 .chat-display{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
 .chat-display::-webkit-scrollbar{width:3px}
 .chat-display::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
@@ -374,6 +377,9 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .task-add-confirm:hover{opacity:0.85}
 .task-add-cancel{background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-muted);border-radius:7px;padding:5px 10px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s}
 .task-add-cancel:hover{background:var(--glass-h);color:var(--txt)}
+.task-clear-confirm{display:flex;align-items:center;gap:5px;padding:4px 2px;animation:taskIn 0.15s ease both}
+.task-clear-confirm.hidden{display:none}
+.task-clear-label{flex:1;font-size:0.7rem;color:var(--txt-dim)}
 .btn-audio{background:transparent;border:1px solid var(--glass-b);color:var(--audio-btn-color);border-radius:10px;padding:7px;font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.2s}
 .btn-audio:hover{background:var(--glass-h);color:white}
 
@@ -578,23 +584,27 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   color:rgba(100,160,255,0.88);
 }
 /* Track dropdown */
-.track-select-wrap{position:relative}
-._track-dropdown-placeholder{
+.track-dropdown{
   position:absolute;bottom:calc(100% + 6px);right:0;
   background:var(--track-dropdown-bg);border:1px solid var(--glass-b);
-  border-radius:12px;padding:6px;min-width:150px;
-  display:flex;flex-direction:column;gap:3px;
-  backdrop-filter:blur(20px);z-index:50;
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  border-radius:11px;padding:5px;min-width:130px;max-height:200px;
+  overflow-y:auto;overscroll-behavior:contain;
+  display:flex;flex-direction:column;gap:2px;
+  backdrop-filter:blur(24px);z-index:200;
+  box-shadow:0 8px 28px rgba(0,0,0,0.4);
+  animation:ddIn 0.15s cubic-bezier(.4,0,.2,1);
 }
+@keyframes ddIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .track-dropdown.hidden{display:none}
+.track-dropdown::-webkit-scrollbar{width:3px}
+.track-dropdown::-webkit-scrollbar-thumb{background:var(--glass-b);border-radius:3px}
 .track-opt{
-  background:transparent;border:none;color:rgba(255,255,255,0.55);
-  font-family:inherit;font-size:0.76rem;padding:7px 10px;
-  border-radius:8px;cursor:pointer;text-align:left;transition:0.15s;
+  background:transparent;border:none;color:var(--track-opt-color);
+  font-family:inherit;font-size:0.78rem;padding:7px 10px;
+  border-radius:7px;cursor:pointer;text-align:left;transition:0.13s;width:100%;white-space:nowrap;
 }
 .track-opt:hover{background:var(--glass-h);color:var(--txt)}
-.track-opt.current{color:var(--track-opt-current);background:var(--amber)}
+.track-opt.current{color:var(--track-opt-current);font-weight:500}
 
 /* ═══ SUBTASKS ═══ */
 .subtask-list{
@@ -1285,7 +1295,6 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
     </div>
     <button class="btn-topbar" id="js-open-history">📅</button>
     <button class="btn-topbar" id="js-open-journal">📝</button>
-    <button class="btn-topbar" id="js-open-settings">⚙</button>
   </div>
 
   <!-- Top-center -->
@@ -1308,6 +1317,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
           <div class="header-right">
             <span class="ai-badge" id="js-ai-badge" style="display:none"></span>
             <span class="api-status unset" id="js-api-status">未设置 Key</span>
+            <button class="btn-key-settings hidden" id="js-btn-key-settings" title="修改 Key">⚙</button>
           </div>
         </div>
         <div class="chat-display" id="js-chat-display"></div>
@@ -1321,6 +1331,11 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
       <div class="task-header-row">
         <div class="task-header">进度清单</div>
         <button id="js-clear-all" class="task-btn del-btn" style="opacity:.4;padding:2px 8px;font-size:.63rem" title="清除全部">清空</button>
+      </div>
+      <div class="task-clear-confirm hidden" id="js-clear-confirm">
+        <span class="task-clear-label">确认清空全部？</span>
+        <button class="task-add-confirm" id="js-clear-yes" style="flex:unset;padding:3px 10px">确认</button>
+        <button class="task-add-cancel" id="js-clear-no">取消</button>
       </div>
       <div class="task-list" id="js-task-list"></div>
       <button class="btn-add-task" id="js-add-task">＋ 添加任务</button>
@@ -1340,7 +1355,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
           <button class="ctrl-btn ctrl-play" id="js-play-btn" title="播放">&#9654;</button>
           <button class="ctrl-btn" id="js-next-track" title="下一首">&gt;</button>
           <button class="ctrl-btn ctrl-rain" id="js-audio-btn" title="雨声">🌧</button>
-          <div class="track-select-wrap">
+          <div style="position:relative">
             <button class="ctrl-btn ctrl-list" id="js-track-list-btn" title="选曲">&#9776;</button>
             <div class="track-dropdown hidden" id="js-track-dropdown"></div>
           </div>
@@ -1521,15 +1536,24 @@ document.getElementById('js-save-key').onclick = () => {
 };
 document.getElementById('js-open-help').onclick = ()=>showModal('help');
 document.getElementById('js-back-btn').onclick = ()=>showModal('key');
-document.getElementById('js-open-settings').onclick = ()=>showModal('key');
+document.getElementById('js-btn-key-settings').onclick = ()=>showModal('key');
+document.getElementById('js-api-status').style.cursor='pointer';
+document.getElementById('js-api-status').onclick = ()=>{ if(!apiKey) showModal('key'); };
 if (!apiKey) showModal('key');
 
 function refreshStatus() {
-  const s=document.getElementById('js-api-status'), b=document.getElementById('js-ai-badge');
+  const s=document.getElementById('js-api-status');
+  const b=document.getElementById('js-ai-badge');
+  const g=document.getElementById('js-btn-key-settings');
   if (apiKey) {
-    s.textContent='✓ Key 已设置'; s.className='api-status set';
-    if (currentPlatform) { b.textContent=currentPlatform.name; b.style.display='inline'; } else b.style.display='none';
-  } else { s.textContent='⚠ 未设置 Key'; s.className='api-status unset'; b.style.display='none'; }
+    if (currentPlatform) { b.textContent=currentPlatform.name+' ✓'; b.style.display='inline'; } else b.style.display='none';
+    s.style.display='none';
+    g.classList.remove('hidden');
+  } else {
+    s.textContent='⚠ 未设置 Key'; s.className='api-status unset'; s.style.display='';
+    b.style.display='none';
+    g.classList.add('hidden');
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -2496,18 +2520,36 @@ document.getElementById('js-new-topic').onclick=()=>{
 window.openTimerPicker=openTimerPicker;
 
 // 清空按钮（不经过 AI，直接执行）
-document.getElementById('js-clear-all').onclick=()=>{
-  const visible = appData.todos.filter(t=>!t._tutHidden);
-  if(!visible.length){return;}
-  if(!confirm(`清除全部 ${visible.length} 个任务？`))return;
-  // 教程中：只删除可见任务，保留隐藏任务
-  if(tutRunning){
-    appData.todos = appData.todos.filter(t=>t._tutHidden);
-  } else {
-    appData.todos=[];
+(function(){
+  const clearBtn  = document.getElementById('js-clear-all');
+  const confirmEl = document.getElementById('js-clear-confirm');
+  const yesBtn    = document.getElementById('js-clear-yes');
+  const noBtn     = document.getElementById('js-clear-no');
+
+  function showConfirm() {
+    const visible = appData.todos.filter(t=>!t._tutHidden);
+    if (!visible.length) return;
+    confirmEl.classList.remove('hidden');
+    clearBtn.style.display = 'none';
   }
-  save(); UI.render();
-};
+  function hideConfirm() {
+    confirmEl.classList.add('hidden');
+    clearBtn.style.display = '';
+  }
+  function doClear() {
+    if (tutRunning) {
+      appData.todos = appData.todos.filter(t=>t._tutHidden);
+    } else {
+      appData.todos = [];
+    }
+    save(); UI.render();
+    hideConfirm();
+  }
+
+  clearBtn.onclick = showConfirm;
+  yesBtn.onclick   = doClear;
+  noBtn.onclick    = hideConfirm;
+})();
 
 
 // ══════════════════════════════════════════════
@@ -2582,12 +2624,12 @@ function selectTrack(idx) {
   if (wasPlaying) setTimeout(playMusic, 100);
 }
 
-// Track list toggle
 document.getElementById('js-track-list-btn').onclick = (e) => {
   e.stopPropagation();
   const dd = document.getElementById('js-track-dropdown');
-  dd.classList.toggle('hidden');
-  renderTrackDropdown();
+  const opening = dd.classList.contains('hidden');
+  dd.classList.add('hidden');
+  if (opening) { renderTrackDropdown(); dd.classList.remove('hidden'); }
 };
 document.addEventListener('click', () => {
   document.getElementById('js-track-dropdown').classList.add('hidden');
@@ -3754,9 +3796,24 @@ document.addEventListener('mousedown', e=>{
 // ▼▼▼ 修改这里来发布新版本 ▼▼▼
 // 每次更新：1. 在 CHANGELOG 数组最前面加一条新记录
 //           2. 把 CHANGELOG_LATEST_VERSION 改成新版本号
-var CHANGELOG_LATEST_VERSION = 'v0.1.2';
+var CHANGELOG_LATEST_VERSION = 'v0.1.3';
 
 var CHANGELOG = [
+  {
+    version: 'v0.1.3',
+    date: '2026-03-11',
+    title: '昼夜模式',
+    items: [
+      '☀️ 新增昼夜切换系统，右下角切换按钮',
+      '白天模式：雨后青灰蓝白天空，绿色调强调色，所有面板与文字配色全量适配',
+      '日历热力图白天切换为绿色系，图例同步更新',
+      '雨效果白天配色加深，昼夜透明度分离，不影响雨量与速度',
+      '沉浸模式大雨昼夜参数统一',
+      '🔑 API Key 入口移至对话栏右上角，Key 设置后显示模型名 ✓ + ⚙ 修改按钮',
+      '选曲改为从按钮上方弹出的浮层选择框',
+      '添加任务 / 清空任务改为内嵌确认交互，不再使用浏览器弹窗',
+    ]
+  },
   {
     version: 'v0.1.2',
     date: '2026-03-09',
@@ -4103,7 +4160,7 @@ async function tutChapterCard(icon, title, sub, btnText) {
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.className = '_tut-chapter-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(4,8,20,0.88);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:var(--tut-overlay-bg);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
     overlay.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px;text-align:center;max-width:300px">
         <div style="font-size:2.8rem;line-height:1">${icon}</div>
@@ -4134,13 +4191,13 @@ function openTutorialSelect() {
   ];
   const overlay = document.createElement('div');
   overlay.className = '_tut-select-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:650;background:rgba(4,8,20,0.92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:650;background:var(--tut-overlay-bg);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
   const cards = chapters.map((c,i) => {
     const isDone = done[c.key];
     return `<div onclick="document.querySelector('._tut-select-overlay').remove();openTutorial(${i})"
-      style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,${isDone?'0.18':'0.08'});border-radius:12px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:0.15s;min-width:240px"
-      onmouseover="this.style.background='rgba(255,160,80,0.08)';this.style.borderColor='rgba(255,160,80,0.3)'"
-      onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,${isDone?'0.18':'0.08'})'">
+      style="background:var(--glass);border:1px solid var(--glass-b);border-radius:12px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:0.15s;min-width:240px"
+      onmouseover="this.style.background='var(--task-active-bg)';this.style.borderColor='var(--task-active-b)'"
+      onmouseout="this.style.background='var(--glass)';this.style.borderColor='var(--glass-b)'">
       <div style="font-size:1.8rem;line-height:1;flex-shrink:0">${c.icon}</div>
       <div style="flex:1;text-align:left">
         <div style="font-size:0.82rem;color:var(--tut-card-title);margin-bottom:3px">${c.title}</div>
