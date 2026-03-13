@@ -1515,7 +1515,7 @@ function renderMd(text) {
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
-const PROXY_URL = 'https://still.vicapt.workers.dev';
+const PROXY_URL = 'https://api.vicapt.top';
 
 function detectPlatform(key) {
   if (!key) return null;
@@ -4003,11 +4003,29 @@ async function sendFloaterNote() {
 })();
 
 // ── 输入框事件 ────────────────────────────────
-document.getElementById('js-note-send').onclick = async function(){
+// ── 小纸条发送队列：防止快速输入重复记入 ──
+const _noteQueue = [];
+let _noteProcessing = false;
+async function _drainNoteQueue() {
+  if (_noteProcessing) return;
+  _noteProcessing = true;
+  while (_noteQueue.length) {
+    const text = _noteQueue.shift();
+    await sendNote(text);
+  }
+  _noteProcessing = false;
+}
+function queueNote(text) {
+  if (!text.trim()) return;
+  _noteQueue.push(text.trim());
+  _drainNoteQueue();
+}
+
+document.getElementById('js-note-send').onclick = function(){
   const inp=document.getElementById('js-note-input');
-  await sendNote(inp.value); inp.value=''; inp.style.height='34px';
+  queueNote(inp.value); inp.value=''; inp.style.height='34px';
 };
-document.getElementById('js-note-input').addEventListener('keydown', async function(e){
+document.getElementById('js-note-input').addEventListener('keydown', function(e){
   if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('js-note-send').click(); }
 });
 document.getElementById('js-note-input').addEventListener('input', function(){
