@@ -1000,7 +1000,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .jt-days{display:flex;flex-wrap:wrap;gap:4px}
 .jt-day{font-size:0.65rem;padding:2px 6px;border-radius:5px;background:var(--jt-day-bg);border:1px solid var(--jt-day-b);color:var(--jt-day-color);cursor:pointer;transition:0.15s;white-space:nowrap}
 .jt-day:hover{background:rgba(255,160,80,0.15);border-color:rgba(255,160,80,0.3);color:rgba(255,200,120,0.9)}
-.jt-day.has-bill{border-color:rgba(120,200,160,0.3)}
+.jt-day.has-habit{border-color:rgba(255,160,80,0.3)}
 .jt-day.today-mark{color:var(--jt-today-color)!important;background:var(--jt-today-bg)!important}
 
 /* 今日区域（两栏） */
@@ -1009,7 +1009,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 /* 左：小纸条 */
 .note-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--glass-b);min-width:0}
 .note-panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 8px;flex-shrink:0}
-.note-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase}
+.note-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.7;text-transform:uppercase}
 .note-float-btn{background:transparent;border:1px solid var(--glass-b);color:var(--note-float-color);border-radius:6px;padding:2px 6px;font-size:0.62rem;cursor:pointer;font-family:inherit;transition:0.15s}
 .note-float-btn:hover{background:var(--glass-h);color:var(--txt)}
 .note-list{flex:1;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:6px}
@@ -1030,7 +1030,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 /* 右：账单 */
 .bill-panel{width:130px;flex-shrink:0;display:flex;flex-direction:column}
 .bill-panel-header{padding:10px 10px 8px;flex-shrink:0;border-bottom:1px solid var(--glass-b)}
-.bill-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase}
+.bill-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.7;text-transform:uppercase}
 .bill-total{font-size:0.68rem;color:var(--bill-income);margin-top:3px;font-weight:500}
 .bill-list{flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:5px}
 .bill-list::-webkit-scrollbar{width:2px}
@@ -1058,6 +1058,153 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .jhv-bill-amt{color:var(--bill-income);font-weight:500}
 .jhv-bill-del{background:transparent;border:none;color:rgba(255,80,60,0.35);font-size:0.65rem;cursor:pointer;padding:0 2px;opacity:0;transition:0.15s;flex-shrink:0}
 .jhv-bill-row:hover .jhv-bill-del{opacity:1}
+
+/* ── 习惯打卡 ── */
+.habit-panel{
+  flex-shrink:0;
+  border-bottom:1px solid var(--glass-b);
+  display:flex;flex-direction:column;
+  position:relative;
+}
+.habit-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px 6px;cursor:pointer;user-select:none;
+}
+.habit-panel-title{font-size:0.6rem;letter-spacing:2px;opacity:0.7;text-transform:uppercase}
+.habit-panel-actions{display:flex;align-items:center;gap:6px}
+.habit-toggle-icon{font-size:0.6rem;opacity:0.3;transition:transform 0.2s}
+.habit-panel.collapsed .habit-toggle-icon{transform:rotate(-90deg)}
+.habit-add-trigger{
+  background:transparent;border:1px solid var(--glass-b);
+  color:var(--cd-icon-color);border-radius:6px;
+  padding:2px 7px;font-size:0.65rem;cursor:pointer;
+  font-family:inherit;transition:0.15s;line-height:1.4;
+}
+.habit-add-trigger:hover{background:var(--glass-h);color:var(--txt)}
+/* 内嵌输入行（收起时隐藏） */
+.habit-input-popup{
+  display:flex;gap:6px;align-items:center;
+  padding:0 10px;
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transition:max-height 0.25s cubic-bezier(.4,0,.2,1), opacity 0.2s, padding 0.25s;
+}
+.habit-input-popup.show{max-height:48px;opacity:1;padding:0 10px 8px;}
+.habit-panel.collapsed .habit-input-popup{max-height:0!important;opacity:0!important;padding:0 10px!important}
+.habit-body{
+  overflow-y:auto;
+  max-height:185px;
+  transition:max-height 0.28s cubic-bezier(.4,0,.2,1), opacity 0.2s;
+  opacity:1;
+  display:flex;flex-direction:column;gap:3px;
+  padding:0 10px 8px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--glass-b) transparent;
+}
+.habit-body::-webkit-scrollbar{width:2px}
+.habit-body::-webkit-scrollbar-thumb{background:var(--glass-b);border-radius:2px}
+.habit-panel.collapsed .habit-body{max-height:0;opacity:0;padding-bottom:0}
+.habit-item{
+  display:flex;align-items:center;gap:0;
+  padding:5px 6px;border-radius:8px;
+  transition:background 0.15s;
+}
+.habit-item:hover{background:var(--glass)}
+.habit-name{
+  font-size:0.74rem;color:var(--txt);
+  white-space:nowrap;flex-shrink:0;
+  transition:opacity 0.2s, text-decoration 0.1s;
+  display:flex;align-items:center;gap:6px;
+}
+.habit-dot{
+  width:5px;height:5px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,160,80,0.55);
+  transition:background 0.2s;
+}
+.habit-item.checked .habit-dot{background:rgba(100,210,140,0.6)}
+.habit-item.checked .habit-name{
+  opacity:0.35;
+  text-decoration:line-through;
+  text-decoration-color:var(--txt-dim);
+}
+/* 点点连接线 */
+.habit-dots-line{
+  flex:1;
+  border-bottom:1.5px dotted var(--txt-hint);
+  margin:0 6px;
+  min-width:12px;
+  align-self:flex-end;
+  margin-bottom:5px;
+}
+.habit-item.checked .habit-dots-line{opacity:0.25}
+.habit-streak{
+  font-size:0.62rem;color:var(--txt-faint);
+  white-space:nowrap;flex-shrink:0;
+  letter-spacing:0.2px;opacity:0.7;
+}
+.habit-item.checked .habit-streak{opacity:0.35}
+.habit-check{
+  width:16px;height:16px;flex-shrink:0;
+  border:1.5px solid var(--glass-b);border-radius:3px;
+  background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color 0.15s, background 0.15s;
+  font-size:0.65rem;color:transparent;
+}
+.habit-check:hover{border-color:var(--amber-accent)}
+.habit-item.checked .habit-check{
+  background:rgba(100,210,140,0.15);
+  border-color:rgba(100,210,140,0.5);
+  color:rgba(100,210,140,0.9);
+}
+.habit-del{
+  background:transparent;border:none;
+  color:rgba(255,80,60,0.3);font-size:0.7rem;
+  cursor:pointer;padding:0 0 0 4px;opacity:0;transition:0.15s;
+  line-height:1;flex-shrink:0;
+}
+.habit-item:hover .habit-del{opacity:1}
+/* 右键菜单 */
+.habit-ctx-menu{
+  position:fixed;z-index:600;
+  background:var(--panel-bg-deep);
+  border:1px solid var(--glass-b);
+  border-radius:10px;
+  padding:4px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.18);
+  backdrop-filter:blur(20px);
+  min-width:110px;
+  display:none;
+}
+.habit-ctx-menu.show{display:flex;flex-direction:column}
+.habit-ctx-item{
+  background:transparent;border:none;
+  font-family:inherit;font-size:0.74rem;
+  color:var(--txt-dim);padding:7px 12px;
+  border-radius:7px;cursor:pointer;
+  text-align:left;transition:0.12s;
+  white-space:nowrap;
+}
+.habit-ctx-item:hover{background:var(--glass-h);color:var(--txt)}
+.habit-ctx-item.danger{color:rgba(255,90,70,0.8)}
+.habit-ctx-item.danger:hover{background:rgba(255,60,40,0.1);color:rgba(255,90,70,1)}
+.habit-add-input{
+  flex:1;background:var(--input-bg);border:1px solid var(--glass-b);
+  border-radius:7px;color:var(--txt);font-size:0.72rem;
+  padding:4px 8px;outline:none;font-family:inherit;
+  transition:border-color 0.15s;
+}
+.habit-add-input::placeholder{color:var(--ph)}
+.habit-add-input:focus{border-color:rgba(255,160,80,0.3)}
+.habit-add-btn{
+  background:rgba(255,160,80,0.15);border:1px solid rgba(255,160,80,0.25);
+  color:rgba(255,200,120,0.85);border-radius:7px;
+  padding:0 10px;font-size:0.72rem;cursor:pointer;
+  font-family:inherit;transition:0.15s;white-space:nowrap;
+}
+.habit-add-btn:hover{background:rgba(255,160,80,0.28)}
+.habit-empty{font-size:0.65rem;opacity:0.25;padding:2px 2px 6px;text-align:center}
 
 /* 悬浮废纸篓 */
 .note-floater{position:fixed;z-index:200;width:220px;background:var(--panel-bg-deep);border:1px solid var(--glass-b);border-radius:16px;padding:12px;backdrop-filter:blur(24px);box-shadow:0 4px 20px rgba(0,0,0,0.12);cursor:grab;display:none}
@@ -1095,7 +1242,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .hv-section-flush{border-bottom:none}
 .hv-section-header{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;cursor:pointer;user-select:none;transition:background 0.15s}
 .hv-section-header:hover{background:rgba(255,255,255,0.03)}
-.hv-section-title{font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;opacity:0.38}
+.hv-section-title{font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;opacity:0.7}
 .hv-section-toggle{font-size:0.7rem;opacity:0.35;transition:transform 0.2s}
 .hv-section-toggle.collapsed{transform:rotate(-90deg)}
 .hv-section-body{overflow:hidden;transition:max-height 0.28s cubic-bezier(.4,0,.2,1),opacity 0.2s;max-height:300px;opacity:1}
@@ -1123,7 +1270,17 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .jt-days.open{max-height:200px;opacity:1;margin-bottom:6px}
 .jt-day.selected{background:rgba(255,160,80,0.22)!important;border-color:rgba(255,160,80,0.45)!important;color:rgba(255,200,120,0.95)!important}
 /* jhv 收支颜色 */
-.jhv-bill-amt.income{color:var(--bill-income)}
+.jhv-habit-row{
+  display:flex;align-items:center;gap:6px;
+  font-size:0.72rem;color:var(--txt-dim);
+  padding:4px 8px;border-radius:7px;
+  background:var(--glass);border:1px solid var(--glass-b);
+}
+.jhv-habit-check{
+  font-size:0.65rem;color:rgba(100,210,140,0.8);flex-shrink:0;
+}
+.jhv-habit-name{flex:1}
+.jhv-habit-day{font-size:0.6rem;color:var(--txt-faint);flex-shrink:0}
 .jhv-bill-amt.expense{color:rgba(255,120,100,0.9)}
 
 /* 更新日志 */
@@ -1199,6 +1356,12 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   </div>
 </div>
 
+<!-- 习惯右键菜单 -->
+<div class="habit-ctx-menu" id="js-habit-ctx-menu">
+  <button class="habit-ctx-item" id="js-habit-ctx-top">↑ 置顶</button>
+  <button class="habit-ctx-item danger" id="js-habit-ctx-del">删除习惯</button>
+</div>
+
 <!-- HISTORY DRAWER -->
 <div class="drawer-overlay" id="js-drawer-overlay"></div>
 
@@ -1217,8 +1380,26 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   </div>
 
   <!-- 今日视图 -->
-  <div class="journal-today" id="js-journal-today-view">
-    <!-- 左：小纸条 -->
+  <div class="journal-today" id="js-journal-today-view" style="flex-direction:column">
+
+    <!-- 习惯打卡 -->
+    <div class="habit-panel" id="js-habit-panel">
+      <div class="habit-panel-header" onclick="toggleHabitPanel()">
+        <div class="habit-panel-title">习惯打卡</div>
+        <div class="habit-panel-actions" onclick="event.stopPropagation()">
+          <button class="habit-add-trigger" id="js-habit-add-trigger" title="添加习惯">＋</button>
+        </div>
+      </div>
+      <div class="habit-body" id="js-habit-body"></div>
+      <!-- 内嵌输入行 -->
+      <div class="habit-input-popup" id="js-habit-input-popup">
+        <input class="habit-add-input" id="js-habit-add-input" placeholder="新习惯名称…" maxlength="20" autocomplete="off">
+        <button class="habit-add-btn" id="js-habit-add-btn">确认</button>
+      </div>
+    </div>
+
+    <!-- 小纸条 + 账单 -->
+    <div style="display:flex;flex:1;min-height:0;overflow:hidden">
     <div class="note-panel">
       <div class="note-panel-header">
         <div class="note-panel-title">小纸条</div>
@@ -1241,6 +1422,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
         <button class="bill-add-btn" onclick="openBillEdit(null)">＋ 手动添加</button>
       </div>
     </div>
+    </div><!-- end 小纸条+账单 wrapper -->
   </div>
 
   <!-- 历史视图 -->
@@ -1701,6 +1883,7 @@ function defaultState() {
     ],
     history:{}, // { 'YYYY-MM-DD': { focusMin:N, stayMin:N, completedCount:N, hourly:[{f:N,s:N,done:[{id,title}]}x24], completedTasks:[{id,title,hour}], aiComment:null, aiCommentFinal:false } }
     countdowns:[], // [{id,name,date,color,repeat,createdAt}]
+    habits:[],     // [{id,title,createdAt,checks:{YYYY-MM-DD:true}}]
     notes:{},  // { 'YYYY-MM-DD': [{id,time,text,isBill}] }
     bills:{},  // { 'YYYY-MM-DD': [{id,item,amount,noteId}] }
     assetSnapshots:[], // [{ts:timestamp, value:number}]
@@ -1719,6 +1902,7 @@ let appData = (() => {
     if (!d.assetSnapshots) d.assetSnapshots = [];
     if (!('lastVisitDate' in d)) d.lastVisitDate = null;
     if (!d.countdowns) d.countdowns = [];
+    if (!d.habits) d.habits = [];
     return d;
   } catch(e) { return defaultState(); }
 })();
@@ -1727,7 +1911,12 @@ let apiKey = localStorage.getItem('StILL_API_KEY') || '';
 let currentPlatform = detectPlatform(apiKey);
 
 function todayKey() {
-  const d = new Date(Date.now() - 2 * 60 * 60 * 1000); // 凌晨2点前仍算昨天
+  const d = new Date(Date.now() - 2 * 60 * 60 * 1000); // 凌晨2点前仍算昨天（手账用）
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+// 严格0点日期，专注报告专用
+function calendarDateKey() {
+  const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
@@ -1741,14 +1930,16 @@ function ensureDayEntry(tk) {
   return e;
 }
 function recordTaskCompleted(todo) {
-  const tk = todayKey();
+  const tk = calendarDateKey();
   const e = ensureDayEntry(tk);
   const hr = new Date().getHours();
   e.completedTasks.push({id:todo.id, title:todo.title, hour:hr});
   e.hourly[hr].done.push({id:todo.id, title:todo.title});
+  // 任务数变化 → 清除今日评语缓存 key，下次打开重新生成
+  if(!e.aiCommentFinal) e._todayCommentKey = null;
 }
 function recordTodayHistory() {
-  const tk = todayKey();
+  const tk = calendarDateKey();
   const e = ensureDayEntry(tk);
   e.completedCount = appData.todos.filter(t => t.isCompleted).length;
 }
@@ -1777,7 +1968,7 @@ setInterval(updateLiveClock, 1000);
 updateLiveClock();
 
 function updateFocusStat() {
-  const tk = todayKey();
+  const tk = calendarDateKey();
   const entry = appData.history[tk] || {};
   const focus = entry.focusMin || 0;
   const stay  = entry.stayMin  || 0;
@@ -1789,7 +1980,7 @@ updateFocusStat();
 
 // 页面停留计时：每 60 秒记录一次在线时长
 setInterval(() => {
-  const tk = todayKey();
+  const tk = calendarDateKey();
   const e = ensureDayEntry(tk);
   e.stayMin = (e.stayMin || 0) + 1;
   const hr = new Date().getHours();
@@ -1879,17 +2070,147 @@ document.getElementById('js-mgmt-save-key').onclick = () => {
 document.getElementById('js-mgmt-open-help').onclick = ()=>showModal('help');
 
 // ── 导出 ──
+// ── 导出导入工具函数 ──
+function _encode(data) {
+  // 混淆：整体 Base64，外包假结构
+  const raw = JSON.stringify(data);
+  const b64 = btoa(unescape(encodeURIComponent(raw)));
+  return JSON.stringify({ v:'1', t: Date.now(), d: b64 });
+}
+function _decode(text) {
+  const outer = JSON.parse(text);
+  // 新格式（混淆）
+  if (outer.v && outer.d) {
+    const raw = decodeURIComponent(escape(atob(outer.d)));
+    return JSON.parse(raw);
+  }
+  // 旧格式（明文）向下兼容
+  if (outer.StILL_DATA) return outer;
+  throw new Error('格式不正确');
+}
+
+// ── 智能合并 ──
+function _mergeData(local, imported) {
+  const out = JSON.parse(JSON.stringify(local)); // 深拷贝本地作为基础
+
+  // 1. 任务：按 id 去重，保留本地
+  const localTodoIds = new Set(out.todos.map(t => t.id));
+  (imported.todos || []).forEach(t => {
+    if (!localTodoIds.has(t.id)) out.todos.push(t);
+  });
+
+  // 2. 话题：按 id 去重，保留消息数更多的版本，导入方独有的直接追加
+  const localTopics = out.topics || {};
+  (Object.entries(imported.topics || {})).forEach(([id, topic]) => {
+    if (!localTopics[id]) {
+      localTopics[id] = topic;
+    } else {
+      const localMsgs  = (localTopics[id].messages  || []).length;
+      const importMsgs = (topic.messages || []).length;
+      if (importMsgs > localMsgs) localTopics[id] = topic;
+    }
+  });
+  out.topics = localTopics;
+  if (!out.activeTopicId && imported.activeTopicId) out.activeTopicId = imported.activeTopicId;
+
+  // 3. 倒数日：按 id 去重，保留本地
+  const localCdIds = new Set((out.countdowns || []).map(c => c.id));
+  (imported.countdowns || []).forEach(c => {
+    if (!localCdIds.has(c.id)) out.countdowns.push(c);
+  });
+
+  // 4. 手账笔记：按 id 去重，保留本地
+  const localNotes = out.notes || {};
+  Object.entries(imported.notes || {}).forEach(([ds, arr]) => {
+    if (!localNotes[ds]) {
+      localNotes[ds] = arr;
+    } else {
+      const localIds = new Set(localNotes[ds].map(n => n.id));
+      arr.forEach(n => { if (!localIds.has(n.id)) localNotes[ds].push(n); });
+    }
+  });
+  out.notes = localNotes;
+
+  // 5. 账单：按 id 去重，保留本地
+  const localBills = out.bills || {};
+  Object.entries(imported.bills || {}).forEach(([ds, arr]) => {
+    if (!localBills[ds]) {
+      localBills[ds] = arr;
+    } else {
+      const localIds = new Set(localBills[ds].map(b => b.id));
+      arr.forEach(b => { if (!localIds.has(b.id)) localBills[ds].push(b); });
+    }
+  });
+  out.bills = localBills;
+
+  // 6. 历史数据：focusMin/stayMin 取较大值，completedTasks 去重合并，hourly 逐格取较大值
+  const localHist = out.history || {};
+  Object.entries(imported.history || {}).forEach(([ds, ie]) => {
+    if (!localHist[ds]) {
+      localHist[ds] = ie;
+    } else {
+      const le = localHist[ds];
+      le.focusMin = Math.max(le.focusMin||0, ie.focusMin||0);
+      le.stayMin  = Math.max(le.stayMin||0,  ie.stayMin||0);
+      le.completedCount = Math.max(le.completedCount||0, ie.completedCount||0);
+      // completedTasks 去重
+      const localCtIds = new Set((le.completedTasks||[]).map(t=>t.id+'_'+t.hour));
+      (ie.completedTasks||[]).forEach(t => {
+        if (!localCtIds.has(t.id+'_'+t.hour)) (le.completedTasks=le.completedTasks||[]).push(t);
+      });
+      // hourly 逐格合并
+      if (ie.hourly) {
+        if (!le.hourly) le.hourly = Array.from({length:24},()=>({f:0,s:0,done:[]}));
+        for (let h=0; h<24; h++) {
+          le.hourly[h].f = Math.max(le.hourly[h].f||0, ie.hourly[h]?.f||0);
+          le.hourly[h].s = Math.max(le.hourly[h].s||0, ie.hourly[h]?.s||0);
+          const doneIds = new Set((le.hourly[h].done||[]).map(d=>d.id));
+          (ie.hourly[h]?.done||[]).forEach(d => {
+            if (!doneIds.has(d.id)) (le.hourly[h].done=le.hourly[h].done||[]).push(d);
+          });
+        }
+      }
+      // aiComment 优先保留已结算版本
+      if (!le.aiCommentFinal && ie.aiCommentFinal) {
+        le.aiComment = ie.aiComment;
+        le.aiCommentFinal = true;
+      }
+    }
+  });
+  out.history = localHist;
+
+  // 7. assetSnapshots 合并去重（按时间戳）
+  const localTs = new Set((out.assetSnapshots||[]).map(s=>s.ts));
+  (imported.assetSnapshots||[]).forEach(s => {
+    if (!localTs.has(s.ts)) out.assetSnapshots.push(s);
+  });
+
+  // 8. 习惯：按 id 去重，保留本地；合并 checks（两边都有的取并集）
+  const localHabitMap = {};
+  (out.habits||[]).forEach(h=>{ localHabitMap[h.id]=h; });
+  (imported.habits||[]).forEach(h=>{
+    if(!localHabitMap[h.id]){
+      out.habits.push(h);
+    } else {
+      // 合并 checks：两边都打卡的日期全保留
+      const merged = Object.assign({}, h.checks||{}, localHabitMap[h.id].checks||{});
+      localHabitMap[h.id].checks = merged;
+    }
+  });
+
+  return out;
+}
+
 document.getElementById('js-export-btn').onclick = () => {
-  const payload = {
-    StILL_DATA: localStorage.getItem('StILL_DATA'),
+  const data = {
+    StILL_DATA:    localStorage.getItem('StILL_DATA'),
     StILL_API_KEY: localStorage.getItem('StILL_API_KEY'),
-    StILL_theme: localStorage.getItem('StILL_theme'),
+    StILL_theme:   localStorage.getItem('StILL_theme'),
   };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const blob = new Blob([_encode(data)], {type:'application/json'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  // 文件名用本地日期
-  const d = new Date();
+  const d    = new Date();
   const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
   a.href = url; a.download = `still-backup${dateStr}.json`;
   a.click(); URL.revokeObjectURL(url);
@@ -1924,12 +2245,20 @@ function handleImportFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const payload = JSON.parse(e.target.result);
-      if (!payload.StILL_DATA) throw new Error('格式不正确');
-      if (payload.StILL_DATA)    localStorage.setItem('StILL_DATA', payload.StILL_DATA);
-      if (payload.StILL_API_KEY) localStorage.setItem('StILL_API_KEY', payload.StILL_API_KEY);
-      if (payload.StILL_theme)   localStorage.setItem('StILL_theme', payload.StILL_theme);
-      msg.textContent = '✓ 导入成功，即将刷新…'; msg.className='migrate-msg ok';
+      const payload = _decode(e.target.result);
+      // 解析导入的 StILL_DATA
+      const importedRaw = payload.StILL_DATA;
+      if (!importedRaw) throw new Error('格式不正确');
+      const importedData = typeof importedRaw === 'string' ? JSON.parse(importedRaw) : importedRaw;
+      // 与本地数据智能合并
+      const merged = _mergeData(appData, importedData);
+      localStorage.setItem('StILL_DATA', JSON.stringify(merged));
+      // API Key 和主题：只在本地没有时才导入
+      if (!localStorage.getItem('StILL_API_KEY') && payload.StILL_API_KEY)
+        localStorage.setItem('StILL_API_KEY', payload.StILL_API_KEY);
+      if (!localStorage.getItem('StILL_theme') && payload.StILL_theme)
+        localStorage.setItem('StILL_theme', payload.StILL_theme);
+      msg.textContent = '✓ 合并成功，即将刷新…'; msg.className='migrate-msg ok';
       setTimeout(() => location.reload(), 1500);
     } catch(err) {
       msg.textContent = '✗ 文件解析失败，请检查格式'; msg.className='migrate-msg err';
@@ -2094,7 +2423,7 @@ function openDrawer() {
     wrap.scrollTop += (targetRect.top - wrapRect.bottom);
   }, 0);
   // 默认展示今天的当日总结
-  renderDaySummary(todayKey());
+  renderDaySummary(calendarDateKey());
 }
 function closeDrawer() { document.getElementById('js-history-drawer').classList.remove('open'); document.getElementById('js-drawer-overlay').classList.remove('show'); }
 document.getElementById('js-open-history').onclick=openDrawer;
@@ -2145,7 +2474,7 @@ function renderCalendar() {
       const focusMin=entry.focusMin||0;
       const completedCount=entry.completedCount||0;
       const cell=document.createElement('div'); cell.className='cal-day';
-      const isToday = ds === todayKey();
+      const isToday = ds === calendarDateKey();
       if(isToday) cell.classList.add('today');
 
       // 倒数日判断
@@ -2258,8 +2587,8 @@ function drawDsChart(hourly, isDay) {
   const cH = H - PAD.t - PAD.b;
 
   // 数据
-  const maxF = Math.max(1, ...hourly.map(h=>h.f||0));
-  const maxS = Math.max(1, ...hourly.map(h=>h.s||0));
+  const maxF = Math.max(60, ...hourly.map(h=>h.f||0));
+  const maxS = maxF; // 在线时间与专注时间共用同一纵轴
   const maxDone = Math.max(1, ...hourly.map(h=>(h.done||[]).length));
   const BAR_W = cW / 24 * 0.55;
 
@@ -2372,6 +2701,20 @@ function drawDsChart(hourly, isDay) {
 })();
 
 // ── AI 评语 ──
+// ── 今日评语缓存 key 生成 ──
+// 规则：时间段 + 专注分钟快照 + 完成任务数快照 → 只要这三个不变就不重新调用
+function _todayCommentSlot() {
+  const h = new Date().getHours();
+  if (h >= 9  && h < 10)  return 'morning';
+  if (h >= 12 && h < 13)  return 'noon';
+  if (h >= 20 && h < 21)  return 'evening';
+  if (h >= 1  && h < 2)   return 'night';
+  return 'normal';
+}
+function _todayCommentCacheKey(ds, focusMin, completedCount) {
+  return `${ds}|${_todayCommentSlot()}|f${focusMin}|c${completedCount}`;
+}
+
 async function renderDsComment(ds, entry) {
   const el = document.getElementById('js-ds-comment');
   if(!el) return;
@@ -2383,21 +2726,29 @@ async function renderDsComment(ds, entry) {
     return;
   }
 
-  // 没有 API key 就不调用
   if(!apiKey){ el.textContent = ''; return; }
+
+  const isToday = ds === calendarDateKey();
+  const now = new Date();
+  const hr = now.getHours();
+  const isAfterMidnight = hr >= 0 && hr < 1; // 凌晨1点提醒休息
+  const focusMin = entry.focusMin || 0;
+  const completedCount = (entry.completedTasks||[]).length;
+
+  // 今天未结算：检查缓存，key 不变则直接显示缓存
+  if(isToday){
+    const cacheKey = _todayCommentCacheKey(ds, focusMin, completedCount);
+    if(entry._todayCommentKey === cacheKey && entry.aiComment){
+      el.textContent = entry.aiComment;
+      el.className = 'ds-comment';
+      return;
+    }
+  }
 
   el.textContent = '…';
   el.className = 'ds-comment ds-comment-loading';
 
-  const isToday = ds === todayKey();
-  const h = entry || {};
-  const focusMin = h.focusMin || 0;
-  const completedCount = (h.completedTasks||[]).length;
-  const taskTitles = (h.completedTasks||[]).map(t=>t.title).join('、') || '无';
-  const now = new Date();
-  const isAfterMidnight = now.getHours() < 2; // 凌晨2点前算昨天
-
-  // 取前两天数据作对比
+  const taskTitles = (entry.completedTasks||[]).map(t=>t.title).join('、') || '无';
   const prevDays = [-1,-2].map(offset=>{
     const d = new Date(ds+'T12:00:00');
     d.setDate(d.getDate()+offset);
@@ -2406,9 +2757,18 @@ async function renderDsComment(ds, entry) {
   });
   const prevFocus = prevDays.map(d=>d.focusMin||0);
 
-  const prompt = isToday && !isAfterMidnight
-    ? `今天（${ds}）的使用情况：专注${focusMin}分钟，完成任务${completedCount}项（${taskTitles}）。前两天专注分别是${prevFocus[0]}分钟和${prevFocus[1]}分钟。请用一句轻松温暖的话鼓励或表扬用户，语气像朋友，结尾加一个贴切的可爱emoji。严格不超过22字（不含emoji）。`
-    : `${ds}的专注情况：专注${focusMin}分钟，完成任务${completedCount}项（${taskTitles}）。前两天专注分别是${prevFocus[0]}分钟和${prevFocus[1]}分钟。${isAfterMidnight?'现在是凌晨，请在最后自然叮嘱一句注意休息。':''}请给出一句结合前后对比的温暖鼓励，语气活泼，真诚表扬用户的付出，结尾加一个贴切的可爱emoji。严格不超过30字（不含emoji）。`;
+  // 时间段问候语
+  let greeting = '';
+  if(isToday){
+    if(hr>=9&&hr<10)       greeting = '早上好！';
+    else if(hr>=12&&hr<13) greeting = '中午好！';
+    else if(hr>=20&&hr<21) greeting = '晚上好！';
+    else if(hr>=1&&hr<2)   greeting = '夜深了，';
+  }
+
+  const prompt = isToday
+    ? `${greeting}今天专注${focusMin}分钟，完成任务${completedCount}项（${taskTitles}）。前两天专注分别是${prevFocus[0]}分钟和${prevFocus[1]}分钟。请结合时间和进度用一句轻松温暖的话鼓励或表扬用户，语气像朋友，结尾加一个贴切的可爱emoji。严格不超过22字（不含emoji）。`
+    : `${ds}专注${focusMin}分钟，完成任务${completedCount}项（${taskTitles}）。前两天专注分别是${prevFocus[0]}分钟和${prevFocus[1]}分钟。${isAfterMidnight?'现在是凌晨，请在最后自然叮嘱一句注意休息。':''}请给出一句结合前后对比的温暖鼓励，语气活泼，真诚表扬用户的付出，结尾加一个贴切的可爱emoji。严格不超过30字（不含emoji）。`;
 
   try{
     const res = await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},
@@ -2419,16 +2779,22 @@ async function renderDsComment(ds, entry) {
     const comment = data.choices?.[0]?.message?.content?.trim() || '';
     if(!comment){ el.textContent=''; return; }
     el.textContent = comment;
-    el.className = isToday && !isAfterMidnight ? 'ds-comment' : 'ds-comment ds-comment-final';
-    // 非今天或凌晨结算，缓存
-    if(!isToday || isAfterMidnight){
-      const e2 = ensureDayEntry(ds);
+
+    const e2 = ensureDayEntry(ds);
+    if(!isToday){
+      // 历史日期结算版：永久缓存
       e2.aiComment = comment;
       e2.aiCommentFinal = true;
-      save();
+      el.className = 'ds-comment ds-comment-final';
+    } else {
+      // 今日临时版：缓存 + 记录 key
+      e2.aiComment = comment;
+      e2._todayCommentKey = _todayCommentCacheKey(ds, focusMin, completedCount);
+      el.className = 'ds-comment';
     }
+    save();
   }catch(err){
-    el.textContent='';
+    el.textContent = entry.aiComment || '';
   }
 }
 
@@ -2440,19 +2806,43 @@ async function renderDsComment(ds, entry) {
     return next - now;
   }
   async function doSettle(){
-    // 结算昨天（todayKey 凌晨2点前还是昨天，所以用纯日期）
     const yest = new Date(); yest.setDate(yest.getDate()-1);
     const ds = `${yest.getFullYear()}-${String(yest.getMonth()+1).padStart(2,'0')}-${String(yest.getDate()).padStart(2,'0')}`;
     const entry = appData.history[ds];
     if(entry && !entry.aiCommentFinal && apiKey){
       await renderDsComment(ds, entry);
     }
-    // 如果当日总结正在看昨天，刷新评语
     if(_dsSel === ds) renderDaySummary(ds);
-    // 排期下一次
-    setTimeout(()=>{ doSettle(); scheduleMidnightSettle(); }, msToMidnight());
+    setTimeout(()=>{ doSettle(); }, msToMidnight());
   }
   setTimeout(doSettle, msToMidnight());
+})();
+
+// ── 特定时间段自动刷新今日评语 ──
+(function scheduleTimeSlotRefresh(){
+  const SLOTS = [9,12,20,1]; // 触发小时
+  function msToNextSlot(){
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    for(const slot of SLOTS){
+      if(h < slot) {
+        return ((slot - h - 1) * 3600 + (60 - m - 1) * 60 + (60 - s)) * 1000;
+      }
+    }
+    // 今天所有时间段已过，等到明天第一个
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, SLOTS[0], 0, 5);
+    return tomorrow - now;
+  }
+  function doRefresh(){
+    const ds = calendarDateKey();
+    const entry = ensureDayEntry(ds);
+    if(!entry.aiCommentFinal){
+      entry._todayCommentKey = null;
+      if(_dsSel === ds) renderDsComment(ds, entry);
+    }
+    setTimeout(doRefresh, msToNextSlot());
+  }
+  setTimeout(doRefresh, msToNextSlot());
 })();
 
 // ══════════════════════════════════════════════
@@ -2609,9 +2999,11 @@ function finishTimer(exitEarly) {
   clearInterval(timerState.interval);
   timerState.running=false;
   const focusedMin=Math.round(timerState.accSec/60);
-  const tk=todayKey();
+  const tk=calendarDateKey();
   const e=ensureDayEntry(tk);
   e.focusMin=(e.focusMin||0)+focusedMin;
+  // 专注时长变化 → 清除今日评语缓存 key
+  if(!e.aiCommentFinal) e._todayCommentKey = null;
   // 按小时分配专注分钟（跨小时情况简化处理：全归结束时所在小时）
   const hr=new Date().getHours();
   e.hourly[hr].f=(e.hourly[hr].f||0)+focusedMin;
@@ -3927,9 +4319,158 @@ function nowTimeStr() {
 }
 
 // ── 抽屉开关 ─────────────────────────────────
+// ══════════════════════════════════════════════
+// 习惯打卡
+// ══════════════════════════════════════════════
+function habitNewId(){ return 'h' + Date.now() + Math.random().toString(36).slice(2,6); }
+
+let _habitCollapsed = false;
+
+function toggleHabitPanel() {
+  _habitCollapsed = !_habitCollapsed;
+  const panel = document.getElementById('js-habit-panel');
+  const icon  = document.getElementById('js-habit-toggle');
+  panel.classList.toggle('collapsed', _habitCollapsed);
+  icon.textContent = '▾';
+  if(_habitCollapsed) toggleHabitInputPopup(false);
+}
+
+function habitStreak(habit) {
+  // 连续打卡天数（从今天往前数）
+  let count = 0;
+  const d = new Date(Date.now() - 2*60*60*1000);
+  for(let i=0; i<365; i++){
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(habit.checks && habit.checks[key]) { count++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return count;
+}
+
+function habitTotal(habit) {
+  return Object.keys(habit.checks || {}).length;
+}
+
+function renderHabitList() {
+  const body = document.getElementById('js-habit-body');
+  if(!body) return;
+  const habits = appData.habits || [];
+  const today  = todayKey();
+
+  if(habits.length === 0){
+    body.innerHTML = '<div class="habit-empty">还没有习惯，添加一个吧</div>';
+    return;
+  }
+
+  body.innerHTML = habits.map(h => {
+    const checked  = !!(h.checks && h.checks[today]);
+    const total    = habitTotal(h);
+    const fullName = `${h.title}-第${total > 0 ? total : 1}天`;
+    return `
+    <div class="habit-item ${checked?'checked':''}" id="habit-${h.id}" oncontextmenu="openHabitCtx(event,'${h.id}')">
+      <div class="habit-name"><span class="habit-dot"></span>${fullName}</div>
+      <div class="habit-dots-line"></div>
+      <div class="habit-check" onclick="toggleHabitCheck('${h.id}')">${checked?'✓':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHabitCheck(id) {
+  const habit = (appData.habits||[]).find(h=>h.id===id);
+  if(!habit) return;
+  if(!habit.checks) habit.checks = {};
+  const today = todayKey();
+  if(habit.checks[today]) delete habit.checks[today];
+  else habit.checks[today] = true;
+  save();
+  renderHabitList();
+}
+
+function deleteHabit(id) {
+  appData.habits = (appData.habits||[]).filter(h=>h.id!==id);
+  save();
+  renderHabitList();
+}
+
+// ── 右键菜单 ──
+let _habitCtxId = null;
+function openHabitCtx(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  _habitCtxId = id;
+  const menu = document.getElementById('js-habit-ctx-menu');
+  menu.classList.add('show');
+  // 定位，避免超出视口
+  const x = Math.min(e.clientX, window.innerWidth - 130);
+  const y = Math.min(e.clientY, window.innerHeight - 90);
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+}
+function closeHabitCtx() {
+  document.getElementById('js-habit-ctx-menu').classList.remove('show');
+  _habitCtxId = null;
+}
+document.getElementById('js-habit-ctx-top').onclick = () => {
+  if(!_habitCtxId) return;
+  const idx = (appData.habits||[]).findIndex(h=>h.id===_habitCtxId);
+  if(idx > 0) {
+    const [h] = appData.habits.splice(idx, 1);
+    appData.habits.unshift(h);
+    save(); renderHabitList();
+  }
+  closeHabitCtx();
+};
+document.getElementById('js-habit-ctx-del').onclick = () => {
+  if(!_habitCtxId) return;
+  deleteHabit(_habitCtxId);
+  closeHabitCtx();
+};
+document.addEventListener('click', e => {
+  const menu = document.getElementById('js-habit-ctx-menu');
+  if(menu && menu.classList.contains('show') && !menu.contains(e.target)) closeHabitCtx();
+});
+document.addEventListener('contextmenu', e => {
+  // 点击其他区域时关闭菜单
+  if(!e.target.closest('#js-habit-body')) closeHabitCtx();
+});
+
+function addHabit() {
+  const inp = document.getElementById('js-habit-add-input');
+  const title = inp.value.trim();
+  if(!title) return;
+  if(!appData.habits) appData.habits = [];
+  appData.habits.push({id:habitNewId(), title, createdAt:new Date().toISOString(), checks:{}});
+  save();
+  renderHabitList();
+  inp.value = '';
+  toggleHabitInputPopup(false);
+}
+
+// ── 内嵌输入行 ──
+let _habitPopupOpen = false;
+function toggleHabitInputPopup(force) {
+  const popup = document.getElementById('js-habit-input-popup');
+  const inp   = document.getElementById('js-habit-add-input');
+  _habitPopupOpen = force !== undefined ? force : !_habitPopupOpen;
+  popup.classList.toggle('show', _habitPopupOpen);
+  if(_habitPopupOpen) setTimeout(()=>inp.focus(), 80);
+  else inp.value = '';
+}
+document.getElementById('js-habit-add-trigger').onclick = (e)=>{
+  e.stopPropagation();
+  toggleHabitInputPopup();
+};
+
+document.getElementById('js-habit-add-btn').onclick = addHabit;
+document.getElementById('js-habit-add-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); addHabit(); }
+  if(e.key==='Escape'){ toggleHabitInputPopup(false); }
+});
+
 function openJournal() {
   renderNoteList();
   renderBillList();
+  renderHabitList();
   document.getElementById('js-journal-drawer').classList.add('open');
   document.getElementById('js-drawer-overlay').classList.add('show');
 }
@@ -4252,7 +4793,8 @@ function renderJournalTimeline() {
   if (!tl) return;
   const allDates = new Set([
     ...Object.keys(appData.notes||{}),
-    ...Object.keys(appData.bills||{})
+    ...Object.keys(appData.bills||{}),
+    ...(appData.habits||[]).flatMap(h=>Object.keys(h.checks||{}))
   ]);
   const sorted = [...allDates].sort().reverse();
   if (!sorted.length) {
@@ -4276,8 +4818,9 @@ function renderJournalTimeline() {
     const days = byMonth[ym];
     const dayBtns = days.map(ds => {
       const isToday = ds === todayKey();
-      const hasBill = (appData.bills[ds]||[]).length > 0;
-      return `<div class="jt-day ${isToday?'today-mark':''} ${hasBill?'has-bill':''}"
+      const hasBill  = (appData.bills[ds]||[]).length > 0;
+      const hasHabit = (appData.habits||[]).some(h=>h.checks&&h.checks[ds]);
+      return `<div class="jt-day ${isToday?'today-mark':''} ${hasBill?'has-bill':''} ${hasHabit?'has-habit':''}"
         id="jt-day-${ds}" onclick="journalGoDate('${ds}')">${parseInt(ds.slice(8))}日</div>`;
     }).join('');
     return `<div class="jt-month-row" onclick="toggleJournalMonth('${ym}')">
@@ -4334,14 +4877,30 @@ function renderJournalHistoryView(ds) {
   const bills = appData.bills[ds]||[];
   const [y,m,d]=ds.split('-');
   let h = `<div class="jhv-date">${y}年${parseInt(m)}月${parseInt(d)}日</div>`;
+
+  // 习惯打卡记录
+  const checkedHabits = (appData.habits||[]).filter(hb=>hb.checks&&hb.checks[ds]);
+  if(checkedHabits.length){
+    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.7;margin-bottom:2px;text-transform:uppercase">习惯打卡</div>`;
+    h += checkedHabits.map(hb=>{
+      const total = Object.keys(hb.checks||{}).sort().indexOf(ds) + 1;
+      return `<div class="jhv-habit-row">
+        <span class="jhv-habit-check">✓</span>
+        <span class="jhv-habit-name">${escapeHtml(hb.title)}</span>
+        <span class="jhv-habit-day">第 ${total} 天</span>
+      </div>`;
+    }).join('');
+  }
+
   if (notes.length) {
+    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.7;margin-top:${checkedHabits.length?'10':'0'}px;margin-bottom:2px;text-transform:uppercase">小纸条</div>`;
     h += notes.map(n=>`<div class="jhv-note"><div class="jhv-note-time">${n.time||''}</div>${escapeHtml(n.text)}</div>`).join('');
   } else {
-    h += '<div style="font-size:0.7rem;opacity:0.25;padding:4px 0">当日无小纸条</div>';
+    h += `<div style="font-size:0.7rem;opacity:0.25;padding:4px 0;margin-top:${checkedHabits.length?'6':'0'}px">当日无小纸条</div>`;
   }
   if (bills.length) {
     const total = bills.reduce((s,b)=>s+b.amount,0);
-    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.3;margin-top:10px;text-transform:uppercase">账单 · ¥${total.toFixed(2)}</div>`;
+    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.7;margin-top:10px;margin-bottom:2px;text-transform:uppercase">账单 · ¥${total.toFixed(2)}</div>`;
     h += bills.map(b=>{
       const isInc=b.amount>=0;
       return `<div class="jhv-bill-row">
