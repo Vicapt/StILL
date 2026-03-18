@@ -264,10 +264,12 @@
   --imm-btn-color:rgba(30,65,85,0.6);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* 昼夜切换过渡（不覆盖动画） */
+body,div,span,button,input,textarea,select,a,canvas{transition:background-color 0.45s ease,color 0.45s ease,border-color 0.45s ease}
 body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',sans-serif}
 
 /* SKY */
-.sky{position:relative;width:100%;height:100vh;background:linear-gradient(170deg,var(--sky-top) 0%,var(--sky-mid) 55%,var(--sky-bottom) 100%);transition:background 0.6s;display:flex;align-items:center;justify-content:center;gap:20px}
+.sky{position:relative;width:100%;height:100vh;background:linear-gradient(170deg,var(--sky-top) 0%,var(--sky-mid) 55%,var(--sky-bottom) 100%);display:flex;align-items:center;justify-content:center;gap:20px}
 .city-glow{position:absolute;bottom:0;left:0;right:0;height:35%;background:radial-gradient(ellipse at 50% 110%,var(--city-glow) 0%,transparent 70%);pointer-events:none;z-index:0}
 .rain-container{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;transition:opacity 0.8s}
 .rain-drop{position:absolute;top:-80px;width:1.2px;background:linear-gradient(to bottom,transparent,var(--rain-drop-color,rgba(180,210,255,0.4)));animation:fall linear infinite}
@@ -350,6 +352,27 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.87rem;line-height:1.6;animation:msgIn 0.3s cubic-bezier(0.34,1.5,0.64,1) both}
 @keyframes msgIn{from{opacity:0;transform:translateY(6px) scale(0.97)}to{opacity:1;transform:none}}
 .msg.ai{background:var(--msg-ai);align-self:flex-start;border-radius:4px 14px 14px 14px}
+/* 消息包装：气泡 + 气泡外按钮 */
+.msg-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:5px;max-width:85%;animation:msgIn 0.3s cubic-bezier(0.34,1.5,0.64,1) both}
+.msg-wrap .msg{max-width:100%;animation:none}
+.msg-wrap.user-wrap{align-self:flex-end;align-items:flex-end}
+/* 气泡外按钮行 */
+.msg-action-btns{display:flex;gap:6px;padding-left:2px}
+.msg-action-btn{
+  background:var(--glass);border:1px solid var(--glass-b);
+  color:var(--txt-dim);border-radius:8px;
+  padding:3px 11px;font-size:0.7rem;
+  cursor:pointer;font-family:inherit;transition:0.15s;
+}
+.msg-action-btn:hover{background:var(--glass-h);color:var(--txt)}
+.msg-action-btn.confirm{border-color:rgba(100,210,140,0.4);color:rgba(100,210,140,0.9)}
+.msg-action-btn.confirm:hover{background:rgba(100,210,140,0.12)}
+.msg-action-btn.cancel{border-color:rgba(255,100,80,0.35);color:rgba(255,100,80,0.8)}
+.msg-action-btn.cancel:hover{background:rgba(255,100,80,0.1)}
+.msg-action-btn.primary{border-color:var(--amber-b);color:var(--amber-accent)}
+.msg-action-btn.primary:hover{background:var(--amber)}
+/* 旧的教学按钮保留兼容 */
+.teaching-btns{display:none}
 .msg.user{background:var(--msg-user);align-self:flex-end;border-radius:14px 4px 14px 14px;text-align:right}
 .msg-label{font-size:0.65rem;opacity:0.38;margin-bottom:4px}
 .msg.milestone{background:rgba(255,200,80,0.1);border:1px solid rgba(255,200,80,0.2);align-self:center;text-align:center;border-radius:14px;max-width:78%;font-size:0.83rem;color:rgba(255,220,140,0.95);padding:10px 16px}
@@ -358,8 +381,8 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .msg ol{list-style:decimal}
 .msg ul{list-style:disc}
 .msg strong{color:var(--amber-accent,rgba(255,200,130,0.95));font-weight:600}
-.typing-indicator{display:flex;gap:5px;align-self:flex-start;padding:12px 14px}
-.typing-indicator span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.35);animation:blink 1.2s infinite}
+.typing-indicator{display:flex;gap:5px;align-self:flex-start;padding:4px 2px}
+.typing-indicator span{width:5px;height:5px;border-radius:50%;background:var(--txt-dim);animation:blink 1.2s infinite;opacity:0.5}
 .typing-indicator span:nth-child(2){animation-delay:0.2s}
 .typing-indicator span:nth-child(3){animation-delay:0.4s}
 @keyframes blink{0%,100%{opacity:0.25}50%{opacity:1}}
@@ -472,14 +495,14 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .imm-btn.danger:hover{background:rgba(255,60,60,0.2);border-color:rgba(255,60,60,0.3);color:rgba(255,120,100,0.9)}
 /* 沉浸模式播放器 — 右下角悬浮，低调不抢镜 */
 .imm-player{
-  position:absolute;right:32px;bottom:36px;
-  display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+  position:absolute;left:32px;bottom:36px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
   z-index:310;opacity:0.45;transition:opacity 0.25s;
 }
 .imm-player:hover{opacity:1}
 .imm-track-name{
   font-size:0.65rem;letter-spacing:0.5px;
-  color:var(--txt-dim);text-align:right;
+  color:var(--txt-dim);text-align:left;
   max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   transition:opacity 0.22s,transform 0.22s;
 }
@@ -488,12 +511,14 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .imm-player-btns{display:flex;align-items:center;gap:4px}
 .imm-ctrl{
   background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  color:rgba(255,255,255,0.5);border-radius:7px;
+  color:var(--ctrl-color);border-radius:7px;
   width:26px;height:26px;font-size:0.72rem;cursor:pointer;
   font-family:inherit;transition:background 0.15s,color 0.15s;
   display:flex;align-items:center;justify-content:center;padding:0;
 }
-.imm-ctrl:hover{background:rgba(255,255,255,0.14);color:white}
+[data-theme="day"] .imm-ctrl{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1)}
+.imm-ctrl:hover{background:rgba(255,255,255,0.14);color:var(--txt)}
+[data-theme="day"] .imm-ctrl:hover{background:rgba(0,0,0,0.08)}
 .imm-ctrl.play{width:30px;height:30px;font-size:0.8rem;border-radius:9px;background:rgba(255,160,80,0.25);border-color:rgba(255,160,80,0.3);color:rgba(255,200,130,0.9)}
 .imm-ctrl.play:hover{background:rgba(255,160,80,0.4)!important}
 .imm-ctrl.play.active{background:rgba(255,160,80,0.35)}
@@ -1079,6 +1104,11 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .note-list::-webkit-scrollbar{width:2px}
 .note-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
 .note-item{background:var(--note-bg);border:1px solid var(--note-b);border-radius:9px;padding:7px 9px;position:relative}
+.note-item.loading .note-text{opacity:0.4}
+.note-loading-dots{display:flex;gap:4px;align-items:center;padding:2px 0}
+.note-loading-dots span{width:4px;height:4px;border-radius:50%;background:var(--txt-dim);animation:tdot 1.2s infinite;opacity:0.5}
+.note-loading-dots span:nth-child(2){animation-delay:0.2s}
+.note-loading-dots span:nth-child(3){animation-delay:0.4s}
 .note-time{font-size:0.58rem;opacity:0.28;letter-spacing:0.5px;margin-bottom:3px}
 .note-text{font-size:0.74rem;color:var(--txt);line-height:1.55;word-break:break-all}
 .note-del{position:absolute;top:5px;right:6px;background:transparent;border:none;color:rgba(255,80,60,0.35);font-size:0.7rem;cursor:pointer;opacity:0;transition:0.15s;padding:1px 3px}
@@ -1291,18 +1321,19 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .bill-edit-row{display:flex;gap:6px}
 .bill-edit-save{flex:1;background:rgba(255,160,80,0.2);border:1px solid rgba(255,160,80,0.3);color:rgba(255,200,120,0.9);border-radius:7px;padding:5px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s}
 .bill-edit-save:hover{background:rgba(255,160,80,0.35)}
-.bill-edit-cancel{background:rgba(255,255,255,0.05);border:1px solid var(--glass-b);color:rgba(255,255,255,0.4);border-radius:7px;padding:5px 10px;font-size:0.72rem;cursor:pointer;font-family:inherit}
+.bill-edit-cancel{background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-muted);border-radius:7px;padding:5px 10px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s}
+.bill-edit-cancel:hover{background:var(--glass-h);color:var(--txt)}
 
 /* 心情晴雨表 */
 .mood-chart-title{font-size:0.58rem;letter-spacing:2px;opacity:0.3;text-transform:uppercase;margin-bottom:6px}
 #js-journal-history-detail{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;min-height:0}
 #js-journal-history-detail::-webkit-scrollbar{width:2px}
 #js-journal-history-detail::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
-.hv-charts-row{display:flex;flex-shrink:0;border-top:1px solid var(--glass-b)}
-.hv-chart-col{flex:1;display:flex;flex-direction:column;padding:6px 10px 8px}
-.hv-chart-col:first-child{border-right:1px solid var(--glass-b)}
+.hv-charts-row{display:flex;flex-direction:column;flex-shrink:0;border-top:1px solid var(--glass-b)}
+.hv-chart-col{display:flex;flex-direction:column;padding:6px 16px 4px}
+.hv-chart-col:last-child{padding-bottom:10px;border-top:1px solid var(--glass-b)}
 .hv-chart-label{font-size:0.58rem;letter-spacing:2px;opacity:0.7;text-transform:uppercase;margin-bottom:4px}
-.hv-chart-col canvas{width:100%!important;height:52px!important;display:block}
+.hv-chart-col canvas{width:100%!important;height:56px!important;display:block}
 
 /* 历史视图分区 */
 .hv-section{flex-shrink:0;border-bottom:1px solid var(--glass-b)}
@@ -1420,6 +1451,12 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
     <button class="cd-btn cancel" id="js-cd-cancel">取消</button>
     <button class="cd-btn" id="js-cd-save">保存</button>
   </div>
+</div>
+
+<!-- 账单右键菜单 -->
+<div class="habit-ctx-menu" id="js-bill-ctx-menu">
+  <button class="habit-ctx-item" id="js-bill-ctx-flip">⇄ 收支互换</button>
+  <button class="habit-ctx-item danger" id="js-bill-ctx-del">删除</button>
 </div>
 
 <!-- 习惯右键菜单 -->
@@ -1648,7 +1685,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
     </div>
     <div class="custom-dur">
       <span>自定义：</span>
-      <input type="number" id="js-custom-min" min="1" max="180" placeholder="分钟">
+      <input type="number" id="js-custom-min" min="1" max="180" placeholder="—">
       <span>分钟</span>
     </div>
     <div class="timer-actions">
@@ -3045,7 +3082,7 @@ function startImmersive(totalSec, taskId, customLabel) {
 
   // Enhance rain
   const _isDay=document.documentElement.getAttribute('data-theme')=='day';
-  buildRainMemo(140, 0.22, 0.35);
+  buildRainMemo(190, 0.45, 0.65);
   hideFloatCards();
 
   const taskLabel = customLabel || (taskId ? appData.todos.find(t=>t.id===taskId)?.title||'专注中' : '专注中');
@@ -3158,80 +3195,102 @@ function getSystem() {
           subtasks:(t.subtasks||[]).map(s=>({id:s.id,title:s.title,done:s.done,weight:s.weight})) }
       : { id:t.id, title:t.title, progress:t.progress, isCompleted:t.isCompleted }
   ));
+
+  const today = calendarDateKey();
+  const countdownsJson = JSON.stringify((appData.countdowns||[]).map(c=>{
+    const days = cdDaysLeft(c);
+    return { id:c.id, name:c.name, date:c.date, repeat:c.repeat, daysLeft:days,
+             status: days < 0 ? '已过期' : days === 0 ? '就是今天' : `还有${days}天` };
+  }));
+
   return `你是 StILL，一个温和专注的 AI 陪伴助手。说话简洁，像靠谱的朋友，不啰嗦。
 
-当前任务清单：${todosJson}
+【当前数据】
+任务清单：${todosJson}
+倒数日：${countdownsJson}
+今天：${today}
 
-═══ 规则 ═══
+═══ 任务管理 ═══
 
-【新增任务】只有当用户明确表达"今天要做 XX""打算去做 XX"等计划意图时，才问"加入清单？"。
-确认后输出：[ADD_TASKS][{"title":"任务名","estimatedMin":分钟},…][/ADD_TASKS]
-加完问"从哪个开始？"
-- 用户拒绝加入后，不再重复询问同一件事
-- 用户只是随口聊天、问问题、闲聊 → 直接回答，不扯清单
+【新增】用户明确表达计划意图时，先列出任务询问，同时输出 ADD_TASKS 指令和确认标记：
+是否将以下任务加入清单？
+1. 任务A
+2. 任务B
+[ADD_TASKS][{"title":"任务A","estimatedMin":30},{"title":"任务B","estimatedMin":20}][/ADD_TASKS][CONFIRM:add_tasks]
+前端会在气泡下方显示 ✓/✗ 按钮，用户点 ✓ 才执行，点 ✗ 不执行。
+用户拒绝后不再重复问同一件事。
 
-【题外话与闲聊】用户突然问和任务无关的问题（知识、八卦、感受、随机好奇等）：
-- 直接正常回答，就像朋友聊天一样
-- 回答完最后可以轻描淡写加一句提醒，如"回来继续「任务名」吧"或"说完记得回来～"
-- 不要把每一句话都往任务上引，不要强迫用户专注"
+【操作确认】以下操作在询问的同时输出指令+对应确认标记：
+- 删除任务：[CD_DELETE:id][/CD_DELETE][CONFIRM:delete_tasks]
+- 清空清单：（系统处理）[CONFIRM:clear_all]
+- 删除倒数日：[CD_DELETE:id][/CD_DELETE][CONFIRM:cd_delete]
+- 修改倒数日：[CD_UPDATE:id]{"date":"YYYY-MM-DD"}[/CD_UPDATE][CONFIRM:cd_update]
+细分步骤、更新进度、SUBTASK_DONE 不需要确认，直接执行。
 
-【清除任务后的引导】当系统通知你"已清除任务"或"清单已清空"时：
-- 先用一句话自然确认（如"好，清掉了"）
-- 然后问："有新的计划要加进来吗？"
-- 不要罗列建议，等用户自己说
-
-【任务细分——开始一个任务时的判断流程】
-收到任务切换通知 [系统通知:SWITCH:...] 时，必须先判断该任务是否需要细分：
-
-步骤1：判断任务类型
-★ 生活类任务（如：吃饭、睡觉、散步、上课、做菜、买东西、看电影、上舞蹈课、聚会、运动等纯线下活动）
-  → 这类任务用户通常只当记事本用，不需要步骤拆解
-  → 直接问："「任务名」要细分步骤，还是就当个提醒放着？"
-  → 若用户说不用 → 保持任务原样，说"好，放着就行，完事了告诉我"
-  → 若用户说要细分 → 进行步骤2
-
-★ 学习/工作类任务（如：写作业、背单词、做报告、写论文、学编程等有明确可拆分步骤的任务）
-  → 这类通常需要细分
-  → 进行步骤2
-
-步骤2：细分前的资料确认（仅当确定要细分时）
-- 已知有参考书/大纲/要求 → 直接细分，不再问
-- 不清楚 → 只问一句："有大纲或参考资料吗，还是我帮你定方案？"
-  得到回复后立即输出细分，不再追问
-
-步骤3：输出细分
+【细分】收到 [系统通知:SWITCH:任务名] 时判断是否需要细分：
+- 生活类（吃饭、运动、聚会等）→ 先问"要细分步骤还是当提醒放着？"
+- 学习/工作类 → 直接进入细分流程
+细分前若资料不明，只问一句"有大纲或参考资料吗？"，得到回复后立即输出：
 [SUBTASKS:任务id][{"id":"s1","title":"步骤名","weight":分钟},…][/SUBTASKS]
-输出后说"拆好了，从第一步开始吧"
+⚠️ 任务id必须从上方「任务清单」JSON里复制对应的 id 字段，不能用任务名称代替。细分步骤会归入该任务下，不会新建任务。
 
-【进度】用户说完成了某步骤，或说"好了""完成了""下一步"时，立即输出：
-[SUBTASK_DONE:任务id:子任务id][/SUBTASK_DONE]
-每完成一步必须输出一次，不可省略，id必须精确匹配清单里的值。
-无子任务时：[TASK_UPDATE]{"id":"任务id","progress":数字,"isCompleted":布尔}[/TASK_UPDATE]
+【进度】严格区分「开始」「理解」和「完成」：
+- 用户说"开始""从第一步""我要做XX" → 开始执行该步骤内容（教学/引导），不输出任何完成指令
+- 用户说"ok""好""好的""嗯""明白""懂了""理解了" → 这是理解信号，继续讲解，不输出完成指令
+- 用户说"完成了""做完了""搞定""跳过""下一步""我会了可以下一步了" → 输出当前步骤完成指令
+- 用户说"任务完成""全部完成""结束了""到此为止" → 输出当前步骤 SUBTASK_DONE，前端会自动补全所有步骤并完成整个任务
 
-【重要】清除任务、完成任务这类操作由前端系统直接处理，你不需要输出任何指令。
-当收到 [系统通知:...] 时，按对应规则处理，回复简洁自然。
+【步骤顺序规则】子任务必须按顺序完成，不可跳过：
+- 每次只输出当前正在进行的步骤的 SUBTASK_DONE
+- 前端会自动把该步骤之前所有未完成的步骤一并补全，无需你手动输出多个 SUBTASK_DONE
+- id 须精确匹配清单里的值
 
-【回复格式】
-- 日常对话：纯文字，自然口语，不加任何 markdown
-- 有明确步骤/列表（3条以上）：用数字列表或短横线列表
-- 需要强调的关键词：用 **粗体**，每条回复最多 2-3 处
-- 禁止：不必要的标题行、过度粗体、超过一层的嵌套列表
+有子任务：[SUBTASK_DONE:任务id:子任务id][/SUBTASK_DONE]
+无子任务：[TASK_UPDATE]{"id":"任务id","progress":数字,"isCompleted":布尔}[/TASK_UPDATE]
 
-【语气】简洁温和，一次只问一个问题，遇到模糊情况主动做决策。
+【教学提示】进行教学/讲解类任务时，每次讲完一段内容后，在回复末尾加上：
+[TEACHING_PROMPT:任务id:子任务id]
+前端会自动在消息下方显示「继续 →」和「跳过本步」按钮，用户点击继续时你会收到「继续」消息，请接着讲下一个知识点；收到跳过通知时进入下一步。
+注意：只在教学/讲解场景加此标记，普通对话不加。
 
-【倒数日感知】当收到 [系统通知:COUNTDOWN_ADDED] 时：
-- 根据剩余天数判断轻重：
-  ≥365天 → 轻描淡写鼓励一句，不需要提醒准备
-  30~364天 → 简短提及，月初会梳理
-  ≤30天 → 提示用户提前准备，语气温和不焦虑
-  ≤7天 → 明确提醒，问是否需要拆解成任务
-- 每日问候时（收到 [SYSTEM_GREETING]），从倒数日中挑选近期的自然带一句
-- 每月1日问候时，对本月内的倒数日进行简短梳理`;
+【清空后】先确认"好，清掉了"，再问"有新的计划要加进来吗？"
+
+═══ 倒数日 ═══
+
+【新建倒数日】用户要求添加倒数日时，告诉用户：点击左上角 📅 打开专注日历，点击 ＋ 填写表单添加；或者直接双击日历上对应的日期格子快速创建。
+
+【查询】只在用户主动提到倒数日时查表回答，平时不主动提及。
+
+【新增响应】收到 [系统通知:COUNTDOWN_ADDED] 时根据剩余天数回应：
+≥365天 → 轻描淡写鼓励一句
+30~364天 → 简短提及
+≤30天 → 温和提示提前准备
+≤7天 → 明确提醒，问是否新建并拆解成任务
+
+【过期处理】每日问候时若收到过期倒数日信息，自然提醒并询问删除还是延期：
+删除 → [CD_DELETE:id][/CD_DELETE]
+延期 → [CD_UPDATE:id]{"date":"YYYY-MM-DD"}[/CD_UPDATE]
+
+【月度梳理】每月1日问候时，自然带出本月内的倒数日。
+
+═══ 通用规则 ═══
+
+【闲聊】直接回答，不强行扯回任务。回答完可轻描淡写提一句"回来继续吧"。
+
+【格式】日常对话纯文字口语；列表3条以上才用数字/短横线；**粗体**每条最多2-3处；禁用标题行和嵌套列表。
+
+【语气】简洁温和，一次只问一个问题，遇到模糊情况主动决策。
+
+【系统通知】收到任何 [系统通知:...] 时只输出自然语言回应，绝不在回复中重复或引用通知原文和JSON。`;
 }
 
 async function callAI(messages) {
   const model=currentPlatform?.model||'deepseek-chat';
-  const res=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey,model,messages:[{role:'system',content:getSystem()},...messages.filter(m=>m.role!=='milestone').map(m=>({role:m.role,content:m.content}))],temperature:0.7,max_tokens:600})});
+  const res=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    apiKey,model,
+    messages:[{role:'system',content:getSystem()},...messages.filter(m=>m.role!=='milestone').map(m=>({role:m.role,content:m.content}))],
+    temperature:0.7,max_tokens:600
+  })});
   if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
   const data=await res.json();
   return data.choices[0].message.content;
@@ -3251,6 +3310,133 @@ async function autoNameTopic(topicId) {
   } catch(e){}
 }
 
+// ── 操作确认系统 ──────────────────────────────────────────
+// 设计：AI 输出正常指令(ADD_TASKS等) + 简单 [CONFIRM:type] 标记
+// 前端检测到标记 → 暂存整条 raw → 显示✓✗按钮 → 用户点击才执行
+let _pendingConfirmRaw  = null; // 暂存 AI 原始输出
+let _pendingConfirmType = null; // 操作类型
+
+function _detectConfirmType(raw) {
+  const m = raw.match(/\[CONFIRM:([a-z_]+)\]/);
+  return m ? m[1] : null;
+}
+
+function confirmAction() {
+  if(!_pendingConfirmRaw) return;
+  const raw  = _pendingConfirmRaw;
+  const type = _pendingConfirmType;
+  _pendingConfirmRaw = null;
+  _pendingConfirmType = null;
+  _removeConfirmMark();
+  const topic = appData.topics[appData.activeTopicId];
+
+  // 执行原始指令
+  const {cleanText, milestones} = applyTaskUpdate(raw);
+  for(const{todo,cp} of milestones){
+    const txt=milestoneMsg(todo,cp); if(txt) topic.messages.push({role:'milestone',content:txt});
+  }
+  save(); UI.render();
+
+  // 用户侧显示"确认"，AI 自然回应
+  const confirmSysMsg = {
+    add_tasks:    '[系统通知: 任务已加入清单，请问用户从哪个开始]',
+    clear_all:    '[系统通知: 清单已清空，请自然确认并问有没有新计划]',
+    delete_tasks: '[系统通知: 任务已删除，请自然确认]',
+    cd_delete:    '[系统通知: 倒数日已删除，请自然确认]',
+    cd_update:    '[系统通知: 倒数日日期已更新，请自然确认]',
+  }[type] || '[系统通知: 操作已完成，请自然确认]';
+  _autoUserMsg('确认', topic, confirmSysMsg);
+}
+
+function cancelAction() {
+  _pendingConfirmRaw  = null;
+  _pendingConfirmType = null;
+  _removeConfirmMark();
+  const topic = appData.topics[appData.activeTopicId];
+  _autoUserMsg('不用了', topic, '[系统通知: 用户取消了操作，请自然回应说明白了，不要再追问或建议替代方案]');
+}
+
+// 代替用户自动发送一条消息（显示在对话框里），并附带系统通知给 AI
+function _autoUserMsg(userText, topic, sysNotice) {
+  topic.messages.push({role:'user', content:userText});
+  UI.showTyping(false);
+  UI.render();
+  if(apiKey) callAIAndRespond(sysNotice, topic, false, false);
+}
+
+function _removeConfirmMark() {
+  const topic = appData.topics[appData.activeTopicId];
+  const last = topic?.messages[topic.messages.length-1];
+  if(last) last.content = last.content.replace(/\[CONFIRM:[a-z_]+\]/g,'').trim();
+  UI.render();
+}
+
+// ── 教学按钮处理 ──
+function teachingContinue(ids) {
+  const topic = appData.topics[appData.activeTopicId];
+  if(!topic || !apiKey) return;
+
+  // 找到当前步骤信息，告知 AI 上下文
+  let sysMsg = null;
+  if(ids){
+    const [todoId, subId] = ids.split(':');
+    const todo = appData.todos.find(t=>t.id===todoId);
+    if(todo){
+      const subIdx = todo.subtasks?.findIndex(s=>s.id===subId) ?? -1;
+      const sub = todo.subtasks?.[subIdx];
+      const next = todo.subtasks?.slice(subIdx+1).find(s=>!s.done);
+      if(sub){
+        sysMsg = next
+          ? `[系统通知: 用户点击「继续」，当前仍在步骤「${sub.title}」，下一步是「${next.title}」。如果当前步骤内容已讲完，请输出 [SUBTASK_DONE:${todoId}:${subId}][/SUBTASK_DONE] 并开始讲「${next.title}」；如果还有内容未讲，请继续讲当前步骤。]`
+          : `[系统通知: 用户点击「继续」，当前在最后一步「${sub.title}」。如果内容已讲完，请输出 [SUBTASK_DONE:${todoId}:${subId}][/SUBTASK_DONE] 并祝贺用户完成任务。]`;
+      }
+    }
+  }
+
+  topic.messages.push({role:'user', content:'继续'});
+  UI.renderChat();
+  UI.showTyping(false);
+  callAIAndRespond(sysMsg, topic, false, false);
+}
+
+function teachingSkip(ids) {
+  const [todoId, subId] = ids.split(':');
+  const todo = appData.todos.find(t=>t.id===todoId);
+  if(!todo||!todo.subtasks) return;
+
+  // 顺序补全到当前步骤
+  const targetIdx = todo.subtasks.findIndex(s=>s.id===subId);
+  if(targetIdx === -1) return;
+  for(let i=0; i<=targetIdx; i++) todo.subtasks[i].done = true;
+
+  const allDone = todo.subtasks.every(s=>s.done);
+  todo.progress = allDone ? 100 : calcProgressFromSubtasks(todo);
+  const wasCompleted = todo.isCompleted;
+  todo.isCompleted = allDone;
+  if(allDone && !wasCompleted) recordTaskCompleted(todo);
+  save(); UI.render();
+
+  const topic = appData.topics[appData.activeTopicId];
+  if(topic && apiKey){
+    const next = todo.subtasks.find(s=>!s.done);
+    const skipMsg = next
+      ? `[系统通知:SWITCH:${todo.title}] 用户跳过到「${next.title}」，请开始讲解这一步。`
+      : `[系统通知: 所有步骤已完成，任务「${todo.title}」结束，请祝贺用户。]`;
+    callAIAndRespond(skipMsg, topic, false, false);
+  }
+}
+
+function _inferActionReply(raw) {
+  if (/\[SUBTASK_UNDO:/.test(raw))      return '好，已撤销，重新来过。';
+  if (/\[ADD_TASKS\]/.test(raw))        return '好，已加入清单！从哪个开始？';
+  if (/\[SUBTASKS:/.test(raw))          return '拆好了，从第一步开始吧。';
+  if (/\[SUBTASK_DONE:/.test(raw))      return '✓ 完成，继续下一步！';
+  if (/\[TASK_UPDATE\]/.test(raw))      return '好，已更新进度。';
+  if (/\[CD_DELETE:/.test(raw))         return '好，倒数日已删除。';
+  if (/\[CD_UPDATE:/.test(raw))         return '好，日期已更新。';
+  return '';
+}
+
 function calcProgressFromSubtasks(todo) {
   const subs = todo.subtasks || [];
   if (!subs.length) return todo.progress;
@@ -3262,6 +3448,10 @@ function calcProgressFromSubtasks(todo) {
 function applyTaskUpdate(text) {
   const milestones=[];
   let clean = text;
+  // 清除 AI 误输出的系统通知内容
+  clean = clean.replace(/\[系统通知:[^\]]*\][\s\S]*?\[\/系统通知:[^\]]*\]/g,'').trim();
+  clean = clean.replace(/\[系统通知:[^\]]*\]/g,'').trim();
+  // TEACHING_PROMPT 保留在 content 里供 renderChat 读取，不在此处删除
 
   // ── ADD_TASKS ──
   const addM = text.match(/\[ADD_TASKS\]([\s\S]*?)\[\/ADD_TASKS\]/);
@@ -3287,9 +3477,37 @@ function applyTaskUpdate(text) {
         todo.subtasks=subs.map(s=>({...s,done:false}));
         todo.isActive=true;
         appData.todos.forEach(t=>{if(t.id!==todoId)t.isActive=false;});
+      } else {
+        // id 对不上：尝试用活跃任务兜底
+        const active = appData.todos.find(t=>t.isActive && !t.isCompleted);
+        if(active){
+          active.subtasks=subs.map(s=>({...s,done:false}));
+          console.warn('SUBTASKS: id mismatch, applied to active task', active.title);
+        } else {
+          console.error('SUBTASKS: no matching todo for id', todoId);
+        }
       }
-    }catch(e){}
+    }catch(e){ console.error('SUBTASKS parse error', e, subM[2]); }
     clean = clean.replace(/\[SUBTASKS:[^\]]+\][\s\S]*?\[\/SUBTASKS\]/,'').trim();
+  }
+
+  // ── SUBTASK_UNDO（回退步骤） ──
+  const suM = text.match(/\[SUBTASK_UNDO:([^:]+):([^\]]+)\]/g);
+  if(suM){
+    suM.forEach(tag=>{
+      const parts = tag.match(/\[SUBTASK_UNDO:([^:]+):([^\]]+)\]/);
+      if(!parts) return;
+      const [,todoId,subId] = parts;
+      const todo = appData.todos.find(t=>t.id===todoId);
+      if(!todo) return;
+      const sub = todo.subtasks?.find(s=>s.id===subId);
+      if(sub) sub.done = false;
+      todo.isCompleted = false;
+      todo.progress = calcProgressFromSubtasks(todo);
+      todo.isActive = true;
+      appData.todos.forEach(t=>{ if(t.id!==todoId) t.isActive=false; });
+    });
+    clean = clean.replace(/\[SUBTASK_UNDO:[^:]+:[^\]]+\]/g,'').trim();
   }
 
   // ── SUBTASK_DONE ──
@@ -3300,19 +3518,27 @@ function applyTaskUpdate(text) {
       if(!parts)return;
       const [,todoId,subId]=parts;
       const todo=appData.todos.find(t=>t.id===todoId);
-      if(!todo)return;
-      const sub=todo.subtasks.find(s=>s.id===subId);
-      if(sub) sub.done=true;
-      // recalc progress
+      if(!todo||!todo.subtasks)return;
+
+      // 找到目标步骤的索引
+      const targetIdx = todo.subtasks.findIndex(s=>s.id===subId);
+      if(targetIdx === -1) return;
+
+      // 顺序补全：把目标步骤及之前所有未完成的步骤一并划掉
+      for(let i=0; i<=targetIdx; i++){
+        todo.subtasks[i].done = true;
+      }
+
+      // 重新计算进度
       const prev=todo.progress;
-      const allDone=todo.subtasks.length>0&&todo.subtasks.every(s=>s.done);
+      const allDone=todo.subtasks.every(s=>s.done);
       todo.progress=allDone?100:calcProgressFromSubtasks(todo);
-      const wasCompleted = todo.isCompleted;
+      const wasCompleted=todo.isCompleted;
       todo.isCompleted=allDone;
       if(allDone && !wasCompleted) recordTaskCompleted(todo);
       if(!todo.lastMilestone)todo.lastMilestone=0;
       if(todo.progress>0&&!todo.isCompleted){appData.todos.forEach(t=>t.isActive=false);todo.isActive=true;}
-      for(const cp of[100]){ // only 100% triggers gold — 50/80 handled softly in chat
+      for(const cp of[100]){
         if(prev<cp&&todo.progress>=cp&&todo.lastMilestone<cp){todo.lastMilestone=cp;milestones.push({todo,cp});}
       }
     });
@@ -3341,6 +3567,27 @@ function applyTaskUpdate(text) {
     clean = clean.replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/,'').trim();
   }
 
+  // ── CD_DELETE ──
+  const cdDelM = clean.match(/\[CD_DELETE:([^\]]+)\]\[\/CD_DELETE\]/);
+  if(cdDelM){
+    const cdId = cdDelM[1].trim();
+    appData.countdowns = (appData.countdowns||[]).filter(c=>c.id!==cdId);
+    save(); renderCdAllList(); renderCalendar();
+    clean = clean.replace(/\[CD_DELETE:[^\]]+\]\[\/CD_DELETE\]/,'').trim();
+  }
+
+  // ── CD_UPDATE（延期） ──
+  const cdUpdM = clean.match(/\[CD_UPDATE:([^\]]+)\]([\s\S]*?)\[\/CD_UPDATE\]/);
+  if(cdUpdM){
+    try{
+      const cdId = cdUpdM[1].trim();
+      const upd = JSON.parse(cdUpdM[2]);
+      const cd = (appData.countdowns||[]).find(c=>c.id===cdId);
+      if(cd && upd.date){ cd.date = upd.date; save(); renderCdAllList(); renderCalendar(); }
+    }catch(e){}
+    clean = clean.replace(/\[CD_UPDATE:[^\]]+\][\s\S]*?\[\/CD_UPDATE\]/,'').trim();
+  }
+
   return{cleanText:clean,milestones};
 }
 
@@ -3358,19 +3605,6 @@ function checkAIHonesty(rawText, todosBefore) {
     appData.todos = [];
     fixed = true;
   }
-
-  // ── 检查：声称完成了某任务但清单没变化——用现有任务标题做精确匹配 ──
-  var doneWords = ['\u5b8c\u6210\u4e86', '\u505a\u5b8c\u4e86', '\u641e\u5b9a\u4e86', '\u5df2\u5b8c\u6210', '\u505a\u597d\u4e86'];
-  appData.todos.forEach(function(td) {
-    if (td.isCompleted) return;
-    // 检查 AI 回复里是否出现了该任务标题 + 完成词
-    doneWords.forEach(function(dw) {
-      if (t.indexOf(td.title) !== -1 && t.indexOf(dw) !== -1) {
-        td.progress = 100; td.isCompleted = true; td.isActive = false; td.lastMilestone = 100;
-        fixed = true;
-      }
-    });
-  });
 
   return fixed;
 }
@@ -3398,11 +3632,48 @@ const UI={
   renderChat(){
     const d=document.getElementById('js-chat-display');
     const msgs=appData.topics[appData.activeTopicId]?.messages||[];
-    d.innerHTML=msgs.map(m=>{
+    d.innerHTML=msgs.map((m,idx)=>{
       if(m.role==='milestone')return`<div class="msg milestone">${m.content}</div>`;
       const isAI = m.role==='assistant';
-      const body = isAI ? renderMd(m.content) : m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-      return`<div class="msg ${isAI?'ai':'user'}"><div class="msg-label">${isAI?'StILL':'你'}</div>${body}</div>`;
+      const isLast = idx === msgs.length-1;
+      let content = m.content||'';
+
+      // 教学提示标记
+      const tpMatch = content.match(/\[TEACHING_PROMPT:([^\]]+)\]/);
+      content = content.replace(/\[TEACHING_PROMPT:[^\]]+\]/g,'').trim();
+
+      // 操作确认标记
+      const caMatch = /\[CONFIRM:[a-z_]+\]/.test(content);
+      content = content.replace(/\[CONFIRM:[a-z_]+\]/g,'').trim();
+
+      const body = isAI
+        ? renderMd(content)
+        : content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+
+      // 气泡外按钮（只在最后一条 AI 消息显示）
+      let actionBtns = '';
+      if(isAI && isLast){
+        if(tpMatch){
+          const ids = tpMatch[1];
+          actionBtns = `<div class="msg-action-btns">
+            <button class="msg-action-btn primary" onclick="teachingContinue('${ids}')">继续 →</button>
+            <button class="msg-action-btn" onclick="teachingSkip('${ids}')">跳过本步</button>
+          </div>`;
+        } else if(caMatch){
+          actionBtns = `<div class="msg-action-btns">
+            <button class="msg-action-btn confirm" onclick="confirmAction()">✓</button>
+            <button class="msg-action-btn cancel" onclick="cancelAction()">✗</button>
+          </div>`;
+        }
+      }
+
+      if(isAI){
+        return`<div class="msg-wrap">
+          <div class="msg ai"><div class="msg-label">StILL</div>${body}</div>
+          ${actionBtns}
+        </div>`;
+      }
+      return`<div class="msg user"><div class="msg-label">你</div>${body}</div>`;
     }).join('');
     d.scrollTop=d.scrollHeight;
   },
@@ -3503,9 +3774,11 @@ const UI={
 
   showTyping(immersive){
     const d=document.getElementById(immersive?'js-imm-chat-display':'js-chat-display');
-    const el=document.createElement('div');el.className='typing-indicator';el.id='js-typing';
-    el.innerHTML='<span></span><span></span><span></span>';
-    d.appendChild(el);d.scrollTop=d.scrollHeight;
+    if(!d || document.getElementById('js-typing')) return;
+    const wrap=document.createElement('div');
+    wrap.className='msg ai';wrap.id='js-typing';
+    wrap.innerHTML='<div class="msg-label">StILL</div><div class="typing-indicator"><span></span><span></span><span></span></div>';
+    d.appendChild(wrap);d.scrollTop=d.scrollHeight;
   },
   hideTyping(){document.getElementById('js-typing')?.remove();}
 };
@@ -3525,10 +3798,10 @@ function setLock(on, immersive=false){
 }
 
 // 统一的 AI 调用 + 回复写入，供 handleSend 和 switchTask 共用
-async function callAIAndRespond(userOverride, topic, immersive=false, isFirstMsg=false){
+async function callAIAndRespond(userOverride, topic, immersive=false, isFirstMsg=false, typingAlreadyShown=false){
   const topicId = appData.activeTopicId;
   setLock(true, immersive);
-  UI.showTyping(immersive);
+  if(!typingAlreadyShown) UI.showTyping(immersive);
   try{
     // 构造发给 AI 的消息列表（去掉 milestone，可能附加 override）
     const allMsgs = topic.messages.filter(m=>m.role!=='milestone');
@@ -3548,13 +3821,32 @@ async function callAIAndRespond(userOverride, topic, immersive=false, isFirstMsg
     const raw = await callAI(msgs);
     UI.hideTyping();
     const todoCountBefore = appData.todos.length;
-    const{cleanText, milestones} = applyTaskUpdate(raw);
-    // 自我检查：AI 声称做了某事但没输出标签时，前端补执行
-    const honestFixed = checkAIHonesty(raw, todoCountBefore);
-    topic.messages.push({role:'assistant', content:cleanText});
-    for(const{todo,cp} of milestones){
-      const txt=milestoneMsg(todo,cp);
-      if(txt) topic.messages.push({role:'milestone',content:txt});
+
+    // 检测简单确认标记 [CONFIRM:type]
+    const confirmType = _detectConfirmType(raw);
+    if(confirmType){
+      _pendingConfirmRaw  = raw;
+      _pendingConfirmType = confirmType;
+      // 清理指令标签，保留 [CONFIRM:type] 标记供 renderChat 渲染按钮
+      let confirmClean = raw
+        .replace(/\[ADD_TASKS\][\s\S]*?\[\/ADD_TASKS\]/g,'')
+        .replace(/\[SUBTASKS:[^\]]+\][\s\S]*?\[\/SUBTASKS\]/g,'')
+        .replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/g,'')
+        .replace(/\[CD_DELETE:[^\]]+\]\[\/CD_DELETE\]/g,'')
+        .replace(/\[CD_UPDATE:[^\]]+\][\s\S]*?\[\/CD_UPDATE\]/g,'')
+        .replace(/\[系统通知:[^\]]*\][\s\S]*?\[\/系统通知:[^\]]*\]/g,'')
+        .replace(/\[系统通知:[^\]]*\]/g,'')
+        .trim();
+      if(confirmClean) topic.messages.push({role:'assistant', content:confirmClean});
+    } else {
+      const{cleanText, milestones} = applyTaskUpdate(raw);
+      checkAIHonesty(raw, todoCountBefore);
+      const finalText = cleanText || _inferActionReply(raw);
+      if(finalText) topic.messages.push({role:'assistant', content:finalText});
+      for(const{todo,cp} of milestones){
+        const txt=milestoneMsg(todo,cp);
+        if(txt) topic.messages.push({role:'milestone',content:txt});
+      }
     }
     if(isFirstMsg && !userOverride) autoNameTopic(topicId);
   } catch(e){
@@ -3650,6 +3942,42 @@ async function handleSend(immersive=false) {
   inputEl.value='';
   const topic=appData.topics[appData.activeTopicId];
 
+  // ── 自动激活任务：用户说「开始」类词时，检查是否有未激活的任务需要切换 ──
+  const startWords = /^(开始|出发|走起|启动|开工|go|start)$/i;
+  if(startWords.test(msg.trim())){
+    // 找最近一条 AI 消息提到的任务名
+    const msgs = topic.messages.filter(m=>m.role==='assistant');
+    const lastAI = msgs[msgs.length-1]?.content||'';
+    const inactiveTodo = appData.todos.find(t=>
+      !t.isCompleted && !t.isActive && lastAI.includes(t.title)
+    );
+    if(inactiveTodo){
+      // 自动切换，效果等同于双击
+      appData.todos.forEach(x=>x.isActive=false);
+      inactiveTodo.isActive=true;
+      UI.render();
+      topic.messages.push({role:'user', content:msg});
+      UI.render();
+      UI.showTyping(immersive);
+      const hasSubs = inactiveTodo.subtasks && inactiveTodo.subtasks.length > 0;
+      const switchCtx = hasSubs
+        ? `[系统通知:SWITCH: 用户切换到任务「${inactiveTodo.title}」，该任务已有细分步骤（${inactiveTodo.subtasks.filter(s=>s.done).length}/${inactiveTodo.subtasks.length} 完成），请简短确认并问从哪步继续]`
+        : `[系统通知:SWITCH: 用户切换到任务「${inactiveTodo.title}」，该任务还没有细分步骤，请按任务细分流程判断是否需要细分]`;
+      await callAIAndRespond(switchCtx, topic, immersive, false, true);
+      return;
+    }
+    // 有活跃任务但没细分，自动触发细分
+    const activeTodo = appData.todos.find(t=>t.isActive && !t.isCompleted);
+    if(activeTodo && (!activeTodo.subtasks || activeTodo.subtasks.length===0)){
+      topic.messages.push({role:'user', content:msg});
+      UI.render();
+      UI.showTyping(immersive);
+      const switchCtx = `[系统通知:SWITCH: 用户要开始任务「${activeTodo.title}」，该任务还没有细分步骤，请按任务细分流程判断是否需要细分]`;
+      await callAIAndRespond(switchCtx, topic, immersive, false, true);
+      return;
+    }
+  }
+
   // ① 前端先拦截——命中则直接执行，立刻更新 UI，再让 AI 只回一句话
   const override = execIntent(msg);
 
@@ -3658,10 +3986,15 @@ async function handleSend(immersive=false) {
 
   // 把用户原始消息推入对话历史（让对话记录完整）
   topic.messages.push({role:'user', content:msg});
-  if(immersive) syncImmChatDisplay(); else UI.render();
+  if(immersive) syncImmChatDisplay(); else { UI.render(); }
+
+  // 立刻显示 typing，确保用户发送后即时有视觉反馈
+  UI.showTyping(immersive);
+  const _chatDisp = document.getElementById(immersive?'js-imm-chat-display':'js-chat-display');
+  if(_chatDisp) _chatDisp.scrollTop = _chatDisp.scrollHeight;
 
   // ② 调 AI（如果有 override 就用 override 代替用户消息传给 AI）
-  await callAIAndRespond(override || null, topic, immersive, isFirstMsg);
+  await callAIAndRespond(override || null, topic, immersive, isFirstMsg, true /*typingAlreadyShown*/);
 }
 
 document.getElementById('js-send-btn').onclick=()=>handleSend(false);
@@ -3990,10 +4323,15 @@ refreshStatus();
   const monthlyCds = (appData.countdowns||[]).map(c=>({c,d:cdDaysLeft(c)}))
     .filter(x=>x.d>=0&&x.d<=31).sort((a,b)=>a.d-b.d);
   let cdCtx = '';
+  // 过期倒数日（仅一次性）
+  const expiredCds = (appData.countdowns||[]).filter(c=>c.repeat==='once' && cdDaysLeft(c)<0);
+  if(expiredCds.length){
+    cdCtx += `以下倒数日已过期，请在问候时自然提醒用户，询问是否删除或延期：${expiredCds.map(c=>`「${c.name}」（${c.date}，已过去${-cdDaysLeft(c)}天，id:${c.id}）`).join('、')}。`;
+  }
   if(isMonthStart && monthlyCds.length){
-    cdCtx = `今天是${nowForGreet.getMonth()+1}月1日，本月内的倒数日：${monthlyCds.map(x=>`「${x.c.name}」还有${x.d}天`).join('、')}。请在问候时自然梳理这些事项。`;
+    cdCtx += `今天是${nowForGreet.getMonth()+1}月1日，本月内的倒数日：${monthlyCds.map(x=>`「${x.c.name}」还有${x.d}天`).join('、')}。请在问候时自然梳理这些事项。`;
   } else if(upcomingCds.length){
-    cdCtx = `近期倒数日：${upcomingCds.slice(0,3).map(x=>`「${x.c.name}」还有${x.d}天`).join('、')}。问候时可酌情轻描淡写提一句最近的。`;
+    cdCtx += `近期倒数日：${upcomingCds.slice(0,3).map(x=>`「${x.c.name}」还有${x.d}天`).join('、')}。问候时可酌情轻描淡写提一句最近的。`;
   }
 
   let greetCtx = '';
@@ -5147,15 +5485,14 @@ function renderJournalHistoryView(ds) {
     }).join('');
   }
 
-  if (notes.length) {
+  if(notes.length){
     h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.7;margin-top:${checkedHabits.length?'10':'0'}px;margin-bottom:2px;text-transform:uppercase">小纸条</div>`;
     h += notes.map(n=>`<div class="jhv-note"><div class="jhv-note-time">${n.time||''}</div>${escapeHtml(n.text)}</div>`).join('');
-  } else {
-    h += `<div style="font-size:0.7rem;opacity:0.25;padding:4px 0;margin-top:${checkedHabits.length?'6':'0'}px">当日无小纸条</div>`;
   }
-  if (bills.length) {
+
+  if(bills.length){
     const total = bills.reduce((s,b)=>s+b.amount,0);
-    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.7;margin-top:10px;margin-bottom:2px;text-transform:uppercase">账单 · ¥${total.toFixed(2)}</div>`;
+    h += `<div style="font-size:0.6rem;letter-spacing:1.5px;opacity:0.7;margin-top:${notes.length||checkedHabits.length?'10':'0'}px;margin-bottom:2px;text-transform:uppercase">账单 · ¥${total.toFixed(2)}</div>`;
     h += bills.map(b=>{
       const isInc=b.amount>=0;
       return `<div class="jhv-bill-row">
@@ -5165,6 +5502,11 @@ function renderJournalHistoryView(ds) {
       </div>`;
     }).join('');
   }
+
+  if(!checkedHabits.length && !notes.length && !bills.length){
+    h += `<div style="font-size:0.7rem;opacity:0.25;padding:8px 0;text-align:center">当日无手账记录</div>`;
+  }
+
   detail.innerHTML = h;
 }
 
@@ -5192,10 +5534,10 @@ function renderNoteList() {
   list.scrollTop = list.scrollHeight;
 }
 
-async function sendNote(text) {
+async function sendNote(text, placeholderId) {
   if (!text.trim()) return;
-  // 教程期间：直接交由教程处理，不调 AI
   if (tutRunning && _tutNoteCallback) {
+    _removeNotePlaceholder(placeholderId);
     tutInterceptNote(text.trim());
     return;
   }
@@ -5203,7 +5545,6 @@ async function sendNote(text) {
   if (!appData.notes[ds]) appData.notes[ds] = [];
   const note = { id:journalNewId(), time:nowTimeStr(), text:text.trim(), isBill:false };
 
-  // 并行：账单识别 + 心情识别
   const [billData, moodVal] = await Promise.all([
     detectBill(text.trim()),
     detectMood(text.trim())
@@ -5215,9 +5556,9 @@ async function sendNote(text) {
     note.billAmount = billData.amount;
     addBill(ds, billData.item, billData.amount, note.id);
   }
-  // 不管是否是账单，note 都存入（账单类不显示在小纸条列表，但数据保留）
   appData.notes[ds].push(note);
   save();
+  _removeNotePlaceholder(placeholderId);
   renderNoteList();
   renderBillList();
   renderJournalTimeline();
@@ -5306,7 +5647,7 @@ function renderBillList() {
     return;
   }
   list.innerHTML = bills.map(b=>`
-    <div class="bill-item">
+    <div class="bill-item" oncontextmenu="openBillCtx(event,'${b.id}')">
       <div class="bill-item-name">${escapeHtml(b.item)}</div>
       <div class="bill-item-amount">¥ ${b.amount.toFixed(2)}</div>
       <button class="bill-del" onclick="deleteBill('${b.id}')">✕</button>
@@ -5319,6 +5660,39 @@ function deleteBill(id) {
   appData.bills[ds] = (appData.bills[ds]||[]).filter(b=>b.id!==id);
   save(); renderBillList();
 }
+
+// ── 账单右键菜单 ──
+let _billCtxId = null;
+function openBillCtx(e, id) {
+  e.preventDefault(); e.stopPropagation();
+  _billCtxId = id;
+  const menu = document.getElementById('js-bill-ctx-menu');
+  menu.classList.add('show');
+  const x = Math.min(e.clientX, window.innerWidth - 140);
+  const y = Math.min(e.clientY, window.innerHeight - 80);
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+}
+function closeBillCtx() {
+  document.getElementById('js-bill-ctx-menu').classList.remove('show');
+  _billCtxId = null;
+}
+document.getElementById('js-bill-ctx-flip').onclick = () => {
+  if(!_billCtxId) return;
+  const ds = todayKey();
+  const bill = (appData.bills[ds]||[]).find(b=>b.id===_billCtxId);
+  if(bill){ bill.amount = -bill.amount; save(); renderBillList(); }
+  closeBillCtx();
+};
+document.getElementById('js-bill-ctx-del').onclick = () => {
+  if(!_billCtxId) return;
+  deleteBill(_billCtxId);
+  closeBillCtx();
+};
+document.addEventListener('click', e => {
+  const menu = document.getElementById('js-bill-ctx-menu');
+  if(menu && menu.classList.contains('show') && !menu.contains(e.target)) closeBillCtx();
+});
 
 // ── 账单编辑弹窗 ──────────────────────────────
 let editingBillId = null;
@@ -5413,18 +5787,41 @@ async function sendFloaterNote() {
 // ── 小纸条发送队列：防止快速输入重复记入 ──
 const _noteQueue = [];
 let _noteProcessing = false;
+
+function _showNotePlaceholder(text) {
+  const list = document.getElementById('js-note-list');
+  if (!list) return;
+  // 移除空状态提示
+  const empty = list.querySelector('div[style]');
+  if (empty) empty.remove();
+  const el = document.createElement('div');
+  el.className = 'note-item loading';
+  el.id = 'note-placeholder-' + Date.now();
+  el.innerHTML = `<div class="note-time">${nowTimeStr()}</div>
+    <div class="note-text" style="opacity:0.5">${escapeHtml(text)}</div>
+    <div class="note-loading-dots"><span></span><span></span><span></span></div>`;
+  list.appendChild(el);
+  list.scrollTop = list.scrollHeight;
+  return el.id;
+}
+
+function _removeNotePlaceholder(id) {
+  if (id) document.getElementById(id)?.remove();
+}
+
 async function _drainNoteQueue() {
   if (_noteProcessing) return;
   _noteProcessing = true;
   while (_noteQueue.length) {
-    const text = _noteQueue.shift();
-    await sendNote(text);
+    const {text, placeholderId} = _noteQueue.shift();
+    await sendNote(text, placeholderId);
   }
   _noteProcessing = false;
 }
 function queueNote(text) {
   if (!text.trim()) return;
-  _noteQueue.push(text.trim());
+  const placeholderId = _showNotePlaceholder(text.trim());
+  _noteQueue.push({text: text.trim(), placeholderId});
   _drainNoteQueue();
 }
 
@@ -6387,25 +6784,28 @@ async function runTutorial() {
 
 // ── 主题切换 ──────────────────────────────────────
 var _themeDAY = 'day';
+
 function _applyTheme(t) {
+  var html = document.documentElement;
+  var sky = document.querySelector('.sky');
+  var glow = document.querySelector('.city-glow');
+
   if (t === _themeDAY) {
-    document.documentElement.setAttribute('data-theme', _themeDAY);
-    var btn = document.getElementById('js-theme-btn');
-    if (btn) btn.textContent = '☀️';
+    html.setAttribute('data-theme', _themeDAY);
+    document.getElementById('js-theme-btn').textContent = '☀️';
   } else {
-    document.documentElement.removeAttribute('data-theme');
-    var btn = document.getElementById('js-theme-btn');
-    if (btn) btn.textContent = '🌙';
+    html.removeAttribute('data-theme');
+    document.getElementById('js-theme-btn').textContent = '🌙';
   }
   localStorage.setItem('StILL_theme', t);
   if(typeof renderCalendar==='function'&&document.getElementById('js-calendar')){renderCalendar();}
   if(typeof buildRainMemo==='function'&&typeof lastRainCount!=='undefined'){buildRainMemo(lastRainCount,lastRainOpacity,lastRainSpeed);}
 }
+
 function toggleTheme() {
   var cur = localStorage.getItem('StILL_theme') || 'night';
   _applyTheme(cur === _themeDAY ? 'night' : _themeDAY);
-}
-// 页面加载时恢复主题（CSS变量在 :root 已声明，只需更新 data-theme 和按钮图标）
+}// 页面加载时恢复主题（CSS变量在 :root 已声明，只需更新 data-theme 和按钮图标）
 document.addEventListener('DOMContentLoaded', function() {
   _applyTheme(localStorage.getItem('StILL_theme') || 'night');
 });
@@ -6419,7 +6819,7 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <!-- 主题切换 -->
-  <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;right:18px;z-index:40;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
+  <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;right:18px;z-index:320;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
 
 </body>
 </html>
