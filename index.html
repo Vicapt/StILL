@@ -1424,6 +1424,112 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .guide-btn-next{background:var(--guide-next-bg);border:1px solid var(--guide-next-b);color:var(--guide-next-color);border-radius:8px;padding:5px 14px;font-size:0.68rem;cursor:pointer;font-family:inherit;transition:0.15s}
 .guide-btn-next:hover{background:rgba(255,160,80,0.32)}
 
+
+/* ═══ DEADLINE ═══ */
+.task-item.has-deadline .task-inner{flex-direction:column;align-items:flex-start;gap:3px}
+.task-deadline-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:6px;font-size:0.65rem;font-weight:500;
+  border:1px solid;transition:background 0.6s,border-color 0.6s,color 0.6s;
+  white-space:nowrap;
+}
+.task-pct-small{font-size:0.58rem;opacity:0.45;margin-top:0}
+/* 右键上下文菜单 */
+.task-ctx-menu{
+  position:fixed;z-index:500;
+  background:var(--panel-bg-deep);border:1px solid var(--glass-b);
+  border-radius:11px;padding:5px 0;min-width:130px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.35);
+  animation:taskIn 0.15s ease both;
+}
+.task-ctx-item{
+  padding:7px 14px;font-size:0.78rem;cursor:pointer;
+  color:var(--txt-dim);transition:background 0.12s,color 0.12s;
+  display:flex;align-items:center;gap:7px;
+}
+.task-ctx-item:hover{background:var(--glass-h);color:var(--txt)}
+.task-ctx-item.danger:hover{background:rgba(255,60,60,0.15);color:rgba(255,110,90,0.9)}
+.task-ctx-sep{height:1px;background:var(--glass-b);margin:4px 0}
+/* 死线设置弹窗 */
+.deadline-modal{position:fixed;inset:0;z-index:400;background:var(--overlay-deep);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity 0.25s}
+.deadline-modal.hidden{opacity:0;pointer-events:none}
+.deadline-card{
+  background:var(--panel-bg-mid);border:1px solid var(--glass-b);
+  border-radius:24px;padding:32px 30px;width:320px;
+  display:flex;flex-direction:column;gap:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+}
+.deadline-card h3{font-family:'DM Serif Display',serif;font-size:1.15rem;letter-spacing:2px;color:var(--timer-txt);opacity:0.85;text-align:center}
+.deadline-field{display:flex;flex-direction:column;gap:5px}
+.deadline-label{font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;opacity:0.4}
+.deadline-input{
+  background:var(--input-bg);border:1px solid var(--glass-b);border-radius:9px;
+  color:var(--txt);padding:8px 12px;font-size:0.84rem;outline:none;
+  font-family:inherit;width:100%;transition:border-color 0.15s;
+  color-scheme:dark;
+}
+[data-theme="day"] .deadline-input{color-scheme:light}
+.deadline-input:focus{border-color:var(--amber-b)}
+.deadline-remind-row{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--txt-dim)}
+.deadline-remind-row input[type=checkbox]{accent-color:rgba(255,160,80,0.8);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.deadline-remind-select{
+  background:var(--input-bg);border:1px solid var(--glass-b);border-radius:7px;
+  color:var(--txt);padding:4px 8px;font-size:0.75rem;outline:none;
+  font-family:inherit;cursor:pointer;
+}
+/* 自定义提醒时间选择器 */
+.dl-sel-wrap{position:relative;flex-shrink:0}
+.dl-sel-btn{
+  background:var(--input-bg);border:1px solid var(--glass-b);border-radius:8px;
+  color:var(--txt);padding:4px 10px;font-size:0.75rem;
+  font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px;
+  transition:border-color 0.15s,background 0.15s;white-space:nowrap;
+}
+.dl-sel-btn:hover{border-color:var(--amber-b);background:var(--input-bg2)}
+.dl-sel-arrow{font-size:0.6rem;opacity:0.5;transition:transform 0.15s}
+.dl-sel-wrap.open .dl-sel-arrow{transform:rotate(180deg)}
+.dl-sel-dropdown{
+  position:absolute;left:0;top:calc(100% + 5px);
+  background:var(--panel-bg-deep);border:1px solid var(--glass-b);
+  border-radius:10px;padding:4px 0;min-width:90px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.35);
+  z-index:600;
+  display:none;animation:taskIn 0.14s ease both;
+}
+.dl-sel-wrap.open .dl-sel-dropdown{display:block}
+.dl-sel-opt{
+  padding:6px 12px;font-size:0.76rem;cursor:pointer;
+  color:var(--txt-dim);transition:background 0.1s,color 0.1s;
+}
+.dl-sel-opt:hover{background:var(--glass-h);color:var(--txt)}
+.dl-sel-opt.selected{color:var(--amber-accent);}
+.deadline-actions{display:flex;gap:8px}
+.deadline-save{flex:1;background:var(--amber);border:1px solid var(--amber-b);color:var(--amber-btn-color);border-radius:12px;padding:11px;font-size:0.85rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.deadline-save:hover{opacity:0.85}
+.deadline-cancel{background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-muted);border-radius:12px;padding:11px 16px;font-size:0.85rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.deadline-cancel:hover{background:var(--glass-h);color:var(--txt)}
+.deadline-clear{background:transparent;border:none;color:rgba(255,90,70,0.55);font-size:0.72rem;cursor:pointer;font-family:inherit;text-align:center;padding:0;transition:color 0.15s}
+.deadline-clear:hover{color:rgba(255,90,70,0.9)}
+/* 提醒弹窗 */
+.deadline-toast{
+  position:fixed;bottom:60px;right:20px;z-index:600;
+  background:var(--panel-bg-deep);border:1px solid rgba(255,160,80,0.28);
+  border-radius:16px;padding:14px 18px;width:260px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+  display:flex;flex-direction:column;gap:6px;
+  animation:toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(24px) scale(0.95)}to{opacity:1;transform:none}}
+.deadline-toast.hiding{animation:toastOut 0.3s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(16px) scale(0.97)}}
+.toast-header{display:flex;align-items:center;gap:7px;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;opacity:0.5}
+.toast-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,160,80,0.8);flex-shrink:0;animation:pulseDot 1.5s ease infinite}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+.toast-title{font-size:0.88rem;color:var(--txt);font-weight:500;line-height:1.3}
+.toast-sub{font-size:0.72rem;color:var(--txt-dim);opacity:0.75}
+.toast-dismiss{align-self:flex-end;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-muted);border-radius:8px;padding:4px 12px;font-size:0.7rem;cursor:pointer;font-family:inherit;transition:0.15s;margin-top:2px}
+.toast-dismiss:hover{background:var(--glass-h);color:var(--txt)}
+
 @keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
 </style>
 </head>
@@ -3257,9 +3363,15 @@ function getSystem() {
 
 ═══ 倒数日 ═══
 
-【新建倒数日】用户要求添加倒数日时，告诉用户：点击左上角 📅 打开专注日历，点击 ＋ 填写表单添加；或者直接双击日历上对应的日期格子快速创建。
+【新建倒数日】用户要求添加倒数日，且名称和日期都明确时，直接输出指令+确认标记：
+[CD_ADD]{"name":"名称","date":"YYYY-MM-DD","repeat":"once"}[/CD_ADD][CONFIRM:cd_add]
+repeat 可选值：once（仅此一次）、yearly（每年）、monthly（每月）、weekly（每周），用户未指定时默认 once。
+若信息不完整（缺名称或日期），先用一句话问清楚，不要引导用户手动操作。
+⚠️ date 必须是合法的 YYYY-MM-DD 格式，从今天（${today}）起推算，不能凭感觉填写。
 
-【查询】只在用户主动提到倒数日时查表回答，平时不主动提及。
+【查询】用户主动询问倒数日时，从上方「倒数日」数据直接列出全部，格式如下：
+**· 名称** — 日期（还有X天 / 就是今天 / 已过期X天）
+列完后根据剩余时间给出一段简短的安排建议，按紧迫程度点到即止，语气像朋友。不需要用户确认，直接给出，平时闲聊不主动提及。
 
 【新增响应】收到 [系统通知:COUNTDOWN_ADDED] 时根据剩余天数回应：
 ≥365天 → 轻描淡写鼓励一句
@@ -3267,9 +3379,7 @@ function getSystem() {
 ≤30天 → 温和提示提前准备
 ≤7天 → 明确提醒，问是否新建并拆解成任务
 
-【过期处理】每日问候时若收到过期倒数日信息，自然提醒并询问删除还是延期：
-删除 → [CD_DELETE:id][/CD_DELETE]
-延期 → [CD_UPDATE:id]{"date":"YYYY-MM-DD"}[/CD_UPDATE]
+【过期处理】每日问候时若收到过期倒数日信息，自然提醒用户这些倒数日已过期，建议用户到日历页面手动删除或延期，语气轻柔简短，不要询问用户是否现在删除，也不要代替用户执行任何操作。
 
 【月度梳理】每月1日问候时，自然带出本月内的倒数日。
 
@@ -3342,6 +3452,7 @@ function confirmAction() {
     add_tasks:    '[系统通知: 任务已加入清单，请问用户从哪个开始]',
     clear_all:    '[系统通知: 清单已清空，请自然确认并问有没有新计划]',
     delete_tasks: '[系统通知: 任务已删除，请自然确认]',
+    cd_add:       '[系统通知: 倒数日已添加，请根据距今天数用一两句话自然回应，口语化，不列清单]',
     cd_delete:    '[系统通知: 倒数日已删除，请自然确认]',
     cd_update:    '[系统通知: 倒数日日期已更新，请自然确认]',
   }[type] || '[系统通知: 操作已完成，请自然确认]';
@@ -3432,6 +3543,8 @@ function _inferActionReply(raw) {
   if (/\[SUBTASKS:/.test(raw))          return '拆好了，从第一步开始吧。';
   if (/\[SUBTASK_DONE:/.test(raw))      return '✓ 完成，继续下一步！';
   if (/\[TASK_UPDATE\]/.test(raw))      return '好，已更新进度。';
+  if (/\[TASK_DELETE:/.test(raw))       return '好，任务已删除。';
+  if (/\[CD_ADD\]/.test(raw))           return '好，倒数日已添加！';
   if (/\[CD_DELETE:/.test(raw))         return '好，倒数日已删除。';
   if (/\[CD_UPDATE:/.test(raw))         return '好，日期已更新。';
   return '';
@@ -3567,6 +3680,33 @@ function applyTaskUpdate(text) {
     clean = clean.replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/,'').trim();
   }
 
+  // ── CD_ADD ──
+  const cdAddM = clean.match(/\[CD_ADD\]([\s\S]*?)\[\/CD_ADD\]/);
+  if(cdAddM){
+    try{
+      const data = JSON.parse(cdAddM[1]);
+      if(data.name && data.date){
+        const validRepeats = ['once','yearly','monthly','weekly'];
+        const repeat = validRepeats.includes(data.repeat) ? data.repeat : 'once';
+        const color = CD_COLORS[Math.floor(Math.random()*CD_COLORS.length)];
+        const cd = {id:cdNewId(), name:data.name, date:data.date, color, repeat, createdAt:new Date().toISOString()};
+        appData.countdowns.push(cd);
+        save(); renderCdAllList(); renderCalendar();
+        // 不在此处触发 notifyAiCountdownAdded，confirmAction 会统一处理 AI 回复
+      }
+    }catch(e){}
+    clean = clean.replace(/\[CD_ADD\][\s\S]*?\[\/CD_ADD\]/,'').trim();
+  }
+
+  // ── TASK_DELETE ──
+  const taskDelM = clean.match(/\[TASK_DELETE:([^\]]+)\]\[\/TASK_DELETE\]/);
+  if(taskDelM){
+    const delId = taskDelM[1].trim();
+    appData.todos = appData.todos.filter(t=>t.id!==delId);
+    save(); UI.render();
+    clean = clean.replace(/\[TASK_DELETE:[^\]]+\]\[\/TASK_DELETE\]/,'').trim();
+  }
+
   // ── CD_DELETE ──
   const cdDelM = clean.match(/\[CD_DELETE:([^\]]+)\]\[\/CD_DELETE\]/);
   if(cdDelM){
@@ -3679,7 +3819,15 @@ const UI={
   },
 
   renderTasks(){
+    const now_dl = Date.now();
     const sorted=[...appData.todos].filter(t=>!t._tutHidden).sort((a,b)=>{
+      const aDL = a.deadline && !a.isCompleted ? new Date(a.deadline).getTime() : null;
+      const bDL = b.deadline && !b.isCompleted ? new Date(b.deadline).getTime() : null;
+      // 有死线的未完成任务最优先，按截止时间升序（最紧迫最前）
+      if(aDL && !bDL) return -1;
+      if(!aDL && bDL) return 1;
+      if(aDL && bDL) return aDL - bDL;
+      // 无死线：原逻辑
       if(a.isActive&&!b.isActive)return-1;if(!a.isActive&&b.isActive)return 1;
       if(a.isCompleted!==b.isCompleted)return a.isCompleted?1:-1;
       return b.progress-a.progress;
@@ -3707,9 +3855,12 @@ const UI={
         }
       }
       return`
-      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''}" data-id="${t.id}" ondblclick="UI.switchTask('${t.id}')">
+      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" ondblclick="UI.switchTask('${t.id}')" oncontextmenu="openTaskCtx(event,'${t.id}')">
         <div class="progress-fill" style="width:${t.progress}%"></div>
-        <div class="task-inner"><span class="task-name">${t.title}</span>${(t.progress>0||subs.length>0&&t.isActive)?`<span class="task-pct">${t.progress}%</span>`:''}</div>
+        <div class="task-inner">
+          <span class="task-name">${t.title}</span>
+          ${t.deadline&&!t.isCompleted ? `<span class="task-deadline-badge" id="dlbadge-${t.id}" style="${deadlineBadgeStyle(t.deadline)}">${deadlineBadgeText(t.deadline)}</span><span class="task-pct-small">${(t.progress>0||subs.length>0&&t.isActive)?t.progress+'%':''}</span>` : (t.progress>0||subs.length>0&&t.isActive)?`<span class="task-pct">${t.progress}%</span>`:''}
+        </div>
         <div class="task-actions">
           <button class="task-btn timer-btn" onclick="event.stopPropagation();openTimerPicker('${t.id}')" >⏱</button>
           ${!t.isCompleted?`<button class="task-btn done-btn" onclick="event.stopPropagation();UI.completeTask('${t.id}')">✓</button>`:''}
@@ -3832,6 +3983,8 @@ async function callAIAndRespond(userOverride, topic, immersive=false, isFirstMsg
         .replace(/\[ADD_TASKS\][\s\S]*?\[\/ADD_TASKS\]/g,'')
         .replace(/\[SUBTASKS:[^\]]+\][\s\S]*?\[\/SUBTASKS\]/g,'')
         .replace(/\[TASK_UPDATE\][\s\S]*?\[\/TASK_UPDATE\]/g,'')
+        .replace(/\[TASK_DELETE:[^\]]+\]\[\/TASK_DELETE\]/g,'')
+        .replace(/\[CD_ADD\][\s\S]*?\[\/CD_ADD\]/g,'')
         .replace(/\[CD_DELETE:[^\]]+\]\[\/CD_DELETE\]/g,'')
         .replace(/\[CD_UPDATE:[^\]]+\][\s\S]*?\[\/CD_UPDATE\]/g,'')
         .replace(/\[系统通知:[^\]]*\][\s\S]*?\[\/系统通知:[^\]]*\]/g,'')
@@ -4082,7 +4235,7 @@ window.openTimerPicker=openTimerPicker;
 const TRACKS = [
   { name: 'Love Switch - Justnormal',   src: 'music/Love Switch - Justnormal.mp3' },
   { name: 'Cozy at 3am - Justnormal',   src: 'music/Cozy at 3am - Justnormal.mp3' },
-  { name: '曲目三',   src: 'music/track3.mp3' },
+  { name: 'Under A Smiling Moon - Peter Sandberg',   src: 'music/Under A Smiling Moon - Peter Sandberg.MP3' },
   { name: '曲目四',   src: 'music/track4.mp3' },
   { name: '曲目五',   src: 'music/track5.mp3' },
 ];
@@ -6655,11 +6808,11 @@ async function runTutorial() {
   if (!tutRunning) return;
   await tutDelay(400);
 
-  await tutAISay('拖拽好了！卡片会记住位置，下次打开还在这里 📌\n\n最后，回到日历页面，点击倒数日项目右侧的 **✕** 删除它。\n\n（关闭悬浮卡片不会删除倒数日本身，要在列表里删除）', 600);
-  tutShowHint('👆 在日历页面倒数日列表里点 ✕ 删除');
+  await tutAISay('拖拽好了！卡片会记住位置，下次打开还在这里 📌\n\n最后，试试用对话删除它——直接发送「删除这个倒数日」。', 600);
+  tutShowHint('👆 在聊天框发送「删除这个倒数日」');
   if (!tutRunning) return;
 
-  // 等待倒数日从 appData.countdowns 中消失
+  // 等待倒数日从 appData.countdowns 中消失（AI 执行删除后触发）
   await new Promise(resolve => {
     const check = setInterval(() => {
       const still = (appData.countdowns || []).some(c => c.id === tutCdId);
@@ -6810,6 +6963,247 @@ document.addEventListener('DOMContentLoaded', function() {
   _applyTheme(localStorage.getItem('StILL_theme') || 'night');
 });
 
+// ══════════════════════════════════════════════
+// DEADLINE — 死线提醒系统
+// ══════════════════════════════════════════════
+
+// ── 颜色计算：根据剩余时间返回 badge 样式 ──
+function deadlineUrgency(deadlineStr) {
+  const ms = new Date(deadlineStr).getTime() - Date.now();
+  const hours = ms / 3600000;
+  if (ms <= 0)       return { bg:'rgba(255,60,50,0.22)',  border:'rgba(255,60,50,0.5)',  color:'rgba(255,130,120,0.95)', level:4 };
+  if (hours <= 3)    return { bg:'rgba(255,55,45,0.18)',  border:'rgba(255,70,55,0.45)', color:'rgba(255,120,110,0.95)', level:4 };
+  if (hours <= 12)   return { bg:'rgba(255,120,40,0.18)', border:'rgba(255,140,50,0.45)',color:'rgba(255,180,100,0.95)', level:3 };
+  if (hours <= 24)   return { bg:'rgba(255,170,40,0.16)', border:'rgba(255,190,60,0.4)', color:'rgba(255,210,110,0.95)', level:2 };
+  if (hours <= 72)   return { bg:'rgba(200,200,60,0.14)', border:'rgba(220,220,70,0.35)',color:'rgba(230,230,120,0.9)',  level:1 };
+  return               { bg:'rgba(80,200,130,0.12)',  border:'rgba(100,210,150,0.3)', color:'rgba(140,220,170,0.9)',  level:0 };
+}
+
+function deadlineBadgeStyle(deadlineStr) {
+  const u = deadlineUrgency(deadlineStr);
+  return `background:${u.bg};border-color:${u.border};color:${u.color}`;
+}
+
+function deadlineBadgeText(deadlineStr) {
+  const ms = new Date(deadlineStr).getTime() - Date.now();
+  if (ms <= 0) return '⚠ 已超时';
+  const totalMin = Math.floor(ms / 60000);
+  if (totalMin < 60)  return `⏰ 还剩 ${totalMin} 分钟`;
+  const hours = Math.floor(totalMin / 60);
+  if (hours < 24)     return `⏰ 还剩 ${hours} 小时`;
+  const days = Math.floor(hours / 24);
+  const remH = hours % 24;
+  if (remH > 0)       return `⏰ 还剩 ${days} 天 ${remH} 小时`;
+  return `⏰ 还剩 ${days} 天`;
+}
+
+// ── 自定义提醒时间选择器 ──
+let _dlSelVal = 1440;
+
+function toggleDlSel(e) {
+  e.stopPropagation();
+  document.getElementById('js-dl-sel-wrap').classList.toggle('open');
+}
+
+function pickDlSel(el) {
+  _dlSelVal = parseInt(el.dataset.val, 10);
+  document.getElementById('js-dl-sel-label').textContent = el.textContent.trim();
+  document.querySelectorAll('.dl-sel-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('js-dl-sel-wrap').classList.remove('open');
+}
+
+function setDlSelVal(val) {
+  _dlSelVal = val;
+  const opt = document.querySelector(`.dl-sel-opt[data-val="${val}"]`);
+  if (opt) {
+    document.getElementById('js-dl-sel-label').textContent = opt.textContent.trim();
+    document.querySelectorAll('.dl-sel-opt').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+  }
+}
+
+// ── 右键菜单 ──
+let _ctxTaskId = null;
+let _taskCtxEl = null;
+function _getTaskCtx() { return _taskCtxEl || (_taskCtxEl = document.getElementById('js-task-ctx')); }
+
+function openTaskCtx(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  _ctxTaskId = id;
+  const t = appData.todos.find(x => x.id === id);
+  document.getElementById('js-ctx-deadline').textContent = t && t.deadline ? '⏰ 修改死线' : '⏰ 设置死线';
+  _getTaskCtx().style.display = 'block';
+  // 防溢出定位
+  const x = Math.min(e.clientX, window.innerWidth - 160);
+  const y = Math.min(e.clientY, window.innerHeight - 100);
+  _getTaskCtx().style.left = x + 'px';
+  _getTaskCtx().style.top  = y + 'px';
+}
+
+function closeTaskCtx() {
+  _getTaskCtx().style.display = 'none';
+  _ctxTaskId = null;
+}
+
+document.addEventListener('click', () => closeTaskCtx());
+document.addEventListener('contextmenu', e => {
+  if (!e.target.closest('#js-task-list')) closeTaskCtx();
+});
+
+function deleteTaskFromCtx() {
+  if (!_ctxTaskId) return;
+  const id = _ctxTaskId;
+  closeTaskCtx();
+  UI.deleteTask(id);
+}
+
+// ── 死线设置弹窗 ──
+let _deadlineEditId = null;
+
+function openDeadlineFromCtx() {
+  if (!_ctxTaskId) return;
+  const id = _ctxTaskId;
+  closeTaskCtx();
+  openDeadlineModal(id);
+}
+
+function openDeadlineModal(id) {
+  _deadlineEditId = id;
+  const t = appData.todos.find(x => x.id === id);
+  if (!t) return;
+  const modal = document.getElementById('js-deadline-modal');
+  const dtInput = document.getElementById('js-deadline-dt');
+  const remChk   = document.getElementById('js-deadline-remind-chk');
+  const clearBtn = document.getElementById('js-deadline-clear');
+
+  // 预填已有死线
+  if (t.deadline) {
+    // datetime-local 格式: YYYY-MM-DDTHH:MM
+    const d = new Date(t.deadline);
+    const pad = n => String(n).padStart(2,'0');
+    dtInput.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    clearBtn.style.display = 'block';
+  } else {
+    // 默认截止时间：明天此时
+    const def = new Date(Date.now() + 86400000);
+    const pad = n => String(n).padStart(2,'0');
+    dtInput.value = `${def.getFullYear()}-${pad(def.getMonth()+1)}-${pad(def.getDate())}T${pad(def.getHours())}:${pad(def.getMinutes())}`;
+    clearBtn.style.display = 'none';
+  }
+
+  // 预填提醒设置
+  remChk.checked = t.deadlineRemind !== false;
+  setDlSelVal(t.deadlineRemindMin || 1440);
+
+  modal.classList.remove('hidden');
+}
+
+function closeDeadlineModal() {
+  document.getElementById('js-deadline-modal').classList.add('hidden');
+  _deadlineEditId = null;
+}
+
+function saveDeadline() {
+  const t = appData.todos.find(x => x.id === _deadlineEditId);
+  if (!t) return;
+  const dtVal = document.getElementById('js-deadline-dt').value;
+  if (!dtVal) { document.getElementById('js-deadline-dt').focus(); return; }
+  const remChk = document.getElementById('js-deadline-remind-chk').checked;
+  const remMin = _dlSelVal;
+  t.deadline          = new Date(dtVal).toISOString();
+  t.deadlineRemind    = remChk;
+  t.deadlineRemindMin = remMin;
+  t.deadlineNotified  = false; // 重置提醒状态
+  save();
+  closeDeadlineModal();
+  UI.render();
+}
+
+function clearDeadline() {
+  const t = appData.todos.find(x => x.id === _deadlineEditId);
+  if (!t) return;
+  delete t.deadline;
+  delete t.deadlineRemind;
+  delete t.deadlineRemindMin;
+  delete t.deadlineNotified;
+  save();
+  closeDeadlineModal();
+  UI.render();
+}
+
+// ── Toast 提醒 ──
+let _activeToasts = [];
+
+function showDeadlineToast(title, subText, todoId) {
+  const toast = document.createElement('div');
+  toast.className = 'deadline-toast';
+  toast.innerHTML = `
+    <div class="toast-header"><div class="toast-dot"></div>死线提醒</div>
+    <div class="toast-title">${title}</div>
+    <div class="toast-sub">${subText}</div>
+    <button class="toast-dismiss" onclick="dismissToast(this.closest('.deadline-toast'))">知道了</button>
+  `;
+  // 多个 toast 垂直堆叠
+  const offset = _activeToasts.length * 130;
+  toast.style.bottom = (60 + offset) + 'px';
+  document.body.appendChild(toast);
+  _activeToasts.push(toast);
+}
+
+function dismissToast(el) {
+  el.classList.add('hiding');
+  setTimeout(() => {
+    el.remove();
+    _activeToasts = _activeToasts.filter(t => t !== el);
+    // 重新计算剩余 toast 位置
+    _activeToasts.forEach((t, i) => { t.style.bottom = (60 + i * 130) + 'px'; });
+  }, 320);
+}
+
+// ── 每分钟检查死线提醒 ──
+function checkDeadlineReminders() {
+  const now = Date.now();
+  appData.todos.forEach(t => {
+    if (!t.deadline || t.isCompleted || !t.deadlineRemind || t.deadlineNotified) return;
+    const deadlineMs = new Date(t.deadline).getTime();
+    const remindMs   = deadlineMs - (t.deadlineRemindMin || 1440) * 60000;
+    // 已过提醒时间且还没通知过
+    if (now >= remindMs) {
+      t.deadlineNotified = true;
+      save();
+      const msLeft = deadlineMs - now;
+      let timeLeft = '';
+      if (msLeft <= 0) { timeLeft = '已超时！'; }
+      else {
+        const min = Math.floor(msLeft / 60000);
+        if (min < 60)       timeLeft = `还剩 ${min} 分钟`;
+        else if (min < 1440) timeLeft = `还剩 ${Math.floor(min/60)} 小时`;
+        else                 timeLeft = `还剩 ${Math.floor(min/1440)} 天`;
+      }
+      showDeadlineToast(t.title, timeLeft, t.id);
+    }
+  });
+}
+
+setInterval(checkDeadlineReminders, 60000);
+checkDeadlineReminders(); // 页面加载时立即检查一次
+
+// ── badge 每分钟刷新文字和颜色（不重渲染整个列表）──
+setInterval(() => {
+  appData.todos.forEach(t => {
+    if (!t.deadline || t.isCompleted) return;
+    const badge = document.getElementById('dlbadge-' + t.id);
+    if (!badge) return;
+    const u = deadlineUrgency(t.deadline);
+    badge.style.background   = u.bg;
+    badge.style.borderColor  = u.border;
+    badge.style.color        = u.color;
+    badge.textContent        = deadlineBadgeText(t.deadline);
+  });
+}, 60000);
+
 </script>
   <!-- 底部联系栏 -->
   <div style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:0;pointer-events:none;font-size:0.58rem;color:var(--txt-faint);letter-spacing:0.5px;white-space:nowrap">
@@ -6820,6 +7214,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <!-- 主题切换 -->
   <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;right:18px;z-index:320;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
+
+  <!-- 死线设置弹窗 -->
+  <div class="deadline-modal hidden" id="js-deadline-modal">
+    <div class="deadline-card">
+      <h3>设置死线</h3>
+      <div class="deadline-field">
+        <div class="deadline-label">截止时间</div>
+        <input type="datetime-local" class="deadline-input" id="js-deadline-dt">
+      </div>
+      <div class="deadline-field">
+        <div class="deadline-label">提前提醒</div>
+        <div class="deadline-remind-row">
+          <input type="checkbox" id="js-deadline-remind-chk" checked>
+          <span>截止前</span>
+          <div class="dl-sel-wrap" id="js-dl-sel-wrap">
+            <button class="dl-sel-btn" id="js-dl-sel-btn" type="button" onclick="toggleDlSel(event)">
+              <span id="js-dl-sel-label">1 天</span>
+              <span class="dl-sel-arrow">▾</span>
+            </button>
+            <div class="dl-sel-dropdown" id="js-dl-sel-dropdown">
+              <div class="dl-sel-opt" data-val="15"  onclick="pickDlSel(this)">15 分钟</div>
+              <div class="dl-sel-opt" data-val="30"  onclick="pickDlSel(this)">30 分钟</div>
+              <div class="dl-sel-opt" data-val="60"  onclick="pickDlSel(this)">1 小时</div>
+              <div class="dl-sel-opt" data-val="180" onclick="pickDlSel(this)">3 小时</div>
+              <div class="dl-sel-opt" data-val="360" onclick="pickDlSel(this)">6 小时</div>
+              <div class="dl-sel-opt" data-val="720" onclick="pickDlSel(this)">12 小时</div>
+              <div class="dl-sel-opt selected" data-val="1440" onclick="pickDlSel(this)">1 天</div>
+            </div>
+          </div>
+          <span>提醒我</span>
+        </div>
+      </div>
+      <div class="deadline-actions">
+        <button class="deadline-cancel" onclick="closeDeadlineModal()">取消</button>
+        <button class="deadline-save" onclick="saveDeadline()">确定</button>
+      </div>
+      <button class="deadline-clear" id="js-deadline-clear" onclick="clearDeadline()" style="display:none">移除死线</button>
+    </div>
+  </div>
+
+  <!-- 右键菜单 -->
+  <div class="task-ctx-menu" id="js-task-ctx" style="display:none">
+    <div class="task-ctx-item" id="js-ctx-deadline" onclick="openDeadlineFromCtx()">⏰ 设置死线</div>
+    <div class="task-ctx-sep"></div>
+    <div class="task-ctx-item danger" id="js-ctx-delete" onclick="deleteTaskFromCtx()">✕ 删除任务</div>
+  </div>
+
+  <!-- 提醒 toast 容器（由 JS 动态创建） -->
 
 </body>
 </html>
