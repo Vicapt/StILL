@@ -395,10 +395,12 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .btn-send:disabled{opacity:0.35;cursor:not-allowed}
 
 /* TASK PANEL */
-.task-panel{width:240px;height:74vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);transition:background 0.4s,border-color 0.4s;padding:16px 14px;display:flex;flex-direction:column;gap:8px}
-.task-header-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--glass-b);flex-shrink:0}
+.task-panel{width:240px;height:74vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);transition:background 0.4s,border-color 0.4s;padding:0;overflow:hidden;position:relative}
+.task-header-row{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 10px;border-bottom:1px solid var(--glass-b);position:relative;z-index:2;background:var(--glass)}
+/* 底部固定区：添加按钮 + 播放器 */
+.task-panel-bottom{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:0;background:var(--glass);border-top:1px solid var(--glass-b)}
 .task-header{font-size:0.65rem;letter-spacing:2.5px;text-transform:uppercase;opacity:0.38}
-.task-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.task-list{position:absolute;left:0;right:0;top:47px;bottom:130px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 14px}
 .task-list::-webkit-scrollbar{width:3px}
 .task-list::-webkit-scrollbar-thumb{background:rgba(255,160,80,0.25);border-radius:4px;transition:background 0.2s}
 .task-list::-webkit-scrollbar-thumb:hover{background:rgba(255,160,80,0.5)}
@@ -412,6 +414,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .progress-fill{position:absolute;top:0;left:0;height:100%;background:rgba(255,160,80,0.17);z-index:0;transition:width 0.7s cubic-bezier(.4,0,.2,1)}
 .task-inner{position:relative;z-index:1;display:flex;align-items:center;gap:6px}
 .task-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-name::before{content:'· ';opacity:0.35;font-size:1em}
 .task-pct{font-size:0.68rem;color:var(--task-pct);flex-shrink:0;font-weight:500}
 .task-actions{position:absolute;right:6px;top:10px;display:none;gap:3px;z-index:2;align-items:center}
 .task-item:hover .task-actions{display:flex}
@@ -419,9 +422,9 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .task-btn.timer-btn:hover{background:rgba(255,160,80,0.25);border-color:rgba(255,160,80,0.4);color:rgba(255,210,130,0.95)}
 .task-btn.done-btn:hover{background:rgba(80,200,120,0.25);border-color:rgba(80,200,120,0.3);color:rgba(130,230,160,0.9)}
 .task-btn.del-btn:hover{background:rgba(255,80,60,0.2);border-color:rgba(255,80,60,0.3);color:rgba(255,120,100,0.9)}
-.btn-add-task{background:transparent;border:1px dashed var(--add-task-b);color:var(--add-task-color);border-radius:10px;padding:7px;font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.2s}
+.btn-add-task{background:transparent;border:1px dashed var(--add-task-b);color:var(--add-task-color);border-radius:10px;padding:7px;font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.2s;flex-shrink:0}
 .btn-add-task:hover{border-color:var(--txt-dim);color:var(--txt)}
-.task-add-form{display:flex;flex-direction:column;gap:6px;animation:taskIn 0.18s ease both}
+.task-add-form{display:flex;flex-direction:column;gap:6px;animation:taskIn 0.18s ease both;flex-shrink:0}
 .task-add-form.hidden{display:none}
 .task-add-input{background:var(--input-bg);border:1px solid var(--glass-b);border-radius:8px;color:var(--txt);font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;width:100%;transition:border-color 0.15s}
 .task-add-input:focus{border-color:var(--amber-b)}
@@ -431,7 +434,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .task-add-confirm:hover{opacity:0.85}
 .task-add-cancel{background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-muted);border-radius:7px;padding:5px 10px;font-size:0.72rem;cursor:pointer;font-family:inherit;transition:0.15s}
 .task-add-cancel:hover{background:var(--glass-h);color:var(--txt)}
-.task-clear-confirm{display:flex;align-items:center;gap:5px;padding:4px 2px;animation:taskIn 0.15s ease both}
+.task-clear-confirm{display:flex;align-items:center;gap:5px;padding:4px 2px;animation:taskIn 0.15s ease both;flex-shrink:0}
 .task-clear-confirm.hidden{display:none}
 .task-clear-label{flex:1;font-size:0.7rem;color:var(--txt-dim)}
 .btn-audio{background:transparent;border:1px solid var(--glass-b);color:var(--audio-btn-color);border-radius:10px;padding:7px;font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.2s}
@@ -664,9 +667,8 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 /* ═══ MINI PLAYER ═══ */
 .player-section{
   flex-shrink:0;
-  border-top:1px solid var(--glass-b);
   display:flex;flex-direction:column;gap:7px;
-  padding:18px 14px 10px;
+  padding:10px 14px 10px;
 }
 /* 曲目名称 — 带切换动画的容器 */
 .track-name-wrap{
@@ -1442,6 +1444,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   box-shadow:0 8px 32px rgba(0,0,0,0.35);
   animation:taskIn 0.15s ease both;
 }
+[data-theme="day"] .task-ctx-menu{box-shadow:0 4px 16px rgba(80,120,160,0.13)}
 .task-ctx-item{
   padding:7px 14px;font-size:0.78rem;cursor:pointer;
   color:var(--txt-dim);transition:background 0.12s,color 0.12s;
@@ -1457,8 +1460,9 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   background:var(--panel-bg-mid);border:1px solid var(--glass-b);
   border-radius:24px;padding:32px 30px;width:320px;
   display:flex;flex-direction:column;gap:18px;
-  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  box-shadow:0 24px 80px rgba(0,0,0,0.75);
 }
+[data-theme="day"] .deadline-card{box-shadow:0 8px 32px rgba(80,120,160,0.2)}
 .deadline-card h3{font-family:'DM Serif Display',serif;font-size:1.15rem;letter-spacing:2px;color:var(--timer-txt);opacity:0.85;text-align:center}
 .deadline-field{display:flex;flex-direction:column;gap:5px}
 .deadline-label{font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;opacity:0.4}
@@ -1470,6 +1474,42 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 }
 [data-theme="day"] .deadline-input{color-scheme:light}
 .deadline-input:focus{border-color:var(--amber-b)}
+/* 自定义时间滚轮 */
+.dl-time-row{display:flex;align-items:center;gap:10px}
+.dl-time-label{font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;opacity:0.4;flex-shrink:0;width:24px}
+.dl-time-picker{display:flex;align-items:center;gap:4px;flex:1}
+.dl-time-sep{font-size:1.1rem;opacity:0.4;padding:0 2px;line-height:1}
+.dl-time-col{
+  flex:1;height:120px;overflow:hidden;position:relative;
+  background:var(--input-bg);border:1px solid var(--glass-b);border-radius:9px;
+  cursor:ns-resize;user-select:none;
+}
+.dl-time-col::before,.dl-time-col::after{
+  content:'';position:absolute;left:0;right:0;height:38px;z-index:2;pointer-events:none;
+}
+.dl-time-col::before{top:0;background:linear-gradient(to bottom,var(--panel-bg-mid),transparent)}
+.dl-time-col::after{bottom:0;background:linear-gradient(to top,var(--panel-bg-mid),transparent)}
+/* 选中高亮线 */
+.dl-time-col-hl{
+  position:absolute;top:50%;left:6px;right:6px;height:34px;
+  transform:translateY(-50%);
+  background:var(--amber);border:1px solid var(--amber-b);
+  border-radius:7px;z-index:1;pointer-events:none;
+  opacity:0.35;
+}
+.dl-time-track{
+  position:absolute;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform 0.12s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.dl-time-item{
+  height:34px;line-height:34px;font-size:1rem;
+  color:var(--txt);opacity:0.28;width:100%;text-align:center;
+  flex-shrink:0;transition:opacity 0.1s,font-size 0.1s;
+  font-variant-numeric:tabular-nums;
+}
+.dl-time-item.selected{opacity:1;font-size:1.12rem;font-weight:500}
+.dl-time-item.near{opacity:0.6}
 .deadline-remind-row{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--txt-dim)}
 .deadline-remind-row input[type=checkbox]{accent-color:rgba(255,160,80,0.8);width:14px;height:14px;cursor:pointer;flex-shrink:0}
 .deadline-remind-select{
@@ -1512,20 +1552,26 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .deadline-clear:hover{color:rgba(255,90,70,0.9)}
 /* 提醒弹窗 */
 .deadline-toast{
-  position:fixed;bottom:60px;right:20px;z-index:600;
+  position:fixed;bottom:0;right:20px;z-index:600;
   background:var(--panel-bg-deep);border:1px solid rgba(255,160,80,0.28);
-  border-radius:16px;padding:14px 18px;width:260px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+  border-top-left-radius:16px;border-top-right-radius:16px;
+  border-bottom-left-radius:16px;border-bottom-right-radius:16px;
+  padding:14px 18px;width:260px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7),0 4px 16px rgba(0,0,0,0.4);
   display:flex;flex-direction:column;gap:6px;
-  animation:toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation:toastIn 0.42s cubic-bezier(0.22,1,0.36,1) both;
 }
-@keyframes toastIn{from{opacity:0;transform:translateY(24px) scale(0.95)}to{opacity:1;transform:none}}
+[data-theme="day"] .deadline-toast{box-shadow:0 8px 32px rgba(80,120,160,0.22),0 2px 8px rgba(80,120,160,0.12)}
+@keyframes toastIn{
+  from{transform:translateY(55%);opacity:0.6}
+  to{transform:translateY(-16px);opacity:1}
+}
 .deadline-toast.hiding{animation:toastOut 0.3s ease forwards}
-@keyframes toastOut{to{opacity:0;transform:translateY(16px) scale(0.97)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(80%)}}
 .toast-header{display:flex;align-items:center;gap:7px;font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;opacity:0.5}
-.toast-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,160,80,0.8);flex-shrink:0;animation:pulseDot 1.5s ease infinite}
-@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
-.toast-title{font-size:0.88rem;color:var(--txt);font-weight:500;line-height:1.3}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,160,80,1);flex-shrink:0;animation:pulseDot 1.2s ease infinite;box-shadow:0 0 6px rgba(255,160,80,0.7)}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 6px rgba(255,160,80,0.7)}50%{opacity:0.6;transform:scale(0.5);box-shadow:0 0 2px rgba(255,160,80,0.3)}}
+.toast-title{font-size:1.05rem;color:var(--txt);font-weight:600;line-height:1.3;letter-spacing:0.2px}
 .toast-sub{font-size:0.72rem;color:var(--txt-dim);opacity:0.75}
 .toast-dismiss{align-self:flex-end;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-muted);border-radius:8px;padding:4px 12px;font-size:0.7rem;cursor:pointer;font-family:inherit;transition:0.15s;margin-top:2px}
 .toast-dismiss:hover{background:var(--glass-h);color:var(--txt)}
@@ -1980,23 +2026,27 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
         <div class="task-header">进度清单</div>
         <button id="js-clear-all" class="task-btn del-btn" style="opacity:.4;padding:2px 8px;font-size:.63rem" title="清除全部">清空</button>
       </div>
-      <div class="task-clear-confirm hidden" id="js-clear-confirm">
-        <span class="task-clear-label">确认清空全部？</span>
-        <button class="task-add-confirm" id="js-clear-yes" style="flex:unset;padding:3px 10px">确认</button>
-        <button class="task-add-cancel" id="js-clear-no">取消</button>
-      </div>
       <div class="task-list" id="js-task-list"></div>
-      <button class="btn-add-task" id="js-add-task">＋ 添加任务</button>
-      <div class="task-add-form hidden" id="js-task-add-form">
-        <input class="task-add-input" id="js-task-add-input" type="text" placeholder="任务名称…" maxlength="40" autocomplete="off">
-        <div class="task-add-actions">
-          <button class="task-add-confirm" id="js-task-add-confirm">确认</button>
-          <button class="task-add-cancel" id="js-task-add-cancel">取消</button>
-        </div>
-      </div>
 
-      <!-- PLAYER SECTION -->
-      <div class="player-section">
+      <div class="task-panel-bottom">
+        <div style="padding:8px 14px 0">
+          <div class="task-clear-confirm hidden" id="js-clear-confirm">
+            <span class="task-clear-label">确认清空全部？</span>
+            <button class="task-add-confirm" id="js-clear-yes" style="flex:unset;padding:3px 10px">确认</button>
+            <button class="task-add-cancel" id="js-clear-no">取消</button>
+          </div>
+          <button class="btn-add-task" id="js-add-task" style="width:100%;margin-bottom:0">＋ 添加任务</button>
+          <div class="task-add-form hidden" id="js-task-add-form" style="padding-bottom:6px">
+            <input class="task-add-input" id="js-task-add-input" type="text" placeholder="任务名称…" maxlength="40" autocomplete="off">
+            <div class="task-add-actions">
+              <button class="task-add-confirm" id="js-task-add-confirm">确认</button>
+              <button class="task-add-cancel" id="js-task-add-cancel">取消</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLAYER SECTION -->
+        <div class="player-section">
         <div class="track-name-wrap"><div class="track-name" id="js-track-name">— 选择曲目 —</div></div>
         <div class="player-controls">
           <button class="ctrl-btn" id="js-prev-track" title="上一首">&lt;</button>
@@ -2029,7 +2079,8 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
           </div>
         </div>
       </div>
-    </div>
+      </div><!-- /task-panel-bottom -->
+    </div><!-- /task-panel -->
   </div>
 </div>
 
@@ -2928,6 +2979,10 @@ async function renderDsComment(ds, entry) {
   const el = document.getElementById('js-ds-comment');
   if(!el) return;
 
+  // 未来日期：不评语
+  const todayKey = calendarDateKey();
+  if(ds > todayKey){ el.textContent=''; el.className='ds-comment'; return; }
+
   // 已有最终版评语直接显示
   if(entry.aiCommentFinal && entry.aiComment){
     el.textContent = entry.aiComment;
@@ -2958,13 +3013,19 @@ async function renderDsComment(ds, entry) {
   el.className = 'ds-comment ds-comment-loading';
 
   const taskTitles = (entry.completedTasks||[]).map(t=>t.title).join('、') || '无';
-  const prevDays = [-1,-2].map(offset=>{
+  const prevDays = [-1,-2,-3].map(offset=>{
     const d = new Date(ds+'T12:00:00');
     d.setDate(d.getDate()+offset);
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    return appData.history[key] || {};
+    return appData.history[key] ?? null;
   });
-  const prevFocus = prevDays.map(d=>d.focusMin||0);
+  const prevFocusDesc = prevDays.map((d,i)=>
+    d===null ? `前${i+1}天未使用` : `前${i+1}天${d.focusMin||0}分钟`
+  ).join('、');
+  const validPrev = prevDays.filter(d=>d!==null&&(d.focusMin||0)>0);
+  const avgPrev = validPrev.length ? Math.round(validPrev.reduce((s,d)=>s+(d.focusMin||0),0)/validPrev.length) : null;
+  const prevDataStr = avgPrev!==null ? `近${validPrev.length}天平均专注${avgPrev}分钟。` : '';
+  const taskCountStr = completedCount>0 ? `完成任务${completedCount}项（${taskTitles}）` : '无完成任务记录';
 
   // 时间段问候语
   let greeting = '';
@@ -2976,14 +3037,14 @@ async function renderDsComment(ds, entry) {
   }
 
   const prompt = isToday
-    ? `${greeting}今天专注${focusMin}分钟，完成任务${completedCount}项（${taskTitles}）。前两天专注分别是${prevFocus[0]}分钟和${prevFocus[1]}分钟。请结合时间和进度用一句轻松温暖的话鼓励或表扬用户，语气像朋友，结尾加一个贴切的可爱emoji。严格不超过22字（不含emoji）。`
-    : `${ds}专注${focusMin}分钟，完成任务${completedCount}项（${taskTitles}）。前两天专注分别是${prevFocus[0]}分钟和${prevFocus[1]}分钟。${isAfterMidnight?'现在是凌晨，请在最后自然叮嘱一句注意休息。':''}请给出一句结合前后对比的温暖鼓励，语气活泼，真诚表扬用户的付出，结尾加一个贴切的可爱emoji。严格不超过30字（不含emoji）。`;
+    ? `${greeting}今天专注${focusMin}分钟，${taskCountStr}。${prevFocusDesc}（"未使用"代表那天完全没打开应用，不算连续打卡）。请用一句轻松温暖的话鼓励或表扬用户，语气像朋友，结尾加一个贴切的可爱emoji。严格不超过22字（不含emoji）。`
+    : `【专注报告·${ds}】当天专注${focusMin}分钟，${taskCountStr}。${prevDataStr}${prevFocusDesc}（"未使用"代表当天未打开应用）。请以专业简练的语气写2~3句点评：可提及专注时长的纵向对比（只说进步或保持，绝对不提退步或不足），完成任务的亮点，对用户坚持的肯定。结尾加一个贴切emoji。不超过55字（不含emoji）。`;
 
   try{
     const res = await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({apiKey, model:currentPlatform?.model||'deepseek-chat',
-        messages:[{role:'system',content:'你是一个温和的专注助手，只输出评语本身，不加任何前缀或解释。'},{role:'user',content:prompt}],
-        temperature:0.8, max_tokens:80})});
+        messages:[{role:'system',content:'你是一个专业的专注效率分析助手，只输出评语本身，不加任何前缀、标题或解释。'},{role:'user',content:prompt}],
+        temperature:0.75, max_tokens:isToday?60:120})});
     const data = await res.json();
     const comment = data.choices?.[0]?.message?.content?.trim() || '';
     if(!comment){ el.textContent=''; return; }
@@ -3327,10 +3388,11 @@ function getSystem() {
 用户拒绝后不再重复问同一件事。
 
 【操作确认】以下操作在询问的同时输出指令+对应确认标记：
-- 删除任务：[CD_DELETE:id][/CD_DELETE][CONFIRM:delete_tasks]
+- 删除任务：[TASK_DELETE:id][/TASK_DELETE][CONFIRM:delete_tasks]
 - 清空清单：（系统处理）[CONFIRM:clear_all]
 - 删除倒数日：[CD_DELETE:id][/CD_DELETE][CONFIRM:cd_delete]
 - 修改倒数日：[CD_UPDATE:id]{"date":"YYYY-MM-DD"}[/CD_UPDATE][CONFIRM:cd_update]
+⚠️ 询问句只问「确认要XX吗？」，绝不提前描述操作结果（如"删掉了""已更新"），结果由用户点✓后的系统通知触发。
 细分步骤、更新进度、SUBTASK_DONE 不需要确认，直接执行。
 
 【细分】收到 [系统通知:SWITCH:任务名] 时判断是否需要细分：
@@ -3712,6 +3774,10 @@ function applyTaskUpdate(text) {
   if(cdDelM){
     const cdId = cdDelM[1].trim();
     appData.countdowns = (appData.countdowns||[]).filter(c=>c.id!==cdId);
+    // 同步清悬浮卡和 pinnedCards（与 deleteCd() 保持一致）
+    const floatEl = document.getElementById('cd-float-'+cdId);
+    if(floatEl) floatEl.remove();
+    setPinnedCards(getPinnedCards().filter(p=>p.id!==cdId));
     save(); renderCdAllList(); renderCalendar();
     clean = clean.replace(/\[CD_DELETE:[^\]]+\]\[\/CD_DELETE\]/,'').trim();
   }
@@ -3758,7 +3824,7 @@ function milestoneMsg(todo,cp){
 // UI
 // ══════════════════════════════════════════════
 const UI={
-  render(){this.renderTopics();this.renderChat();this.renderTasks();save();if(timerState.running)syncImmChatDisplay();},
+  render(){this.renderTopics();this.renderChat();this.renderTasks();save();if(timerState.running)syncImmChatDisplay();if(typeof updateTaskListBounds==='function')updateTaskListBounds();},
 
   renderTopics(){
     const c=document.getElementById('js-topic-list');
@@ -3864,7 +3930,6 @@ const UI={
         <div class="task-actions">
           <button class="task-btn timer-btn" onclick="event.stopPropagation();openTimerPicker('${t.id}')" >⏱</button>
           ${!t.isCompleted?`<button class="task-btn done-btn" onclick="event.stopPropagation();UI.completeTask('${t.id}')">✓</button>`:''}
-          <button class="task-btn del-btn" onclick="event.stopPropagation();UI.deleteTask('${t.id}')">✕</button>
         </div>
         ${subHtml}
       </div>`;
@@ -4729,14 +4794,20 @@ function renderCdAllList() {
   if (!list || !mgr) return;
   const sorted = [...appData.countdowns].sort((a,b)=>cdDaysLeft(a)-cdDaysLeft(b));
 
-  // 没有倒数日：整块隐藏
-  if (!sorted.length) { mgr.style.display=''; list.innerHTML=''; return; }
+  // 没有倒数日：整块隐藏，展开按钮也隐藏
+  if (!sorted.length) {
+    mgr.style.display=''; list.innerHTML='';
+    const expandBtn = document.getElementById('js-cd-expand-btn');
+    if(expandBtn) expandBtn.style.visibility='hidden';
+    return;
+  }
   mgr.style.display='';
 
   const toShow = cdListExpanded ? sorted : sorted.slice(0,1);
   const pinned = getPinnedCards();
   const expandBtn = document.getElementById('js-cd-expand-btn');
   if (expandBtn) {
+    expandBtn.style.visibility = sorted.length > 1 ? 'visible' : 'hidden';
     expandBtn.textContent = cdListExpanded ? '收起' : `全部(${sorted.length})`;
   }
 
@@ -6953,6 +7024,20 @@ function _applyTheme(t) {
   localStorage.setItem('StILL_theme', t);
   if(typeof renderCalendar==='function'&&document.getElementById('js-calendar')){renderCalendar();}
   if(typeof buildRainMemo==='function'&&typeof lastRainCount!=='undefined'){buildRainMemo(lastRainCount,lastRainOpacity,lastRainSpeed);}
+  // 主题切换后立即刷新死线 badge 颜色
+  appData.todos.forEach(function(todo){
+    if(!todo.deadline||todo.isCompleted) return;
+    var badge = document.getElementById('dlbadge-'+todo.id);
+    if(!badge) return;
+    var styleStr = deadlineBadgeStyle(todo.deadline);
+    styleStr.split(';').forEach(function(pair){
+      var idx = pair.indexOf(':');
+      if(idx<0) return;
+      var prop = pair.slice(0,idx).trim().replace(/-([a-z])/g,function(_,c){return c.toUpperCase();});
+      var val  = pair.slice(idx+1).trim();
+      if(prop && val) badge.style[prop] = val;
+    });
+  });
 }
 
 function toggleTheme() {
@@ -6981,7 +7066,15 @@ function deadlineUrgency(deadlineStr) {
 
 function deadlineBadgeStyle(deadlineStr) {
   const u = deadlineUrgency(deadlineStr);
-  return `background:${u.bg};border-color:${u.border};color:${u.color}`;
+  const isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  let color = u.color;
+  if (isDay) {
+    // 白天模式：浅背景上浅色文字看不清，level 0/1 换深色
+    if (u.level === 0) color = 'rgba(20,110,60,0.92)';   // 绿 → 深绿
+    if (u.level === 1) color = 'rgba(100,80,0,0.9)';     // 黄绿 → 深黄褐
+    if (u.level === 2) color = 'rgba(140,80,0,0.9)';     // 橙黄 → 深橙
+  }
+  return `background:${u.bg};border-color:${u.border};color:${color}`;
 }
 
 function deadlineBadgeText(deadlineStr) {
@@ -6995,6 +7088,114 @@ function deadlineBadgeText(deadlineStr) {
   const remH = hours % 24;
   if (remH > 0)       return `⏰ 还剩 ${days} 天 ${remH} 小时`;
   return `⏰ 还剩 ${days} 天`;
+}
+
+// ── 自定义时间滚轮选择器 ──
+const DL_ITEM_H = 34; // px，与 CSS .dl-time-item height 一致
+
+function _buildTimeTrack(trackEl, count, pad2) {
+  trackEl.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement('div');
+    div.className = 'dl-time-item';
+    div.textContent = pad2 ? String(i).padStart(2,'0') : i;
+    div.dataset.val = i;
+    trackEl.appendChild(div);
+  }
+}
+
+function _scrollToVal(colEl, val, animated) {
+  const track = colEl.querySelector('.dl-time-track');
+  const colH  = colEl.clientHeight || 120;
+  const offset = Math.round(colH / 2) - Math.round(DL_ITEM_H / 2) - val * DL_ITEM_H;
+  if (!animated) track.style.transition = 'none';
+  track.style.transform = `translateY(${offset}px)`;
+  if (!animated) requestAnimationFrame(() => { track.style.transition = ''; });
+  _updateTimeItems(track, val);
+}
+
+function _updateTimeItems(track, val) {
+  const items = track.querySelectorAll('.dl-time-item');
+  items.forEach((el, i) => {
+    el.classList.remove('selected','near');
+    if (i === val)                el.classList.add('selected');
+    else if (Math.abs(i-val)===1) el.classList.add('near');
+  });
+}
+
+function _getColVal(colEl) {
+  return parseInt(colEl.dataset.curVal || '0', 10);
+}
+
+function _initTimeCol(colEl, count, pad2, initVal) {
+  // 加高亮层
+  if (!colEl.querySelector('.dl-time-col-hl')) {
+    const hl = document.createElement('div');
+    hl.className = 'dl-time-col-hl';
+    colEl.appendChild(hl);
+  }
+  const track = colEl.querySelector('.dl-time-track');
+  _buildTimeTrack(track, count, pad2);
+  colEl.dataset.count   = count;
+  colEl.dataset.curVal  = initVal;
+  _scrollToVal(colEl, initVal, false);
+
+  let startY = 0, startVal = 0, dragging = false;
+
+  const onDown = (e) => {
+    dragging = true;
+    startY   = (e.touches ? e.touches[0].clientY : e.clientY);
+    startVal = _getColVal(colEl);
+    track.style.transition = 'none';
+    e.preventDefault();
+  };
+  const onMove = (e) => {
+    if (!dragging) return;
+    const y    = (e.touches ? e.touches[0].clientY : e.clientY);
+    const diff = Math.round((startY - y) / DL_ITEM_H);
+    let v = Math.max(0, Math.min(count - 1, startVal + diff));
+    colEl.dataset.curVal = v;
+    const colH   = colEl.clientHeight || 120;
+    const offset = Math.round(colH/2) - Math.round(DL_ITEM_H/2) - v * DL_ITEM_H;
+    track.style.transform = `translateY(${offset}px)`;
+    _updateTimeItems(track, v);
+    e.preventDefault();
+  };
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    track.style.transition = 'transform 0.12s cubic-bezier(0.25,0.46,0.45,0.94)';
+    _scrollToVal(colEl, _getColVal(colEl), true);
+  };
+
+  // 鼠标拖拽
+  colEl.addEventListener('mousedown',  onDown, {passive:false});
+  window.addEventListener('mousemove', onMove, {passive:false});
+  window.addEventListener('mouseup',   onUp);
+  // 触摸
+  colEl.addEventListener('touchstart', onDown, {passive:false});
+  colEl.addEventListener('touchmove',  onMove, {passive:false});
+  colEl.addEventListener('touchend',   onUp);
+  // 滚轮：每次固定走 1 格
+  colEl.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    let v = Math.max(0, Math.min(count-1, _getColVal(colEl) + dir));
+    colEl.dataset.curVal = v;
+    _scrollToVal(colEl, v, true);
+  }, {passive:false});
+}
+
+function initTimePicker(h, m) {
+  _initTimeCol(document.getElementById('js-dl-hour-col'), 24, true, h);
+  _initTimeCol(document.getElementById('js-dl-min-col'),  60, true, m);
+}
+
+function getTimePicker() {
+  return {
+    h: _getColVal(document.getElementById('js-dl-hour-col')),
+    m: _getColVal(document.getElementById('js-dl-min-col')),
+  };
 }
 
 // ── 自定义提醒时间选择器 ──
@@ -7073,27 +7274,25 @@ function openDeadlineModal(id) {
   _deadlineEditId = id;
   const t = appData.todos.find(x => x.id === id);
   if (!t) return;
-  const modal = document.getElementById('js-deadline-modal');
-  const dtInput = document.getElementById('js-deadline-dt');
+  const modal    = document.getElementById('js-deadline-modal');
+  const dateInput = document.getElementById('js-deadline-date');
   const remChk   = document.getElementById('js-deadline-remind-chk');
   const clearBtn = document.getElementById('js-deadline-clear');
 
-  // 预填已有死线
+  const pad = n => String(n).padStart(2,'0');
+
   if (t.deadline) {
-    // datetime-local 格式: YYYY-MM-DDTHH:MM
     const d = new Date(t.deadline);
-    const pad = n => String(n).padStart(2,'0');
-    dtInput.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    dateInput.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    initTimePicker(d.getHours(), d.getMinutes());
     clearBtn.style.display = 'block';
   } else {
-    // 默认截止时间：明天此时
     const def = new Date(Date.now() + 86400000);
-    const pad = n => String(n).padStart(2,'0');
-    dtInput.value = `${def.getFullYear()}-${pad(def.getMonth()+1)}-${pad(def.getDate())}T${pad(def.getHours())}:${pad(def.getMinutes())}`;
+    dateInput.value = `${def.getFullYear()}-${pad(def.getMonth()+1)}-${pad(def.getDate())}`;
+    initTimePicker(def.getHours(), def.getMinutes());
     clearBtn.style.display = 'none';
   }
 
-  // 预填提醒设置
   remChk.checked = t.deadlineRemind !== false;
   setDlSelVal(t.deadlineRemindMin || 1440);
 
@@ -7108,14 +7307,16 @@ function closeDeadlineModal() {
 function saveDeadline() {
   const t = appData.todos.find(x => x.id === _deadlineEditId);
   if (!t) return;
-  const dtVal = document.getElementById('js-deadline-dt').value;
-  if (!dtVal) { document.getElementById('js-deadline-dt').focus(); return; }
+  const dateVal = document.getElementById('js-deadline-date').value;
+  if (!dateVal) { document.getElementById('js-deadline-date').focus(); return; }
+  const {h, m} = getTimePicker();
+  const dt = new Date(`${dateVal}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
   const remChk = document.getElementById('js-deadline-remind-chk').checked;
   const remMin = _dlSelVal;
-  t.deadline          = new Date(dtVal).toISOString();
+  t.deadline          = dt.toISOString();
   t.deadlineRemind    = remChk;
   t.deadlineRemindMin = remMin;
-  t.deadlineNotified  = false; // 重置提醒状态
+  t.deadlineNotified  = false;
   save();
   closeDeadlineModal();
   UI.render();
@@ -7145,9 +7346,9 @@ function showDeadlineToast(title, subText, todoId) {
     <div class="toast-sub">${subText}</div>
     <button class="toast-dismiss" onclick="dismissToast(this.closest('.deadline-toast'))">知道了</button>
   `;
-  // 多个 toast 垂直堆叠
-  const offset = _activeToasts.length * 130;
-  toast.style.bottom = (60 + offset) + 'px';
+  // 多个 toast 垂直堆叠（从底部往上叠）
+  const offset = _activeToasts.length * 140;
+  toast.style.transform = `translateY(calc(-16px - ${offset}px))`;
   document.body.appendChild(toast);
   _activeToasts.push(toast);
 }
@@ -7158,7 +7359,10 @@ function dismissToast(el) {
     el.remove();
     _activeToasts = _activeToasts.filter(t => t !== el);
     // 重新计算剩余 toast 位置
-    _activeToasts.forEach((t, i) => { t.style.bottom = (60 + i * 130) + 'px'; });
+    _activeToasts.forEach((t, i) => {
+      t.style.transition = 'transform 0.25s ease';
+      t.style.transform = `translateY(calc(-16px - ${i * 140}px))`;
+    });
   }, 320);
 }
 
@@ -7196,13 +7400,37 @@ setInterval(() => {
     if (!t.deadline || t.isCompleted) return;
     const badge = document.getElementById('dlbadge-' + t.id);
     if (!badge) return;
-    const u = deadlineUrgency(t.deadline);
-    badge.style.background   = u.bg;
-    badge.style.borderColor  = u.border;
-    badge.style.color        = u.color;
-    badge.textContent        = deadlineBadgeText(t.deadline);
+    // 复用 deadlineBadgeStyle 保证白天/夜晚颜色一致
+    const styleStr = deadlineBadgeStyle(t.deadline);
+    styleStr.split(';').forEach(pair => {
+      const [prop, val] = pair.split(':');
+      if (prop && val) badge.style[prop.trim().replace(/-([a-z])/g, (_,c) => c.toUpperCase())] = val.trim();
+    });
+    badge.textContent = deadlineBadgeText(t.deadline);
   });
 }, 60000);
+// ── 动态计算 task-list 可滚动区域高度 ──
+function updateTaskListBounds() {
+  const header = document.querySelector('.task-header-row');
+  const bottom = document.querySelector('.task-panel-bottom');
+  const list   = document.getElementById('js-task-list');
+  if (!header || !bottom || !list) return;
+  const topPx    = header.offsetHeight;
+  const bottomPx = bottom.offsetHeight;
+  list.style.top    = topPx + 'px';
+  list.style.bottom = bottomPx + 'px';
+}
+// 立即执行一次（inline script，DOM 已解析）
+updateTaskListBounds();
+// 等浏览器完成布局后再执行一次确保准确
+requestAnimationFrame(() => requestAnimationFrame(updateTaskListBounds));
+// 表单展开/收起时重算
+(function(){
+  const obs = new MutationObserver(updateTaskListBounds);
+  const form = document.getElementById('js-task-add-form');
+  if (form) obs.observe(form, {attributes:true, attributeFilter:['class']});
+})();
+window.addEventListener('resize', updateTaskListBounds);
 
 </script>
   <!-- 底部联系栏 -->
@@ -7213,7 +7441,7 @@ setInterval(() => {
   </div>
 
   <!-- 主题切换 -->
-  <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;right:18px;z-index:320;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
+  <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;left:18px;z-index:320;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
 
   <!-- 死线设置弹窗 -->
   <div class="deadline-modal hidden" id="js-deadline-modal">
@@ -7221,7 +7449,19 @@ setInterval(() => {
       <h3>设置死线</h3>
       <div class="deadline-field">
         <div class="deadline-label">截止时间</div>
-        <input type="datetime-local" class="deadline-input" id="js-deadline-dt">
+        <input type="date" class="deadline-input" id="js-deadline-date" style="margin-bottom:6px">
+        <div class="dl-time-row">
+          <span class="dl-time-label">时间</span>
+          <div class="dl-time-picker">
+            <div class="dl-time-col" id="js-dl-hour-col">
+              <div class="dl-time-track" id="js-dl-hour-track"></div>
+            </div>
+            <span class="dl-time-sep">:</span>
+            <div class="dl-time-col" id="js-dl-min-col">
+              <div class="dl-time-track" id="js-dl-min-track"></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="deadline-field">
         <div class="deadline-label">提前提醒</div>
