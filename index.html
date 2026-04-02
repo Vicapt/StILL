@@ -2163,6 +2163,9 @@ let appData = (() => {
     if (!('lastVisitDate' in d)) d.lastVisitDate = null;
     if (!d.countdowns) d.countdowns = [];
     if (!d.habits) d.habits = [];
+    if (!('bottleDrops'    in d)) d.bottleDrops    = 0;
+    if (!('bottleCollects' in d)) d.bottleCollects = 0;
+    if (!('bottlePos'      in d)) d.bottlePos      = null;
     return d;
   } catch(e) { return defaultState(); }
 })();
@@ -2245,6 +2248,12 @@ setInterval(() => {
   e.stayMin = (e.stayMin || 0) + 1;
   const hr = new Date().getHours();
   e.hourly[hr].s = (e.hourly[hr].s || 0) + 1;
+  // 积雨瓶：每分钟+1滴，上限60
+  if ((appData.bottleDrops || 0) < 60) {
+    appData.bottleDrops = (appData.bottleDrops || 0) + 1;
+    if (typeof window.bottleRender === 'function') window.bottleRender();
+    if (typeof window.playDrip === 'function') window.playDrip();
+  }
   localStorage.setItem('StILL_DATA', JSON.stringify(appData));
   updateFocusStat();
 }, 60000);
@@ -7432,6 +7441,579 @@ requestAnimationFrame(() => requestAnimationFrame(updateTaskListBounds));
 })();
 window.addEventListener('resize', updateTaskListBounds);
 
+// ══════════════════════════════════════════════
+// 积雨瓶
+// ══════════════════════════════════════════════
+(function(){
+
+const BOTTLE_MAX = 60;
+const BOTTLE_TOP = 24;  // 水面最高 Y（液面上限，瓶身顶部）
+const BOTTLE_BOT = 78;  // 水面最低 Y（瓶底内）
+const BOTTLE_L   = 6;   // 瓶身左边界
+const BOTTLE_R   = 54;  // 瓶身右边界
+const BOTTLE_GLASS = 3; // 玻璃厚度（液体与壁的距离）
+
+// ── 状态 ──
+let wavePhase  = 0;
+let waveAmp    = 1.0;
+let waveTarget = 1.0;
+let hovered    = false;
+let rafId      = null;
+let dripAnimId = null;
+
+// ── 星光粒子 ──
+const STAR_COUNT = 18;
+let stars = [];
+
+function initStars() {
+  stars = Array.from({length: STAR_COUNT}, (_, i) => ({
+    x:    BOTTLE_L + 4 + Math.random() * (BOTTLE_R - BOTTLE_L - 8),
+    y:    55 + Math.random() * 20,
+    baseY: 55 + Math.random() * 20,
+    r:    0.6 + Math.random() * 1.4,  // 稍大一点
+    opacity: 0.4 + Math.random() * 0.5,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.001 + Math.random() * 0.002,
+    twinkleSpeed: 0.01 + Math.random() * 0.02,
+    twinklePhase: Math.random() * Math.PI * 2,
+    isStar: Math.random() > 0.30,
+    // 大小衰减因子：靠近液面大，沉到底小
+    sizeFactor: 0.4 + Math.random() * 0.6,  // 更大范围的尺寸
+  }));
+}
+
+function renderStars(ratio, phase, isDay) {
+  const container = document.getElementById('js-bottle-stars');
+  if (!container) return;
+  const isFull = ratio >= 1;
+
+  // 计算液面边界（与 bottleRender 一致）
+  const g = BOTTLE_GLASS;
+  const liquidBottom = 78;
+  const bottleInnerTop = 22 + g;  // 瓶身顶部内壁
+  const liquidBottomInner = liquidBottom - g;
+  const liquidHeight = liquidBottomInner - bottleInnerTop;
+  const currentHeight = liquidHeight * ratio;
+  const surfaceY = bottleInnerTop + (liquidHeight - currentHeight);  // 当前液面Y
+
+  // 液体水平边界（留出星光的余地）
+  const liquidLeft = BOTTLE_L + g + 3;  // 左边留3px余量
+  const liquidRight = BOTTLE_R - g - 3; // 右边留3px余量
+
+  let html = '';
+  stars.forEach(s => {
+    s.twinklePhase += s.twinkleSpeed;
+    // 满瓶时速度加快
+    s.phase += isFull ? s.speed * 3 : s.speed;
+
+    const speedFactor = s.speed / 0.001;
+    const minY = surfaceY + 2;
+    const maxY = liquidBottom - 2;
+    const totalRange = maxY - minY;
+
+    // 大部分集中在液面附近，用指数衰减控制分布
+    // sizeFactor 大的集中在表面，sizeFactor 小的可以飘得更深
+    const normalizedPos = Math.pow(Math.abs(Math.sin(s.phase * (0.5 + speedFactor * 0.3))), 0.6);
+    const maxSink = totalRange * (1 - s.sizeFactor * 0.8);  // 大星星沉得浅
+    const y = minY + normalizedPos * maxSink;
+
+    // 星光颜色：白天纯白，夜晚金黄色（配合UI的琥珀色调）
+    const starColor = isDay ? '255,255,255' : '255,220,120';
+    const dotColor  = isDay ? '200,230,255' : '255,200,80';
+
+    // 满瓶时星星变大（适度）
+    let sizeScale = s.sizeFactor * (1 - (y - surfaceY) / Math.max(totalRange, 1) * 0.35);
+    sizeScale = isFull ? sizeScale * 1.25 : sizeScale;
+    let r = s.r * sizeScale;
+    if (r < 0.15) return;
+
+    // 根据星星大小计算最大x偏移，确保不超出液体边界
+    const maxStarExtend = r * 1.8;  // 星光对角线半长度
+    const starX = Math.max(liquidLeft + maxStarExtend, Math.min(s.x, liquidRight - maxStarExtend));
+
+    if (y < minY || y > maxY) return;
+
+    let twinkle = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(s.twinklePhase));
+    let op = s.opacity * twinkle * (0.4 + sizeScale * 0.6);
+    // 满瓶时更亮
+    if (isFull) {
+      twinkle = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(s.twinklePhase * 2));
+      op = Math.min(1, op * 1.5);
+    }
+
+    if (s.isStar) {
+      const sz = r * 1.8;
+      html += `<line x1="${starX-sz}" y1="${y}" x2="${starX+sz}" y2="${y}" stroke="rgba(${starColor},${op})" stroke-width="${r*0.8}" stroke-linecap="round"/>
+               <line x1="${starX}" y1="${y-sz}" x2="${starX}" y2="${y+sz}" stroke="rgba(${starColor},${op})" stroke-width="${r*0.8}" stroke-linecap="round"/>`;
+      const ds = sz * 0.55;
+      html += `<line x1="${starX-ds}" y1="${y-ds}" x2="${starX+ds}" y2="${y+ds}" stroke="rgba(${starColor},${op*0.5})" stroke-width="${r*0.5}" stroke-linecap="round"/>
+               <line x1="${starX+ds}" y1="${y-ds}" x2="${starX-ds}" y2="${y+ds}" stroke="rgba(${starColor},${op*0.5})" stroke-width="${r*0.5}" stroke-linecap="round"/>`;
+    } else {
+      html += `<circle cx="${starX}" cy="${y}" r="${s.r}" fill="rgba(${dotColor},${op})"/>`;
+    }
+  });
+  container.innerHTML = html;
+}
+
+// ── 波浪 path ──
+function wavePath(waterY, amp, phase) {
+  const segs = 8;
+  const g = BOTTLE_GLASS;
+  const w = BOTTLE_R - BOTTLE_L - g * 2;
+  const segW = w / segs;
+  const l = BOTTLE_L + g;
+  const r = BOTTLE_R - g;
+  const bottomY = 78 - g; // 液体底部不贴瓶底
+  // 波浪从左侧内壁开始，底部连接到左侧内壁（保持左下角缩进）
+  let d = `M ${l} ${bottomY} L ${l} ${waterY}`;
+  for (let i = 0; i <= segs; i++) {
+    const x = l + i * segW;
+    const y = waterY + Math.sin(phase + i * 0.9) * amp
+                     + Math.sin(phase * 1.3 + i * 1.7) * amp * 0.4;
+    d += ` L ${x} ${y}`;
+  }
+  d += ` L ${r} ${bottomY} L ${l} ${bottomY} Z`;
+  return d;
+}
+
+// ── 液面边缘线 path ──
+function surfaceEdgePath(waterY, amp, phase) {
+  const segs = 8;
+  const g = BOTTLE_GLASS;
+  const w = BOTTLE_R - BOTTLE_L - g * 2;
+  const segW = w / segs;
+  const l = BOTTLE_L + g;
+  const r = BOTTLE_R - g;
+  let d = '';
+  for (let i = 0; i <= segs; i++) {
+    const x = l + i * segW;
+    const y = waterY + Math.sin(phase + i * 0.9) * amp
+                     + Math.sin(phase * 1.3 + i * 1.7) * amp * 0.4;
+    d += (i === 0 ? 'M' : 'L') + ` ${x} ${y}`;
+  }
+  return d;
+}
+
+// ── 液体颜色（根据主题）──
+function getLiquidColors(isDay) {
+  if (isDay) {
+    // 白天模式：上深下浅的青蓝色渐变（整体稍浅）
+    return {
+      top: 'rgba(120,210,255,0.60)',
+      mid: 'rgba(130,215,255,0.52)',
+      bot: 'rgba(145,220,250,0.45)',
+      base: 'rgba(160,228,252,0.38)',
+      glow: 'rgba(120,210,255,0.45)',
+      edge: 'rgba(100,200,150,0.50)',  // 白天液面边缘：浅绿色
+      glassStroke: 'rgba(80,150,110,0.35)'  // 白天玻璃轮廓：浅绿色
+    };
+  } else {
+    // 黑夜模式：更浅更透明
+    return {
+      top: 'rgba(255,255,255,0.22)',
+      mid: 'rgba(245,250,255,0.15)',
+      bot: 'rgba(230,240,250,0.18)',
+      base: 'rgba(220,230,245,0.10)',
+      glow: 'rgba(220,235,255,0.15)',
+      edge: 'rgba(255,255,255,0.40)',
+      glassStroke: 'rgba(220,235,255,0.40)'
+    };
+  }
+}
+
+// ── 主渲染 ──
+function bottleRender() {
+  const drops  = appData.bottleDrops || 0;
+  const ratio  = Math.min(drops / BOTTLE_MAX, 1);
+  const isDay  = document.documentElement.getAttribute('data-theme') === 'day';
+  const lc     = getLiquidColors(isDay);
+
+  const water      = document.getElementById('js-bottle-water');
+  const surfaceEdge = document.getElementById('js-bottle-surface-edge');
+  const baseGlow   = document.getElementById('js-bottle-base-glow');
+  const wrap       = document.getElementById('js-bottle-wrap');
+  const waterGrad  = document.getElementById('water-grad');
+  const bottleGlass = document.getElementById('bottle-glass');
+  const bottleOutline = document.getElementById('js-bottle-outline');
+  const liquidBottom = 78;
+  if (!water) return;
+
+  // 更新液体渐变色
+  if (waterGrad) {
+    const stops = waterGrad.querySelectorAll('stop');
+    if (stops.length >= 3) {
+      stops[0].setAttribute('stop-color', lc.top);
+      stops[1].setAttribute('stop-color', lc.mid);
+      stops[2].setAttribute('stop-color', lc.bot);
+    }
+  }
+
+  // 液体高度计算：瓶身内部减去玻璃厚度
+  const g = BOTTLE_GLASS;
+  const bottleInnerTop = 22 + g;  // 瓶身顶部内壁
+  const liquidBottomInner = liquidBottom - g;
+  const liquidHeight = liquidBottomInner - bottleInnerTop;
+  const currentHeight = liquidHeight * ratio;
+  const waterY = liquidBottomInner - currentHeight;
+
+  water.setAttribute('x', String(BOTTLE_L + g));
+  water.setAttribute('y', String(waterY));
+  water.setAttribute('width', String(BOTTLE_R - BOTTLE_L - g * 2));
+  water.setAttribute('height', String(currentHeight));
+  water.setAttribute('rx', '3');
+
+  // 液面边缘线
+  if (surfaceEdge) {
+    surfaceEdge.setAttribute('d', surfaceEdgePath(waterY, waveAmp, wavePhase));
+    surfaceEdge.setAttribute('stroke', lc.edge);
+    surfaceEdge.setAttribute('opacity', ratio > 0.04 ? String(0.7 * Math.min(ratio * 5, 1)) : '0');
+  }
+
+  // 底部辉光
+  if (baseGlow) {
+    baseGlow.setAttribute('fill', lc.glow);
+    baseGlow.setAttribute('opacity', String(ratio * 0.5));
+    baseGlow.setAttribute('cy', String(liquidBottom - 3));
+  }
+
+  // 瓶身玻璃渐变（白天用绿色调，夜晚用蓝白色调）
+  if (bottleGlass) {
+    const stops = bottleGlass.querySelectorAll('stop');
+    if (stops.length >= 5) {
+      if (isDay) {
+        stops[0].setAttribute('stop-color', 'rgba(200,240,220,0.35)');
+        stops[1].setAttribute('stop-color', 'rgba(220,250,235,0.70)');
+        stops[2].setAttribute('stop-color', 'rgba(200,240,220,0.12)');
+        stops[3].setAttribute('stop-color', 'rgba(200,235,215,0.18)');
+        stops[4].setAttribute('stop-color', 'rgba(180,230,210,0.25)');
+      } else {
+        stops[0].setAttribute('stop-color', 'rgba(220,235,255,0.28)');
+        stops[1].setAttribute('stop-color', 'rgba(255,255,255,0.55)');
+        stops[2].setAttribute('stop-color', 'rgba(220,235,255,0.06)');
+        stops[3].setAttribute('stop-color', 'rgba(200,220,255,0.08)');
+        stops[4].setAttribute('stop-color', 'rgba(200,220,255,0.22)');
+      }
+    }
+  }
+
+  // 瓶身轮廓（白天用绿色，夜晚用蓝白色）
+  if (bottleOutline) {
+    bottleOutline.setAttribute('stroke', lc.glassStroke);
+  }
+
+  // 瓶颈和瓶口边缘（白天用绿色，夜晚用蓝白色）
+  const neckRim = document.getElementById('js-bottle-neck-rim');
+  const neck = document.getElementById('js-bottle-neck');
+  if (neckRim) {
+    neckRim.setAttribute('stroke', lc.glassStroke);
+  }
+  if (neck) {
+    neck.setAttribute('stroke', lc.glassStroke);
+  }
+
+  // 标签（始终100%不透明）
+  const tagBorder = document.getElementById('js-bottle-tag-border');
+  if (tagBorder) {
+    tagBorder.setAttribute('fill', 'rgba(250,248,240,1)');
+  }
+
+  // 星光粒子
+  renderStars(ratio, wavePhase, isDay);
+
+  if (wrap) wrap.style.cursor = ratio >= 1 ? 'pointer' : (dragging ? 'grabbing' : 'grab');
+}
+
+// ── 动画帧 ──
+let tagPulse = 0;
+function bottleTick() {
+  const ratio = Math.min((appData.bottleDrops || 0) / BOTTLE_MAX, 1);
+  // 满瓶时停止波动
+  if (ratio >= 1) {
+    waveAmp += (0 - waveAmp) * 0.05;
+    // 满瓶时标签金色边框闪烁
+    tagPulse += 0.08;
+    const tagBorder = document.getElementById('js-bottle-tag-border');
+    if (tagBorder) {
+      const blink = 0.6 + 0.4 * Math.sin(tagPulse);
+      const isDay = document.documentElement.getAttribute('data-theme') === 'day';
+      if (isDay) {
+        tagBorder.setAttribute('stroke', `rgba(255,220,100,${blink})`);
+      } else {
+        tagBorder.setAttribute('stroke', `rgba(255,180,50,${blink})`);
+      }
+      tagBorder.setAttribute('stroke-width', '1.2');
+    }
+  } else {
+    tagPulse = 0;
+    const tagBorder = document.getElementById('js-bottle-tag-border');
+    if (tagBorder) {
+      tagBorder.setAttribute('stroke', 'rgba(180,160,120,0.5)');
+      tagBorder.setAttribute('stroke-width', '0.8');
+    }
+    wavePhase += 0.028 + (hovered ? 0.02 : 0);
+    waveAmp   += (waveTarget - waveAmp) * 0.07;
+  }
+  bottleRender();
+  rafId = requestAnimationFrame(bottleTick);
+}
+
+// ── 落滴 ──
+function playDrip() {
+  const drip = document.getElementById('js-bottle-drip');
+  const splash = document.getElementById('js-bottle-splash');
+  if (!drip) return;
+  if (dripAnimId) cancelAnimationFrame(dripAnimId);
+
+  const isDay    = document.documentElement.getAttribute('data-theme') === 'day';
+  const ratio    = Math.min((appData.bottleDrops || 0) / BOTTLE_MAX, 1);
+  const targetY  = BOTTLE_BOT - (BOTTLE_BOT - BOTTLE_TOP) * ratio;
+
+  // 雨滴颜色根据主题，透明度高一些
+  const dripColor = isDay ? 'rgba(200,230,255,0.55)' : 'rgba(200,225,255,0.50)';
+  drip.setAttribute('stroke', dripColor);
+
+  // 随机雨滴位置（瓶口范围内随机）
+  const dripX = 18 + Math.random() * 24;
+  drip.setAttribute('x1', dripX);
+  drip.setAttribute('x2', dripX);
+  drip.setAttribute('y1', -15);
+  drip.setAttribute('y2', 20);
+
+  let t = 0;
+  let splashShown = false;
+
+  function step() {
+    t += 0.045;
+    // 雨滴下落：从 -15 到 targetY，时间加速
+    const progress = Math.min(t * t * 1.2, 1);
+    const y = -15 + progress * (targetY + 15);
+    const fade = progress < 0.8 ? 0.5 : 0.5 + (progress - 0.8) * 2.5;
+
+    drip.setAttribute('y2', String(Math.min(y, targetY + 20)));
+    drip.setAttribute('opacity', String(Math.min(fade, 0.6)));
+
+    if (progress < 1) {
+      dripAnimId = requestAnimationFrame(step);
+    } else {
+      drip.setAttribute('opacity', '0');
+
+      // 触发溅起效果
+      if (!splashShown) {
+        splashShown = true;
+        if (splash) {
+          const splashColor = isDay ? '200,230,255' : '200,225,255';
+          splash.setAttribute('opacity', '1');
+          splash.setAttribute('transform', `translate(${dripX - 30}, ${targetY - 40})`);
+          // 更新水花颜色，更透明
+          const ellipses = splash.querySelectorAll('ellipse');
+          ellipses.forEach((el, i) => {
+            const op = i === 0 ? 0.5 : 0.35;
+            el.setAttribute('fill', `rgba(${splashColor},${op})`);
+          });
+          // 溅起扩散动画
+          let st = 0;
+          function splashStep() {
+            st += 0.1;
+            const scale = 1 + st * 2;
+            const op = Math.max(0, 0.5 - st * 0.8);
+            splash.setAttribute('transform', `translate(${dripX - 30}, ${targetY - 40}) scale(${scale})`);
+            splash.setAttribute('opacity', String(op));
+            if (op > 0) requestAnimationFrame(splashStep);
+          }
+          splashStep();
+        }
+      }
+
+      waveTarget = 4.0;
+      setTimeout(() => { waveTarget = hovered ? 2.5 : 1.0; }, 380);
+    }
+  }
+  step();
+}
+
+// ── 悬停 ──
+function onEnter() {
+  hovered    = true;
+  waveTarget = 2.5;
+  const drops    = appData.bottleDrops || 0;
+  const collects = appData.bottleCollects || 0;
+  const tip      = document.getElementById('js-bottle-tooltip');
+  if (tip) {
+    const pct = Math.floor((drops / BOTTLE_MAX) * 100);
+    tip.textContent = collects > 0
+      ? `已收取 ${collects} 瓶  ·  ${pct}%`
+      : `${pct}%`;
+    tip.style.opacity = '1';
+  }
+}
+function onLeave() {
+  hovered    = false;
+  waveTarget = 1.0;
+  const tip = document.getElementById('js-bottle-tooltip');
+  if (tip) tip.style.opacity = '0';
+}
+
+// ── 收取 ──
+function bottleCollect() {
+  if ((appData.bottleDrops || 0) < BOTTLE_MAX) return;
+  appData.bottleDrops    = 0;
+  appData.bottleCollects = (appData.bottleCollects || 0) + 1;
+  save();
+  waveTarget = 7;
+  setTimeout(() => { waveTarget = 1.0; }, 350);
+  // 触发星光喷涌
+  playBurst();
+  // 更新标签
+  updateBottleTag();
+  // 更新 tooltip
+  if (hovered) {
+    const tip = document.getElementById('js-bottle-tooltip');
+    if (tip) {
+      tip.textContent = `已收取 ${appData.bottleCollects} 瓶  ·  0%`;
+    }
+  }
+}
+
+// ── 星光喷涌 ──
+let burstAnimId = null;
+function playBurst() {
+  const burst = document.getElementById('js-bottle-burst');
+  if (!burst) return;
+  if (burstAnimId) cancelAnimationFrame(burstAnimId);
+
+  const isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  const starColor = isDay ? '255,255,255' : '255,220,120';
+  const centerX = 30;
+  const centerY = 40;
+  const particleCount = 25;
+
+  let particles = [];
+  for (let i = 0; i < particleCount; i++) {
+    const angle = (Math.PI * 2 / particleCount) * i + Math.random() * 0.3;
+    const speed = 2 + Math.random() * 3;
+    const size = 1.5 + Math.random() * 2;
+    particles.push({
+      x: centerX,
+      y: centerY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,  // 向上偏移
+      size: size,
+      opacity: 1,
+      color: starColor
+    });
+  }
+
+  let t = 0;
+  function step() {
+    t += 0.03;
+    if (t >= 1) {
+      burst.innerHTML = '';
+      burst.setAttribute('opacity', '0');
+      burstAnimId = null;
+      return;
+    }
+
+    let html = '';
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.08;  // 重力
+      p.opacity = Math.max(0, 1 - t * 1.2);
+      p.size *= 0.98;
+      if (p.opacity > 0) {
+        html += `<circle cx="${p.x}" cy="${p.y}" r="${p.size}" fill="rgba(${p.color},${p.opacity})"/>`;
+      }
+    });
+    burst.innerHTML = html;
+    burst.setAttribute('opacity', String(Math.max(0, 1 - t * 0.5)));
+    burstAnimId = requestAnimationFrame(step);
+  }
+  step();
+}
+
+// ── 更新标签 ──
+function updateBottleTag() {
+  const tagText = document.getElementById('js-bottle-tag-text');
+  if (tagText) {
+    const collects = appData.bottleCollects || 0;
+    tagText.textContent = collects;
+  }
+}
+
+// ── 拖拽 ──
+let dragging = false, hasDragged = false, dragOx = 0, dragOy = 0;
+
+function bottleDragStart(e) {
+  dragging   = true;
+  hasDragged = false;
+  const wrap = document.getElementById('js-bottle-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const cx   = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy   = e.touches ? e.touches[0].clientY : e.clientY;
+  dragOx = cx - rect.left;
+  dragOy = cy - rect.top;
+  wrap.style.cursor = 'grabbing';
+  e.preventDefault();
+}
+function bottleDragMove(e) {
+  if (!dragging) return;
+  hasDragged = true;
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  const wrap = document.getElementById('js-bottle-wrap');
+  const nx = Math.max(0, Math.min(cx - dragOx, window.innerWidth  - wrap.offsetWidth));
+  const ny = Math.max(0, Math.min(cy - dragOy, window.innerHeight - wrap.offsetHeight));
+  wrap.style.left   = nx + 'px';
+  wrap.style.top    = ny + 'px';
+  wrap.style.right  = 'unset';
+  wrap.style.bottom = 'unset';
+  appData.bottlePos = {left: nx, top: ny};
+  e.preventDefault();
+}
+function bottleDragEnd() {
+  if (!dragging) return;
+  dragging = false;
+  if (!hasDragged && (appData.bottleDrops || 0) >= BOTTLE_MAX) bottleCollect();
+  save();
+}
+
+// ── 恢复位置 ──
+function bottleRestorePos() {
+  const wrap = document.getElementById('js-bottle-wrap');
+  if (!wrap) return;
+  const pos = appData.bottlePos;
+  if (pos && typeof pos.left === 'number') {
+    wrap.style.left   = pos.left + 'px';
+    wrap.style.top    = pos.top  + 'px';
+    wrap.style.right  = 'unset';
+    wrap.style.bottom = 'unset';
+  }
+}
+
+// ── 初始化 ──
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap = document.getElementById('js-bottle-wrap');
+  if (!wrap) return;
+  initStars();
+  bottleRestorePos();
+  bottleRender();
+  bottleTick();
+  updateBottleTag();
+  wrap.addEventListener('mouseenter',  onEnter);
+  wrap.addEventListener('mouseleave',  onLeave);
+  wrap.addEventListener('mousedown',   bottleDragStart, {passive:false});
+  wrap.addEventListener('touchstart',  bottleDragStart, {passive:false});
+  window.addEventListener('mousemove', bottleDragMove,  {passive:false});
+  window.addEventListener('touchmove', bottleDragMove,  {passive:false});
+  window.addEventListener('mouseup',   bottleDragEnd);
+  window.addEventListener('touchend',  bottleDragEnd);
+});
+
+window.bottleRender = bottleRender;
+window.playDrip     = playDrip;
+
+})();
+
 </script>
   <!-- 底部联系栏 -->
   <div style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:0;pointer-events:none;font-size:0.58rem;color:var(--txt-faint);letter-spacing:0.5px;white-space:nowrap">
@@ -7441,7 +8023,7 @@ window.addEventListener('resize', updateTaskListBounds);
   </div>
 
   <!-- 主题切换 -->
-  <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;left:18px;z-index:320;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
+  <button id="js-theme-btn" onclick="toggleTheme()" title="切换白天/夜晚" style="position:fixed;bottom:18px;right:18px;z-index:40;background:var(--glass);border:1px solid var(--glass-b);color:var(--btn-topbar-color);border-radius:9px;padding:4px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;backdrop-filter:blur(8px);transition:background 0.2s,border-color 0.2s,color 0.2s">🌙</button>
 
   <!-- 死线设置弹窗 -->
   <div class="deadline-modal hidden" id="js-deadline-modal">
@@ -7502,6 +8084,93 @@ window.addEventListener('resize', updateTaskListBounds);
   </div>
 
   <!-- 提醒 toast 容器（由 JS 动态创建） -->
+  <!-- 积雨瓶 -->
+  <div id="js-bottle-wrap" style="position:fixed;left:20px;bottom:60px;z-index:45;cursor:grab;user-select:none;touch-action:none">
+    <div id="js-bottle-tooltip" style="position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--panel-bg-deep);border:1px solid var(--glass-b);border-radius:10px;padding:5px 12px;font-size:0.68rem;color:var(--txt-dim);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(12px)"></div>
+    <svg id="js-bottle-svg" width="60" height="78" viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+      <defs>
+        <!-- 瓶身裁剪 -->
+        <clipPath id="bottle-clip">
+          <path d="M6,22 L6,68 Q6,78 14,78 L46,78 Q54,78 54,68 L54,22 Q54,12 52,12 L8,12 Q6,12 6,22 Z"/>
+        </clipPath>
+        <!-- 液体渐变：浅半透明白色 -->
+        <linearGradient id="water-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="rgba(255,255,255,0.50)"/>
+          <stop offset="60%"  stop-color="rgba(240,245,255,0.42)"/>
+          <stop offset="100%" stop-color="rgba(220,230,250,0.45)"/>
+        </linearGradient>
+        <!-- 瓶身玻璃渐变 -->
+        <linearGradient id="bottle-glass" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="rgba(220,235,255,0.28)"/>
+          <stop offset="18%"  stop-color="rgba(255,255,255,0.55)"/>
+          <stop offset="32%"  stop-color="rgba(220,235,255,0.06)"/>
+          <stop offset="75%"  stop-color="rgba(200,220,255,0.04)"/>
+          <stop offset="100%" stop-color="rgba(200,220,255,0.22)"/>
+        </linearGradient>
+        <!-- 满瓶外发光 -->
+        <filter id="bottle-glow-filter" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- ── 瓶口边缘（宽口瓶沿，更扁更宽）── -->
+      <rect id="js-bottle-neck-rim" x="8" y="1" width="44" height="5" rx="2.5" fill="rgba(200,218,255,0.20)" stroke="rgba(220,235,255,0.55)" stroke-width="1.2"/>
+      <rect x="10" y="2" width="40" height="3" rx="1.5" fill="rgba(255,255,255,0.10)"/>
+
+      <!-- ── 瓶颈（更宽，不深入瓶身）── -->
+      <path id="js-bottle-neck" d="M12,6 L12,14 L48,14 L48,6 Z" fill="rgba(200,218,255,0.08)" stroke="rgba(220,235,255,0.50)" stroke-width="1.0"/>
+
+      <!-- ── 液体（clip内） ── -->
+      <g clip-path="url(#bottle-clip)">
+        <!-- 液体主体（小圆角矩形内填充） -->
+        <rect id="js-bottle-water" x="9" y="22" width="42" height="53" rx="3" fill="url(#water-grad)"/>
+        <!-- 液面边缘线 -->
+        <path id="js-bottle-surface-edge" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- 星光粒子容器 -->
+        <g id="js-bottle-stars"></g>
+        <!-- 底部辉光 -->
+        <ellipse id="js-bottle-base-glow" cx="30" cy="70" rx="16" ry="4" fill="rgba(200,220,255,0.35)" opacity="0"/>
+      </g>
+
+      <!-- ── 瓶身轮廓 ── -->
+      <path id="js-bottle-outline" d="M6,22 L6,68 Q6,78 14,78 L46,78 Q54,78 54,68 L54,22 Q54,12 52,12 L8,12 Q6,12 6,22 Z"
+            fill="url(#bottle-glass)"
+            stroke="rgba(220,235,255,0.40)" stroke-width="1.2"/>
+
+      <!-- 瓶底凸起（接触桌面的部分） -->
+      <rect x="12" y="76" width="36" height="4" rx="2" fill="rgba(200,220,255,0.25)" stroke="rgba(220,235,255,0.35)" stroke-width="0.8"/>
+
+      <!-- 满瓶外发光环 -->
+      <path id="js-bottle-full-glow"
+            d="M6,22 L6,68 Q6,78 14,78 L46,78 Q54,78 54,68 L54,22 Q54,12 52,12 L8,12 Q6,12 6,22 Z"
+            fill="none" stroke="rgba(200,220,255,0.0)" stroke-width="3" opacity="0"/>
+
+      <!-- 落滴（雨滴效果） -->
+      <g id="js-bottle-drip-group">
+        <line id="js-bottle-drip" x1="30" y1="-10" x2="30" y2="20" stroke="rgba(200,230,255,0.6)" stroke-width="1.5" stroke-linecap="round" opacity="0"/>
+      </g>
+      <!-- 溅起的水花 -->
+      <g id="js-bottle-splash" opacity="0">
+        <ellipse cx="30" cy="40" rx="4" ry="2" fill="rgba(200,230,255,0.5)"/>
+        <ellipse cx="26" cy="42" rx="2.5" ry="1.2" fill="rgba(200,230,255,0.35)"/>
+        <ellipse cx="34" cy="42" rx="2.5" ry="1.2" fill="rgba(200,230,255,0.35)"/>
+      </g>
+
+      <!-- 星光喷涌效果 -->
+      <g id="js-bottle-burst" opacity="0"></g>
+
+      <!-- ── 标签（最上层，瓶身最前方）── -->
+      <g id="js-bottle-tag" transform="rotate(8, 48, 28)">
+        <!-- 标签阴影 -->
+        <rect x="36" y="18" width="22" height="16" rx="2.5" fill="rgba(0,0,0,0.12)" transform="translate(1,1)"/>
+        <!-- 标签主体 -->
+        <rect x="36" y="18" width="22" height="16" rx="2.5" fill="rgba(250,248,240,1)" id="js-bottle-tag-border" stroke="rgba(180,160,120,0.5)" stroke-width="1"/>
+        <!-- 标签文字 -->
+        <text id="js-bottle-tag-text" x="47" y="30" text-anchor="middle" font-size="9" font-family="'DM Sans', sans-serif" font-weight="600" fill="rgba(80,60,40,0.85)">0</text>
+      </g>
+    </svg>
+  </div>
 
 </body>
 </html>
