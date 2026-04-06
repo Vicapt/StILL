@@ -395,17 +395,17 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .btn-send:disabled{opacity:0.35;cursor:not-allowed}
 
 /* TASK PANEL */
-.task-panel{width:240px;height:74vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);transition:background 0.4s,border-color 0.4s;padding:0;overflow:hidden;position:relative}
-.task-header-row{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 10px;border-bottom:1px solid var(--glass-b);position:relative;z-index:2;background:var(--glass)}
+.task-panel{width:240px;height:74vh;flex-shrink:0;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);transition:background 0.4s,border-color 0.4s;padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.task-header-row{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 14px 10px;border-bottom:1px solid var(--glass-b);position:relative;z-index:2;background:var(--glass)}
 /* 底部固定区：添加按钮 + 播放器 */
-.task-panel-bottom{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:0;background:var(--glass);border-top:1px solid var(--glass-b)}
+.task-panel-bottom{flex-shrink:0;display:flex;flex-direction:column;gap:0;background:var(--glass);border-top:1px solid var(--glass-b)}
 .task-header{font-size:0.65rem;letter-spacing:2.5px;text-transform:uppercase;opacity:0.38}
-.task-list{position:absolute;left:0;right:0;top:47px;bottom:130px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 14px}
+.task-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 14px}
 .task-list::-webkit-scrollbar{width:3px}
 .task-list::-webkit-scrollbar-thumb{background:rgba(255,160,80,0.25);border-radius:4px;transition:background 0.2s}
 .task-list::-webkit-scrollbar-thumb:hover{background:rgba(255,160,80,0.5)}
 .task-list::-webkit-scrollbar-track{background:transparent}
-.task-item{padding:10px 12px;border-radius:12px;font-size:0.83rem;position:relative;overflow:hidden;border:1px solid transparent;transition:border-color 0.2s,background 0.2s;cursor:default}
+.task-item{flex-shrink:0;padding:10px 12px;border-radius:12px;font-size:0.83rem;position:relative;overflow:hidden;border:1px solid transparent;transition:border-color 0.2s,background 0.2s;cursor:default}
 .task-item:hover{border-color:var(--glass-b)}
 .task-item{animation:taskIn 0.32s cubic-bezier(0.34,1.56,0.64,1) both}
 @keyframes taskIn{from{opacity:0;transform:translateY(8px) scale(0.97)}to{opacity:1;transform:none}}
@@ -796,13 +796,13 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 }
 /* Track dropdown */
 .track-dropdown{
-  position:absolute;bottom:calc(100% + 6px);right:0;
+  position:fixed;
   background:var(--track-dropdown-bg);border:1px solid var(--glass-b);
   border-radius:11px;padding:5px;min-width:130px;max-height:200px;
   overflow-y:auto;overscroll-behavior:contain;
   display:flex;flex-direction:column;gap:2px;
-  backdrop-filter:blur(24px);z-index:200;
-  box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  backdrop-filter:blur(24px);z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);
   animation:ddIn 0.15s cubic-bezier(.4,0,.2,1);
 }
 @keyframes ddIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -2365,7 +2365,6 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
           </div>
           <div style="position:relative">
             <button class="ctrl-btn ctrl-list" id="js-track-list-btn" title="选曲">&#9776;</button>
-            <div class="track-dropdown hidden" id="js-track-dropdown"></div>
           </div>
         </div>
       </div>
@@ -4653,6 +4652,7 @@ function loadTrack(idx) {
 
 function renderTrackDropdown() {
   const dd = document.getElementById('js-track-dropdown');
+  if (!dd) return;
   dd.innerHTML = TRACKS.map((t,i) =>
     `<button class="track-opt ${i===currentTrackIdx?'current':''}"
       onclick="selectTrack(${i})">${t.name}</button>`
@@ -4672,7 +4672,30 @@ document.getElementById('js-track-list-btn').onclick = (e) => {
   const dd = document.getElementById('js-track-dropdown');
   const opening = dd.classList.contains('hidden');
   dd.classList.add('hidden');
-  if (opening) { renderTrackDropdown(); dd.classList.remove('hidden'); }
+  if (opening) {
+    renderTrackDropdown();
+    const btn = document.getElementById('js-track-list-btn');
+    const rect = btn.getBoundingClientRect();
+    // 先显示（隐形）以获取宽度
+    dd.style.visibility = 'hidden';
+    dd.style.left = '0px';
+    dd.style.top = '0px';
+    dd.style.right = 'auto';
+    dd.style.bottom = 'auto';
+    dd.classList.remove('hidden');
+    const ddW = dd.offsetWidth;
+    const ddH = dd.offsetHeight;
+    // 水平居中对齐按钮，底部贴按钮顶部
+    let left = rect.left + rect.width / 2 - ddW / 2;
+    let top = rect.top - ddH - 6;
+    // 防止超出视口左右
+    left = Math.max(8, Math.min(left, window.innerWidth - ddW - 8));
+    dd.style.left = left + 'px';
+    dd.style.top = top + 'px';
+    dd.style.right = 'auto';
+    dd.style.bottom = 'auto';
+    dd.style.visibility = '';
+  }
 };
 document.addEventListener('click', () => {
   document.getElementById('js-track-dropdown').classList.add('hidden');
@@ -9182,6 +9205,9 @@ window.changeFrameImage = changeFrameImage;
 
   <!-- 展示框容器 -->
   <div id="js-frames-container"></div>
+
+  <!-- 选曲下拉：挂在 body 下，脱离 task-panel 的 overflow:hidden 裁剪 -->
+  <div class="track-dropdown hidden" id="js-track-dropdown"></div>
 
 </body>
 </html>
