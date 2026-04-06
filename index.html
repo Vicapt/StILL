@@ -1453,6 +1453,241 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .task-ctx-item:hover{background:var(--glass-h);color:var(--txt)}
 .task-ctx-item.danger:hover{background:rgba(255,60,60,0.15);color:rgba(255,110,90,0.9)}
 .task-ctx-sep{height:1px;background:var(--glass-b);margin:4px 0}
+/* 积雨瓶右键菜单 */
+.bottle-ctx-menu{
+  position:fixed;z-index:600;
+  background:var(--panel-bg-deep);border:1px solid var(--glass-b);
+  border-radius:11px;padding:5px 0;min-width:130px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.35);
+  animation:taskIn 0.15s ease both;
+}
+[data-theme="day"] .bottle-ctx-menu{box-shadow:0 4px 16px rgba(80,120,160,0.13)}
+.bottle-ctx-item{
+  padding:7px 14px;font-size:0.78rem;cursor:pointer;
+  color:var(--txt-dim);transition:background 0.12s,color 0.12s;
+  display:flex;align-items:center;gap:7px;
+}
+.bottle-ctx-item:hover{background:var(--glass-h);color:var(--txt)}
+.bottle-ctx-sep{height:1px;background:var(--glass-b);margin:4px 0}
+.bottle-ctx-menu.show{display:block !important}
+/* 恢复瓶子按钮 */
+.bottle-restore-btn{
+  position:absolute;left:-36px;top:50%;transform:translateY(-50%);
+  background:var(--glass);border:1px solid var(--glass-b);
+  color:var(--txt-dim);border-radius:9px;padding:5px 8px;
+  font-size:0.85rem;cursor:pointer;transition:0.15s;
+  z-index:40;
+}
+.bottle-restore-btn:hover{background:var(--glass-h);color:var(--txt)}
+/* 雨滴商店模态框 */
+.shop-modal{
+  position:fixed;inset:0;z-index:250;
+  background:var(--overlay-deep);backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:1;transition:opacity 0.3s;
+}
+.shop-modal.hidden{opacity:0;pointer-events:none}
+.shop-card{
+  background:var(--panel-bg-mid);border:1px solid var(--glass-b);
+  border-radius:24px;padding:24px;width:640px;height:460px;
+  display:flex;flex-direction:column;gap:16px;
+  box-shadow:0 30px 90px rgba(0,0,0,0.7);
+  overflow:hidden;
+}
+.shop-body{display:flex;gap:14px;flex:1;min-height:0;overflow:hidden}
+.shop-list-panel{
+  width:180px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:4px;
+  overflow-y:auto;max-height:100%;
+}
+.shop-list-panel{
+  width:180px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:4px;
+  overflow-y:auto;
+}
+.shop-list-item{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 12px;border-radius:10px;
+  cursor:pointer;font-size:0.72rem;color:var(--txt-dim);
+  transition:0.12s;background:transparent;
+  border:1px solid transparent;
+}
+.shop-list-item:hover{background:var(--glass);color:var(--txt)}
+.shop-list-item.selected{background:var(--glass-h);border-color:var(--glass-b);color:var(--txt)}
+.shop-list-icon{font-size:0.9rem}
+.shop-list-name{flex:1}
+.shop-list-price{font-size:0.62rem;opacity:0.7}
+.warehouse-cat-item{cursor:pointer}
+.warehouse-sub-list{
+  display:flex;flex-direction:column;gap:2px;
+  padding-left:4px;
+}
+.warehouse-sub-list.hidden{display:none}
+.warehouse-sub-item{padding:6px 12px}
+.shop-preview-panel{
+  flex:1;display:flex;flex-direction:column;gap:10px;
+  padding:14px;background:var(--glass);border-radius:14px;
+  border:1px solid var(--glass-b);overflow:hidden;
+}
+.shop-preview-title{font-size:0.82rem;color:var(--txt);font-weight:600;text-align:center}
+.shop-preview-image{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;
+  background:var(--input-bg);border-radius:10px;
+  min-height:100px;max-height:160px;position:relative;overflow:hidden;
+}
+.shop-preview-placeholder{font-size:2.5rem;opacity:0.3}
+.shop-preview-size{font-size:0.62rem;color:var(--txt-faint)}
+.shop-preview-desc{font-size:0.68rem;color:var(--txt-dim);text-align:center}
+.shop-quantity{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:0.72rem;color:var(--txt-dim);
+}
+.shop-qty-btn{
+  width:22px;height:22px;border-radius:50%;border:1px solid var(--glass-b);
+  background:var(--glass);color:var(--txt);cursor:pointer;font-size:0.8rem;
+  display:flex;align-items:center;justify-content:center;transition:0.12s;
+}
+.shop-qty-btn:hover:not(:disabled){background:var(--glass-h)}
+.shop-qty-btn:disabled{opacity:0.35;cursor:not-allowed}
+.shop-qty-num{min-width:20px;text-align:center;font-weight:600;color:var(--txt)}
+.shop-qty-max{font-size:0.62rem;opacity:0.7}
+.shop-buy-btn{
+  text-align:center;padding:8px;border-radius:10px;
+  background:var(--glass-h);border:1px solid var(--glass-b);
+  color:var(--txt);cursor:pointer;font-size:0.76rem;transition:0.15s;
+}
+.shop-buy-btn:hover{background:rgba(100,200,150,0.3)}
+.shop-header{display:flex;align-items:center;justify-content:space-between}
+.shop-tabs{display:flex;gap:6px}
+.shop-tab{
+  background:var(--glass);border:1px solid var(--glass-b);
+  color:var(--txt-dim);border-radius:9px;padding:5px 14px;
+  font-size:0.76rem;cursor:pointer;font-family:inherit;transition:0.15s;
+}
+.shop-tab.active,.shop-tab:hover{background:var(--glass-h);color:var(--txt)}
+.shop-close{
+  background:transparent;border:none;color:var(--btn-muted);
+  cursor:pointer;font-size:0.85rem;padding:4px;transition:color 0.15s;
+}
+.shop-close:hover{color:rgba(200,60,40,0.8)}
+.shop-content{overflow-y:auto}
+.shop-content.hidden{display:none}
+.shop-goods-info{
+  display:flex;align-items:center;gap:8px;
+  font-size:0.78rem;color:var(--txt-dim);
+}
+.shop-label{font-size:1rem}
+.shop-item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.shop-item-card{
+  background:var(--glass);border:1px solid var(--glass-b);
+  border-radius:12px;padding:10px;cursor:pointer;transition:0.15s;
+  display:flex;flex-direction:column;gap:8px;
+}
+.shop-item-card:hover{background:var(--glass-h);border-color:rgba(255,160,80,0.3)}
+.shop-item-preview{
+  aspect-ratio:1;background:var(--input-bg);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.shop-item-placeholder{font-size:1.6rem;opacity:0.3}
+.shop-item-info{display:flex;flex-direction:column;gap:2px}
+.shop-item-name{font-size:0.72rem;color:var(--txt)}
+.shop-item-price{font-size:0.68rem;color:var(--txt-dim)}
+.warehouse-empty{
+  text-align:center;font-size:0.75rem;opacity:0.35;
+  padding:20px 0;
+}
+.warehouse-grid{display:flex;flex-direction:column;gap:8px}
+/* 展示框 */
+.frame-floater{
+  position:fixed;z-index:40;
+  background:var(--panel-bg-deep);border:1px solid var(--glass-b);
+  border-radius:14px;padding:10px;backdrop-filter:blur(20px);
+  box-shadow:0 6px 28px rgba(0,0,0,0.15);
+  cursor:grab;display:flex;flex-direction:column;gap:8px;
+  min-width:160px;min-height:100px;
+  transition:min-height 0.25s ease,padding 0.25s ease;
+}
+.frame-floater:active{cursor:grabbing}
+.frame-floater.collapsed{min-height:unset;padding:8px}
+.frame-floater-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;flex-shrink:0;
+}
+.frame-floater-title{
+  font-size:0.6rem;letter-spacing:2px;opacity:0.35;
+  text-transform:uppercase;flex:1;
+}
+.frame-title-input{
+  font-size:0.6rem;letter-spacing:2px;opacity:0.6;
+  background:transparent;border:none;outline:none;flex:1;
+  cursor:text;font-family:inherit;
+  text-transform:uppercase;
+  color:var(--txt);
+  width:100%;
+}
+.frame-floater-btns{display:flex;gap:4px}
+.frame-floater-btn{
+  background:transparent;border:none;color:var(--btn-muted);
+  cursor:pointer;font-size:0.72rem;padding:2px 4px;transition:color 0.12s;
+}
+.frame-floater-btn:hover{color:var(--txt)}
+.frame-floater-img{
+  width:100%;max-height:200px;object-fit:contain;
+  border-radius:6px;background:var(--input-bg);cursor:pointer;
+}
+.frame-floater-img:hover{opacity:0.85}
+.frame-floater-placeholder{
+  width:100%;aspect-ratio:5/4;background:var(--input-bg);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;opacity:0.25;cursor:pointer;border:2px dashed var(--glass-b);
+  transition:border-color 0.15s,opacity 0.15s;
+}
+.frame-floater-placeholder:hover{opacity:0.45;border-color:rgba(255,160,80,0.4)}
+.frame-floater.collapsed .frame-floater-img,
+.frame-floater.collapsed .frame-floater-placeholder,
+.frame-floater.collapsed .memo-textarea,
+.frame-floater.collapsed .frame-resize-handle{display:none}
+.frame-resize-handle{
+  position:absolute;right:4px;bottom:4px;
+  width:14px;height:14px;cursor:se-resize;
+  opacity:0.3;
+  background:linear-gradient(135deg,transparent 50%,var(--btn-muted) 50%);
+  border-radius:2px;
+}
+.frame-resize-handle:hover{opacity:0.7}
+/* 无边框图片展示 */
+.frame-floater.frameless{
+  background:transparent;border:none;
+  border-radius:0;padding:0;
+  box-shadow:none;backdrop-filter:none;
+}
+.frame-floater.frameless .frame-floater-header{
+  background:var(--panel-bg-deep);border:1px solid var(--glass-b);
+  border-radius:8px;margin:0;padding:4px 6px;
+}
+.frame-floater.frameless .frame-floater-img,
+.frame-floater.frameless .frame-floater-placeholder{
+  flex:1;min-height:0;width:100%;
+}
+.frame-floater.frameless .frame-floater-placeholder{border:none;border-radius:0;flex-direction:column;gap:4px;align-items:center;justify-content:center}
+.frame-placeholder-tip{font-size:0.55rem;opacity:0.4;white-space:nowrap;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.frame-floater.frameless .frame-resize-handle{right:4px;bottom:4px;width:16px;height:16px}
+/* 备忘录浮窗 */
+.memo-floater{
+  background:var(--panel-bg-deep);
+  border:1px solid var(--glass-b);
+  border-radius:14px;
+  backdrop-filter:blur(20px);
+}
+.memo-textarea{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--txt);font-size:0.78rem;line-height:1.6;
+  padding:6px 8px;resize:none;font-family:inherit;
+  width:100%;box-sizing:border-box;
+}
+.memo-textarea::placeholder{color:var(--txt-faint)}
 /* 死线设置弹窗 */
 .deadline-modal{position:fixed;inset:0;z-index:400;background:var(--overlay-deep);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity 0.25s}
 .deadline-modal.hidden{opacity:0;pointer-events:none}
@@ -1847,6 +2082,60 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   </div>
 </div>
 
+<!-- 雨滴商店模态框 -->
+<div class="shop-modal hidden" id="js-shop-modal">
+  <div class="shop-card">
+    <div class="shop-header">
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-tab="shop" onclick="switchShopTab('shop')">商店</button>
+        <button class="shop-tab" data-tab="warehouse" onclick="switchShopTab('warehouse')">仓库</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--txt-dim)">
+        💧 <span id="js-shop-drops-count">0</span> 瓶
+      </div>
+      <button class="shop-close" onclick="closeShopModal()">✕</button>
+    </div>
+
+    <!-- 商店页 -->
+    <div class="shop-content shop-body" id="js-shop-content">
+      <div class="shop-list-panel">
+        <div class="shop-list-item selected" data-item="frame" onclick="selectShopItem('frame')">
+          <span class="shop-list-icon">🖼</span>
+          <span class="shop-list-name">图片展示</span>
+          <span class="shop-list-price">💧 0</span>
+        </div>
+        <div class="shop-list-item" data-item="memo" onclick="selectShopItem('memo')">
+          <span class="shop-list-icon">📝</span>
+          <span class="shop-list-name">备忘录</span>
+          <span class="shop-list-price">💧 0</span>
+        </div>
+      </div>
+      <div class="shop-preview-panel" id="js-shop-preview-panel">
+        <div class="shop-preview-title" id="js-shop-preview-title">图片展示</div>
+        <div class="shop-preview-image" id="js-shop-preview-image" style="flex:1;min-height:100px">
+          <div class="shop-preview-placeholder" id="js-shop-preview-placeholder">🖼</div>
+          <div class="shop-preview-size" id="js-shop-preview-size">200 × 160</div>
+        </div>
+        <div class="shop-preview-desc" id="js-shop-preview-desc">可自由调整大小的图片展示框</div>
+        <div class="shop-buy-info" id="js-shop-buy-info" style="margin-top:4px;font-size:0.68rem;color:var(--txt-faint);text-align:center"></div>
+        <div class="shop-buy-btn" id="js-shop-buy-btn" style="margin-top:auto">💧 0 滴</div>
+      </div>
+    </div>
+
+    <!-- 仓库页 -->
+    <div class="shop-content shop-body hidden" id="js-warehouse-content">
+      <div class="shop-list-panel" id="js-warehouse-list"></div>
+      <div class="shop-preview-panel" id="js-warehouse-preview">
+        <div class="shop-preview-title">选择展示框</div>
+        <div class="shop-preview-image" style="min-height:100px">
+          <div class="shop-preview-placeholder">🖼</div>
+        </div>
+        <div class="shop-preview-desc">从左侧选择一个展示框</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- IMMERSIVE MODE -->
 <div class="immersive" id="js-immersive">
   <!-- Clock wrapper (shifts up when chat opens) -->
@@ -1986,6 +2275,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
     </div>
     <button class="btn-topbar" id="js-open-history">📅</button>
     <button class="btn-topbar" id="js-open-journal">📝</button>
+    <button class="btn-topbar" id="js-bottle-restore-btn" title="显示雨滴瓶子" style="display:none" onclick="showBottle()">💧</button>
   </div>
 
   <!-- Top-center -->
@@ -2166,6 +2456,8 @@ let appData = (() => {
     if (!('bottleDrops'    in d)) d.bottleDrops    = 0;
     if (!('bottleCollects' in d)) d.bottleCollects = 0;
     if (!('bottlePos'      in d)) d.bottlePos      = null;
+    if (!('bottleHidden'   in d)) d.bottleHidden   = false;
+    if (!d.shopFrames) d.shopFrames = [];
     return d;
   } catch(e) { return defaultState(); }
 })();
@@ -6087,9 +6379,25 @@ document.addEventListener('mousedown', e=>{
 // ▼▼▼ 修改这里来发布新版本 ▼▼▼
 // 每次更新：1. 在 CHANGELOG 数组最前面加一条新记录
 //           2. 把 CHANGELOG_LATEST_VERSION 改成新版本号
-var CHANGELOG_LATEST_VERSION = 'v0.1.4';
+var CHANGELOG_LATEST_VERSION = 'v0.1.5';
 
 var CHANGELOG = [
+  {
+    version: 'v0.1.5',
+    date: '2026-04-06',
+    title: '习惯打卡 & 雨滴收集瓶',
+    items: [
+      '📅 习惯打卡：位于手账侧边栏顶部，可添加多个习惯，每日打卡追踪',
+      '本周视图以小圆点显示每日打卡状态，打卡记录永久保存',
+      '完成打卡后可在专注计时中选择对应习惯，获得专注时长奖励加成',
+      '💧 雨滴收集瓶：点击装满的瓶子收集雨滴，右键菜单可隐藏瓶子或打开商店',
+      '图片展示框：无边框样式，右键/拖拽图片替换，等比例缩放，标题自由命名',
+      '备忘录：简洁备忘录界面，随手记录随时查阅',
+      '雨滴商店：使用收集的雨滴购买图片展示框和备忘录',
+      '仓库：二级分类结构，图片展示显示缩略图，备忘名称自动取内容前五字',
+      '展示框悬浮于页面任意位置，可拖拽定位、收缩、关闭，刷新页面自动恢复',
+    ]
+  },
   {
     version: 'v0.1.4',
     date: '2026-03-15',
@@ -7445,7 +7753,6 @@ window.addEventListener('resize', updateTaskListBounds);
 // 积雨瓶
 // ══════════════════════════════════════════════
 (function(){
-
 const BOTTLE_MAX = 60;
 const BOTTLE_TOP = 24;  // 水面最高 Y（液面上限，瓶身顶部）
 const BOTTLE_BOT = 78;  // 水面最低 Y（瓶底内）
@@ -7656,15 +7963,43 @@ function bottleRender() {
   const currentHeight = liquidHeight * ratio;
   const waterY = liquidBottomInner - currentHeight;
 
-  water.setAttribute('x', String(BOTTLE_L + g));
-  water.setAttribute('y', String(waterY));
-  water.setAttribute('width', String(BOTTLE_R - BOTTLE_L - g * 2));
-  water.setAttribute('height', String(currentHeight));
-  water.setAttribute('rx', '3');
+  // 水体路径（波浪顶）
+  const wx = BOTTLE_L + g;
+  const ww = BOTTLE_R - BOTTLE_L - g * 2;
+  const wy = waterY;
+  const wh = currentHeight;
+  const wAmp = Math.min(waveAmp, 4);
+  const segs = 8;
+  const segW = ww / segs;
+  // 构建波浪顶边点（从右到左，与表面边缘线一致）
+  const pts = [];
+  for (let i = segs; i >= 0; i--) {
+    const px = wx + i * segW;
+    const py = wy + Math.sin(wavePhase + i * 0.9) * wAmp
+                       + Math.sin(wavePhase * 1.3 + i * 1.7) * wAmp * 0.4;
+    pts.push([px, py]);
+  }
+  // 水体路径：下边 → 右边 → 波浪顶(右→左) → 左边
+  const bottomLeftX = wx;
+  const bottomLeftY = wy + wh;
+  const bottomRightX = wx + ww;
+  const topRightY = wy;
+  let d = 'M ' + bottomLeftX + ',' + bottomLeftY;
+  d += ' L ' + bottomRightX + ',' + bottomLeftY;
+  d += ' L ' + bottomRightX + ',' + topRightY;
+  for (const [px, py] of pts) {
+    d += ' L ' + px.toFixed(2) + ',' + py.toFixed(2);
+  }
+  d += ' Z';
+  water.setAttribute('d', d);
 
-  // 液面边缘线
+  // 液面边缘线（与水体波浪同步）
   if (surfaceEdge) {
-    surfaceEdge.setAttribute('d', surfaceEdgePath(waterY, waveAmp, wavePhase));
+    let edgeD = 'M ' + pts[0][0].toFixed(2) + ',' + pts[0][1].toFixed(2);
+    for (let i = 1; i < pts.length; i++) {
+      edgeD += ' L ' + pts[i][0].toFixed(2) + ',' + pts[i][1].toFixed(2);
+    }
+    surfaceEdge.setAttribute('d', edgeD);
     surfaceEdge.setAttribute('stroke', lc.edge);
     surfaceEdge.setAttribute('opacity', ratio > 0.04 ? String(0.7 * Math.min(ratio * 5, 1)) : '0');
   }
@@ -7944,6 +8279,7 @@ function updateBottleTag() {
 let dragging = false, hasDragged = false, dragOx = 0, dragOy = 0;
 
 function bottleDragStart(e) {
+  if (e.button && e.button !== 0) return; // 只响应左键（触摸无 button 属性，跳过检查）
   dragging   = true;
   hasDragged = false;
   const wrap = document.getElementById('js-bottle-wrap');
@@ -7990,6 +8326,630 @@ function bottleRestorePos() {
   }
 }
 
+// ── 积雨瓶右键菜单 ──
+function openBottleCtx(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const menu = document.getElementById('js-bottle-ctx');
+  if (!menu) return;
+  menu.classList.add('show');
+  const x = Math.min(e.clientX, window.innerWidth - 140);
+  const y = Math.min(e.clientY, window.innerHeight - 100);
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+}
+function closeBottleCtx() {
+  const menu = document.getElementById('js-bottle-ctx');
+  if (menu) menu.classList.remove('show');
+}
+function hideBottle() {
+  closeBottleCtx();
+  const wrap = document.getElementById('js-bottle-wrap');
+  if (wrap) wrap.style.display = 'none';
+  appData.bottleHidden = true;
+  const btn = document.getElementById('js-bottle-restore-btn');
+  if (btn) btn.style.display = 'block';
+  save();
+}
+function showBottle() {
+  const wrap = document.getElementById('js-bottle-wrap');
+  if (wrap) {
+    wrap.style.display = 'block';
+    bottleRestorePos();
+  }
+  const btn = document.getElementById('js-bottle-restore-btn');
+  if (btn) btn.style.display = 'none';
+  appData.bottleHidden = false;
+  save();
+}
+// 点击其他区域关闭右键菜单
+document.addEventListener('click', e => {
+  const menu = document.getElementById('js-bottle-ctx');
+  if (menu && menu.classList.contains('show') && !menu.contains(e.target)) closeBottleCtx();
+});
+
+// ── 雨滴商店 ──
+function openShopFromCtx() {
+  closeBottleCtx();
+  openShopModal();
+}
+function openShopModal() {
+  const modal = document.getElementById('js-shop-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  refreshShopDropsCount();
+  switchShopTab('shop');
+  updateShopUI();
+}
+function closeShopModal() {
+  const modal = document.getElementById('js-shop-modal');
+  if (modal) modal.classList.add('hidden');
+}
+function switchShopTab(tab) {
+  const shopContent = document.getElementById('js-shop-content');
+  const wareContent = document.getElementById('js-warehouse-content');
+  document.querySelectorAll('.shop-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  if (tab === 'shop') {
+    shopContent.classList.remove('hidden');
+    wareContent.classList.add('hidden');
+  } else {
+    shopContent.classList.add('hidden');
+    wareContent.classList.remove('hidden');
+    renderWarehouse();
+  }
+}
+function refreshShopDropsCount() {
+  const el = document.getElementById('js-shop-drops-count');
+  if (el) el.textContent = appData.bottleCollects || 0;
+}
+
+// 商店状态
+let shopSelectedItem = 'frame';
+const SHOP_ITEM_INFO = {
+  frame: { name:'图片展示', desc:'可自由调整大小的图片展示', icon:'🖼' },
+  memo:  { name:'备忘录',   desc:'随手记录，随时查阅', icon:'📝' }
+};
+const SHOP_MAX = 5;
+
+function getOwnedCount(type) {
+  return (appData.shopFrames || []).filter(f => f.type === type).length;
+}
+function getNextPrice(type) {
+  const owned = getOwnedCount(type);
+  if (owned === 0) return 0;
+  return owned * 5;
+}
+function getMaxCount(type) {
+  return SHOP_MAX;
+}
+
+function updateShopUI() {
+  const info = SHOP_ITEM_INFO[shopSelectedItem] || SHOP_ITEM_INFO.frame;
+  document.getElementById('js-shop-preview-title').textContent = info.name;
+  document.getElementById('js-shop-preview-desc').textContent = info.desc;
+
+  const previewImage = document.getElementById('js-shop-preview-image');
+  const previewPlaceholder = document.getElementById('js-shop-preview-placeholder');
+  const previewSize = document.getElementById('js-shop-preview-size');
+  const buyBtn = document.getElementById('js-shop-buy-btn');
+  const buyInfo = document.getElementById('js-shop-buy-info');
+
+  if (shopSelectedItem === 'memo') {
+    previewImage.style.display = 'flex';
+    previewImage.style.flexDirection = 'column';
+    previewImage.style.alignItems = 'stretch';
+    previewImage.style.justifyContent = 'center';
+    previewPlaceholder.style.display = 'none';
+    previewSize.style.display = 'none';
+    let hint = previewImage.querySelector('.memo-preview-hint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'memo-preview-hint';
+      hint.textContent = '请输入备忘录内容';
+      hint.style.cssText = 'font-size:0.68rem;color:var(--txt-faint);opacity:0.45;text-align:center';
+      previewImage.appendChild(hint);
+    } else {
+      hint.style.display = '';
+    }
+    const existing = previewImage.querySelector('.memo-input-preview');
+    if (existing) existing.style.display = 'none';
+  } else {
+    previewImage.style.display = '';
+    previewImage.style.flexDirection = '';
+    previewImage.style.alignItems = '';
+    previewImage.style.justifyContent = '';
+    const existing = previewImage.querySelector('.memo-input-preview');
+    if (existing) existing.style.display = 'none';
+    previewPlaceholder.style.display = '';
+    previewSize.style.display = '';
+  }
+
+  // 更新购买信息
+  const owned = getOwnedCount(shopSelectedItem);
+  const max = getMaxCount(shopSelectedItem);
+  const price = getNextPrice(shopSelectedItem);
+  const remaining = max - owned;
+
+  if (buyInfo) {
+    if (remaining <= 0) {
+      buyInfo.textContent = '已达上限';
+      buyBtn.style.opacity = '0.4';
+      buyBtn.innerHTML = '已拥有 ' + owned + ' / ' + max;
+    } else {
+      buyInfo.textContent = '已拥有 ' + owned + ' / ' + max;
+      buyBtn.style.opacity = '';
+      buyBtn.innerHTML = '💧 ' + price + ' 滴';
+    }
+  }
+}
+
+function selectShopItem(item) {
+  shopSelectedItem = item;
+  document.querySelectorAll('#js-shop-content .shop-list-item').forEach(el => el.classList.remove('selected'));
+  const sel = document.querySelector('#js-shop-content .shop-list-item[data-item="' + item + '"]');
+  if (sel) sel.classList.add('selected');
+  updateShopUI();
+}
+
+function showToast(msg, type) {
+  const colors = { ok:'rgba(100,200,150,0.9)', err:'rgba(255,100,100,0.9)' };
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:'+(colors[type]||colors.ok)+';color:white;padding:8px 16px;border-radius:8px;font-size:0.8rem;z-index:9999';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+function doBuyFrame() {
+  const type = shopSelectedItem;
+  const owned = getOwnedCount(type);
+  const max = getMaxCount(type);
+  if (owned >= max) {
+    showToast('已达上限（最多 ' + max + ' 个）', 'err');
+    return;
+  }
+  const price = getNextPrice(type);
+  if ((appData.bottleCollects || 0) < price) {
+    showToast('雨滴不足，需要 ' + price + ' 滴', 'err');
+    return;
+  }
+
+  appData.bottleCollects = (appData.bottleCollects || 0) - price;
+  if (!appData.shopFrames) appData.shopFrames = [];
+
+  if (type === 'memo') {
+    const memo = {
+      id: 'memo-' + Date.now(),
+      type: 'memo',
+      title: '备忘录',
+      text: '',
+      pos: { x: 100 + Math.random() * 200, y: 80 + Math.random() * 150 },
+      collapsed: false,
+      width: 240,
+      height: 200,
+      placed: false
+    };
+    appData.shopFrames.push(memo);
+  } else {
+    const frame = {
+      id: 'frame-' + Date.now(),
+      img: null,
+      pos: { x: 120 + Math.random() * 180, y: 80 + Math.random() * 120 },
+      collapsed: false,
+      type: 'frame',
+      title: '图片展示',
+      width: 200,
+      height: 160,
+      placed: false
+    };
+    appData.shopFrames.push(frame);
+  }
+
+  save();
+  refreshShopDropsCount();
+  updateShopUI();
+  showToast('购买成功！去仓库查看吧', 'ok');
+  switchShopTab('warehouse');
+}
+
+// ── 仓库与展示框 ──
+let selectedWarehouseFrame = null;
+let selectedWarehouseType = null;
+
+function renderWarehouse() {
+  const list = document.getElementById('js-warehouse-list');
+  if (!list) return;
+  list.innerHTML = '';
+  const frames = appData.shopFrames || [];
+  const types = ['frame', 'memo'];
+  const typeInfo = {
+    frame: { icon: '🖼', name: '图片展示', catName: '图片展示' },
+    memo:  { icon: '📝', name: '备忘录',   catName: '备忘录' }
+  };
+
+  // 如果还没选过默认选中第一个有物品的分类
+  if (!selectedWarehouseType) {
+    selectedWarehouseType = types.find(t => frames.some(f => f.type === t)) || null;
+  }
+
+  types.forEach(type => {
+    const items = frames.filter(f => f.type === type);
+    const info = typeInfo[type];
+    const catEl = document.createElement('div');
+
+    // 一级分类（可展开）
+    catEl.innerHTML = `
+      <div class="shop-list-item warehouse-cat-item${selectedWarehouseType === type ? ' selected' : ''}" data-type="${type}">
+        <span class="shop-list-icon">${info.icon}</span>
+        <span class="shop-list-name">${info.catName}</span>
+        <span class="shop-list-price">${items.length} / 5</span>
+      </div>
+      <div class="warehouse-sub-list${selectedWarehouseType === type ? '' : ' hidden'}" data-type="${type}"></div>
+    `;
+    list.appendChild(catEl);
+
+    // 一级点击事件（展开/折叠）
+    catEl.querySelector('.warehouse-cat-item').addEventListener('click', () => {
+      if (selectedWarehouseType === type) {
+        selectedWarehouseType = null;
+        selectedWarehouseFrame = null;
+      } else {
+        selectedWarehouseType = type;
+        selectedWarehouseFrame = items.length > 0 ? items[0] : null;
+      }
+      renderWarehouse();
+      updateWarehousePreview();
+    });
+
+    // 二级列表
+    const subList = catEl.querySelector('.warehouse-sub-list');
+    items.forEach((frame, idx) => {
+      const subEl = document.createElement('div');
+      subEl.className = 'shop-list-item warehouse-sub-item';
+      const displayName = frame.type === 'memo' ? (frame.text ? frame.text.slice(0, 5) : '备忘录') : (frame.title || '图片展示');
+      const thumb = frame.img
+        ? `<img src="${frame.img}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0">`
+        : `<div style="width:28px;height:28px;background:var(--input-bg);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.8rem;opacity:0.4">${info.icon}</div>`;
+      subEl.innerHTML = `
+        <span class="shop-list-icon" style="margin-left:12px">${info.icon}</span>
+        <span class="shop-list-name">${displayName}</span>
+        <span class="shop-list-price">${frame.placed ? '✓' : '·'}</span>
+      `;
+      subEl.querySelector('.shop-list-price').insertAdjacentHTML('beforebegin', thumb);
+      subEl.addEventListener('click', () => {
+        selectedWarehouseFrame = frame;
+        selectedWarehouseType = type;
+        renderWarehouse();
+        updateWarehousePreview();
+      });
+      subList.appendChild(subEl);
+    });
+
+    if (items.length === 0) {
+      subList.innerHTML = '<div style="font-size:0.65rem;opacity:0.3;text-align:center;padding:6px 0">暂未拥有</div>';
+    }
+  });
+  updateWarehousePreview();
+}
+
+function updateWarehousePreview() {
+  const preview = document.getElementById('js-warehouse-preview');
+  if (!preview) return;
+  const f = selectedWarehouseFrame;
+  if (!f) {
+    preview.innerHTML = `
+      <div class="shop-preview-title">选择展示框</div>
+      <div class="shop-preview-image" style="min-height:100px">
+        <div class="shop-preview-placeholder">🖼</div>
+      </div>
+      <div class="shop-preview-desc">从左侧选择一个展示框</div>
+    `;
+    return;
+  }
+  const w = f.width || 200, h = f.height || 160;
+  const actionBtn = f.placed
+    ? '<div class="shop-buy-btn" style="font-size:0.68rem;padding:6px 10px;background:rgba(255,160,80,0.2)" onclick="hideWarehouseFrame()">收起</div>'
+    : '<div class="shop-buy-btn" style="font-size:0.68rem;padding:6px 10px" onclick="openWarehouseFrame()">放置</div>';
+  let previewContent = '';
+  if (f.type === 'memo') {
+    previewContent = `<div style="flex:1"></div>`;
+  } else {
+    previewContent = `<div class="shop-preview-image" style="flex:1;min-height:80px;display:flex;align-items:center;justify-content:center">
+      ${f.img ? '<img src="'+f.img+'" style="width:100%;height:100%;object-fit:contain">' : '<div class="shop-preview-placeholder">🖼</div>'}
+    </div>`;
+  }
+  const title = f.type === 'memo' ? (f.text ? f.text.slice(0, 5) : '备忘录') : (f.title || '图片展示');
+  preview.innerHTML = `
+    <div class="shop-preview-title">${title}</div>
+    ${previewContent}
+    <div class="shop-preview-size">${w} × ${h}</div>
+    <div class="shop-preview-btns" style="display:flex;gap:6px;margin-top:auto">
+      ${actionBtn}
+      <div class="shop-buy-btn" style="font-size:0.68rem;padding:6px 10px;background:rgba(255,100,100,0.15)" onclick="removeWarehouseFrame()">删除</div>
+    </div>
+  `;
+}
+
+function openWarehouseFrame() {
+  if (!selectedWarehouseFrame) return;
+  closeShopModal();
+  openFrameById(selectedWarehouseFrame.id);
+  // 重新渲染仓库以更新状态
+  setTimeout(renderWarehouse, 100);
+}
+
+function hideWarehouseFrame() {
+  if (!selectedWarehouseFrame) return;
+  closeFrame(selectedWarehouseFrame.id);
+  renderWarehouse();
+}
+
+function removeWarehouseFrame() {
+  if (!selectedWarehouseFrame) return;
+  const idx = (appData.shopFrames || []).findIndex(f => f.id === selectedWarehouseFrame.id);
+  if (idx === -1) return;
+  appData.shopFrames.splice(idx, 1);
+  save();
+  renderWarehouse();
+}
+
+function openFrameById(frameId) {
+  const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+  if (!frame) return;
+  frame.placed = true;
+  save();
+  // 如果已存在则聚焦，不重复创建
+  const existing = document.getElementById('js-frame-' + frame.id);
+  if (existing) { existing.style.zIndex = '185'; return; }
+  createFrameElement(frame);
+}
+function createFrameElement(frame) {
+  const container = document.getElementById('js-frames-container');
+  const el = document.createElement('div');
+  el.className = 'frame-floater' + (frame.collapsed ? ' collapsed' : '') + (frame.type === 'frame' ? ' frameless' : '') + (frame.type === 'memo' ? ' memo-floater' : '');
+  el.id = 'js-frame-' + frame.id;
+  el.style.left = frame.pos.x + 'px';
+  el.style.top  = frame.pos.y + 'px';
+  const fw = frame.width || 200, fh = frame.height || 160;
+  el.style.width  = fw + 'px';
+  el.style.height = fh + 'px';
+
+  if (frame.type === 'memo') {
+    el.innerHTML = `
+      <div class="frame-floater-header">
+        <div class="frame-floater-title">${frame.title || '备忘录'}</div>
+        <div class="frame-floater-btns">
+          <button class="frame-floater-btn" onclick="toggleFrameCollapse('${frame.id}')" title="收缩">▼</button>
+          <button class="frame-floater-btn" onclick="closeFrame('${frame.id}')" title="关闭">✕</button>
+        </div>
+      </div>
+      <textarea class="memo-textarea" id="js-memo-${frame.id}" placeholder="输入内容...">${frame.text || ''}</textarea>
+      <div class="frame-resize-handle" id="js-resize-${frame.id}"></div>
+    `;
+  } else {
+    el.innerHTML = `
+      <div class="frame-floater-header">
+        <input class="frame-title-input" id="js-title-${frame.id}" value="${frame.title || '图片展示'}" onchange="updateFrameTitle('${frame.id}', this.value)" onclick="this.select()">
+        <div class="frame-floater-btns">
+          <button class="frame-floater-btn" onclick="toggleFrameCollapse('${frame.id}')" title="收缩">▼</button>
+          <button class="frame-floater-btn" onclick="closeFrame('${frame.id}')" title="关闭">✕</button>
+        </div>
+      </div>
+      ${frame.img
+        ? '<img class="frame-floater-img" src="'+frame.img+'" alt="图片" draggable="true" oncontextmenu="changeFrameImage(\''+frame.id+'\')">'
+        : '<div class="frame-floater-placeholder" oncontextmenu="changeFrameImage(\''+frame.id+'\')"><span>📷</span><span class="frame-placeholder-tip">拖动图片至此或右键选择</span></div>'}
+      <div class="frame-resize-handle" id="js-resize-${frame.id}"></div>
+    `;
+  }
+  container.appendChild(el);
+  initFrameDrag(el, frame);
+  initFrameResize(el, frame);
+  // 图片粘贴支持（仅图片展示）
+  if (frame.type !== 'memo') {
+    el.addEventListener('paste', e => handleFramePaste(e, frame.id));
+    // 拖拽图片文件到展示框替换图片
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const base64 = ev.target.result;
+          const f = (appData.shopFrames || []).find(f => f.id === frame.id);
+          if (f) { f.img = base64; save(); }
+          const fel = document.getElementById('js-frame-' + frame.id);
+          if (fel) {
+            const ph = fel.querySelector('.frame-floater-placeholder');
+            const img = fel.querySelector('.frame-floater-img');
+            if (ph) {
+              const newImg = document.createElement('img');
+              newImg.className = 'frame-floater-img';
+              newImg.src = base64;
+              newImg.draggable = true;
+              newImg.oncontextmenu = () => changeFrameImage(frame.id);
+              ph.replaceWith(newImg);
+            } else if (img) {
+              img.src = base64;
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+  // 备忘录自动保存
+  if (frame.type === 'memo') {
+    const ta = document.getElementById('js-memo-' + frame.id);
+    if (ta) {
+      ta.addEventListener('input', () => {
+        frame.text = ta.value;
+        save();
+      });
+    }
+  }
+}
+function toggleFrameCollapse(frameId) {
+  const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+  if (!frame) return;
+  frame.collapsed = !frame.collapsed;
+  const el = document.getElementById('js-frame-' + frameId);
+  if (el) el.classList.toggle('collapsed', frame.collapsed);
+  save();
+}
+function updateFrameTitle(frameId, newTitle) {
+  const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+  if (!frame) return;
+  frame.title = newTitle;
+  save();
+  renderWarehouse();
+}
+function closeFrame(frameId) {
+  const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+  if (frame) { frame.placed = false; save(); }
+  const el = document.getElementById('js-frame-' + frameId);
+  if (el) el.remove();
+}
+function changeFrameImage(frameId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const base64 = ev.target.result;
+      const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+      if (frame) { frame.img = base64; save(); }
+      const el = document.getElementById('js-frame-' + frameId);
+      if (el) {
+        const placeholder = el.querySelector('.frame-floater-placeholder');
+        const img = el.querySelector('.frame-floater-img');
+        if (placeholder) {
+          const newImg = document.createElement('img');
+          newImg.className = 'frame-floater-img';
+          newImg.src = base64;
+          newImg.draggable = true;
+          newImg.oncontextmenu = () => changeFrameImage(frameId);
+          placeholder.replaceWith(newImg);
+        } else if (img) {
+          img.src = base64;
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+function handleFramePaste(e, frameId) {
+  const items = e.clipboardData.items;
+  for (let item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const base64 = ev.target.result;
+        const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+        if (frame) { frame.img = base64; save(); }
+        const el = document.getElementById('js-frame-' + frameId);
+        if (el) {
+          let img = el.querySelector('.frame-floater-img');
+          if (!img) {
+            const ph = el.querySelector('.frame-floater-placeholder');
+            img = document.createElement('img');
+            img.className = 'frame-floater-img';
+            img.draggable = true;
+            img.oncontextmenu = () => changeFrameImage(frameId);
+            if (ph) ph.replaceWith(img);
+          }
+          img.src = base64;
+        }
+      };
+      reader.readAsDataURL(file);
+      break;
+    }
+  }
+}
+// ── 展示框拖拽 ──
+function initFrameDrag(el, frameData) {
+  let dragging = false, ox = 0, oy = 0;
+  const startDrag = e => {
+    if (e.target.classList.contains('frame-floater-btn')) return;
+    dragging = true;
+    ox = e.clientX - el.offsetLeft;
+    oy = e.clientY - el.offsetTop;
+    el.style.transition = 'none';
+    e.preventDefault();
+  };
+  el.querySelector('.frame-floater-header').addEventListener('mousedown', startDrag);
+  // 图片/占位区域也可拖动
+  const content = el.querySelector('.frame-floater-img, .frame-floater-placeholder');
+  if (content) content.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    let nx = e.clientX - ox, ny = e.clientY - oy;
+    nx = Math.max(0, Math.min(nx, window.innerWidth  - el.offsetWidth));
+    ny = Math.max(0, Math.min(ny, window.innerHeight - el.offsetHeight));
+    el.style.left = nx + 'px';
+    el.style.top  = ny + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    el.style.transition = '';
+    frameData.pos = { x: parseInt(el.style.left), y: parseInt(el.style.top) };
+    save();
+  });
+}
+// ── 展示框缩放 ──
+function initFrameResize(el, frameData) {
+  const handle = el.querySelector('.frame-resize-handle');
+  if (!handle) return;
+  let resizing = false, startX = 0, startY = 0, startW = 0, startH = 0;
+  const isImageFrame = frameData.type === 'frame';
+  const aspectRatio = isImageFrame ? (frameData.width || 200) / (frameData.height || 160) : 0;
+  handle.addEventListener('mousedown', e => {
+    resizing = true;
+    startX = e.clientX; startY = e.clientY;
+    startW = el.offsetWidth; startH = el.offsetHeight;
+    el.style.transition = 'none';
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (isImageFrame) {
+      // 等比例缩放：取最大移动量
+      const delta = Math.max(Math.abs(dx), Math.abs(dy));
+      const signX = dx >= 0 ? 1 : -1, signY = dy >= 0 ? 1 : -1;
+      const newW = Math.max(140, Math.min(startW + delta * signX, window.innerWidth - el.offsetLeft));
+      const newH = Math.max(100, Math.min(newW / aspectRatio, window.innerHeight - el.offsetTop));
+      el.style.width = newW + 'px';
+      el.style.height = newH + 'px';
+    } else {
+      const newW = Math.max(140, Math.min(startW + dx, window.innerWidth - el.offsetLeft));
+      const newH = Math.max(100, Math.min(startH + dy, window.innerHeight - el.offsetTop));
+      el.style.width = newW + 'px';
+      el.style.height = newH + 'px';
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    if (!resizing) return;
+    resizing = false;
+    el.style.transition = '';
+    frameData.width  = el.offsetWidth;
+    frameData.height = el.offsetHeight;
+    save();
+  });
+}
+
 // ── 初始化 ──
 document.addEventListener('DOMContentLoaded', () => {
   const wrap = document.getElementById('js-bottle-wrap');
@@ -7999,6 +8959,8 @@ document.addEventListener('DOMContentLoaded', () => {
   bottleRender();
   bottleTick();
   updateBottleTag();
+  // 右键菜单
+  wrap.addEventListener('contextmenu', openBottleCtx);
   wrap.addEventListener('mouseenter',  onEnter);
   wrap.addEventListener('mouseleave',  onLeave);
   wrap.addEventListener('mousedown',   bottleDragStart, {passive:false});
@@ -8007,10 +8969,49 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('touchmove', bottleDragMove,  {passive:false});
   window.addEventListener('mouseup',   bottleDragEnd);
   window.addEventListener('touchend',  bottleDragEnd);
+  // 恢复瓶子/按钮显示状态
+  if (appData.bottleHidden) {
+    wrap.style.display = 'none';
+    const btn = document.getElementById('js-bottle-restore-btn');
+    if (btn) btn.style.display = 'block';
+  }
+  // 恢复所有已放置的展示框
+  (appData.shopFrames || []).filter(f => f.placed).forEach(frame => createFrameElement(frame));
+
+  // 绑定商店事件（用 addEventListener 代替 HTML onclick）
+  setupShopListeners();
 });
+
+function setupShopListeners() {
+  document.getElementById('js-shop-buy-btn')?.addEventListener('click', doBuyFrame);
+  document.querySelectorAll('#js-shop-content .shop-list-item').forEach(el => {
+    el.addEventListener('click', () => selectShopItem(el.dataset.item));
+  });
+}
 
 window.bottleRender = bottleRender;
 window.playDrip     = playDrip;
+window.hideBottle   = hideBottle;
+window.showBottle   = showBottle;
+window.openShopFromCtx = openShopFromCtx;
+window.openShopModal  = openShopModal;
+window.closeShopModal = closeShopModal;
+window.switchShopTab = switchShopTab;
+window.doBuyFrame   = doBuyFrame;
+window.selectShopItem = selectShopItem;
+window.openWarehouseFrame = openWarehouseFrame;
+window.hideWarehouseFrame = hideWarehouseFrame;
+window.removeWarehouseFrame = removeWarehouseFrame;
+window.updateShopUI = updateShopUI;
+window.refreshShopDropsCount = refreshShopDropsCount;
+window.showToast = showToast;
+window.renderWarehouse = renderWarehouse;
+window.openFrameById    = openFrameById;
+window.createFrameElement = createFrameElement;
+window.toggleFrameCollapse = toggleFrameCollapse;
+window.closeFrame = closeFrame;
+window.updateFrameTitle = updateFrameTitle;
+window.changeFrameImage = changeFrameImage;
 
 })();
 
@@ -8083,6 +9084,13 @@ window.playDrip     = playDrip;
     <div class="task-ctx-item danger" id="js-ctx-delete" onclick="deleteTaskFromCtx()">✕ 删除任务</div>
   </div>
 
+  <!-- 积雨瓶右键菜单 -->
+  <div class="bottle-ctx-menu" id="js-bottle-ctx" style="display:none">
+    <div class="bottle-ctx-item" id="js-ctx-shop" onclick="openShopFromCtx();event.stopPropagation();">💧 雨滴商店</div>
+    <div class="bottle-ctx-sep"></div>
+    <div class="bottle-ctx-item" id="js-ctx-hide" onclick="hideBottle();event.stopPropagation();">🔒 隐藏小瓶</div>
+  </div>
+
   <!-- 提醒 toast 容器（由 JS 动态创建） -->
   <!-- 积雨瓶 -->
   <div id="js-bottle-wrap" style="position:fixed;left:20px;bottom:60px;z-index:45;cursor:grab;user-select:none;touch-action:none">
@@ -8124,7 +9132,7 @@ window.playDrip     = playDrip;
       <!-- ── 液体（clip内） ── -->
       <g clip-path="url(#bottle-clip)">
         <!-- 液体主体（小圆角矩形内填充） -->
-        <rect id="js-bottle-water" x="9" y="22" width="42" height="53" rx="3" fill="url(#water-grad)"/>
+        <path id="js-bottle-water" d="M9,22 L51,22 L51,75 L9,75 Z" fill="url(#water-grad)"/>
         <!-- 液面边缘线 -->
         <path id="js-bottle-surface-edge" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.2" stroke-linecap="round"/>
         <!-- 星光粒子容器 -->
@@ -8171,6 +9179,9 @@ window.playDrip     = playDrip;
       </g>
     </svg>
   </div>
+
+  <!-- 展示框容器 -->
+  <div id="js-frames-container"></div>
 
 </body>
 </html>
