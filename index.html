@@ -1824,6 +1824,8 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   #js-theme-btn { bottom: unset !important; left: unset !important; top: 14px !important; right: 14px !important; }
   /* 底部栏与对话框保持距离 */
   #js-footer-bar { bottom: 24px !important; }
+  /* 对话框底部留出联系栏空间 */
+  .imm-chat-panel { bottom: 50px !important; }
 }
 </style>
 </head>
@@ -4234,7 +4236,7 @@ const UI={
         }
       }
       return`
-      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" ondblclick="UI.switchTask('${t.id}')" oncontextmenu="openTaskCtx(event,'${t.id}')">
+      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" onclick="window.matchMedia('(pointer: coarse)').matches?UI.switchTask('${t.id}'):null" oncontextmenu="openTaskCtx(event,'${t.id}')">
         <div class="progress-fill" style="width:${t.progress}%"></div>
         <div class="task-inner">
           <span class="task-name">${t.title}</span>
@@ -7601,6 +7603,15 @@ function closeTaskCtx() {
   _ctxTaskId = null;
 }
 
+// iPad双击打开任务菜单
+function taskDblClick(id) {
+  vib();
+  const item = document.querySelector('.task-item[data-id="'+id+'"]');
+  if (!item) return;
+  const r = item.getBoundingClientRect();
+  openTaskCtx({preventDefault:()=>{},stopPropagation:()=>{},clientX:r.left+r.width/2,clientY:r.top+r.height/2}, id);
+}
+
 document.addEventListener('click', () => closeTaskCtx());
 document.addEventListener('contextmenu', e => {
   if (!e.target.closest('#js-task-list')) closeTaskCtx();
@@ -9321,6 +9332,7 @@ window.changeFrameImage = changeFrameImage;
       if (!dragging) return;
       dragging = false;
       el.style.transition = '';
+      highlight(false);
       if (onSave) onSave(el);
     }, {passive: true});
 
@@ -9414,32 +9426,43 @@ window.changeFrameImage = changeFrameImage;
       const tc = e.touches[0];
       bSx=tc.clientX; bSy=tc.clientY; bMoved=false;
 
+      /* 长按定时器：显示菜单 */
+      let longPressTimer = setTimeout(() => {
+        if (!bDrag) { /* 未开始拖动才显示菜单 */
+          bLocked=true;
+          showBottleCtxAt({clientX:tc.clientX, clientY:tc.clientY});
+          vib();
+        }
+      }, 500);
+
       if (bLocked) {
         /* 已解锁 → 立即进入拖动状态 */
         bDrag=true;
+        clearTimeout(longPressTimer);
         const r=bottleWrap.getBoundingClientRect();
         bOx=tc.clientX-r.left; bOy=tc.clientY-r.top;
         bHighlight(true);
         e.preventDefault(); return;
       }
 
-      /* 未锁定 → 单击一次：解锁 + 显示菜单 + 立即进入拖动 */
+      /* 未锁定 → 解锁 + 立即进入拖动（长按才显示菜单） */
       bLocked=true; bDrag=true;
-      bHighlight(true); vib();
+      bHighlight(true);
       const r=bottleWrap.getBoundingClientRect();
       bOx=tc.clientX-r.left; bOy=tc.clientY-r.top;
-      showBottleCtxAt({clientX:tc.clientX, clientY:tc.clientY});
       e.preventDefault();
 
       function mv(e2){
         const tc2=e2.touches[0];
         if(Math.abs(tc2.clientX-bSx)>MOVE_THR||Math.abs(tc2.clientY-bSy)>MOVE_THR){
           bMoved=true;
+          clearTimeout(longPressTimer);
           bottleWrap.removeEventListener('touchmove',mv);
         }
       }
       bottleWrap.addEventListener('touchmove',mv,{passive:true});
       bottleWrap.addEventListener('touchend',()=>{
+        clearTimeout(longPressTimer);
         bottleWrap.removeEventListener('touchmove',mv);
       },{once:true, passive:true});
     }, {passive:false});
@@ -9490,25 +9513,8 @@ window.changeFrameImage = changeFrameImage;
     },{passive:true});
   }
 
-  /* ═══ 5. 任务右键菜单 → 长按 ═══ */
-  const taskList = document.getElementById('js-task-list');
-  if (taskList) {
-    taskList.addEventListener('touchstart', e => {
-      const item = e.target.closest('.task-item[data-id]');
-      if (!item) return;
-      const id = item.dataset.id;
-      let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
-      let lt = setTimeout(()=>{ lt=null; vib(); openTaskCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
-      function cancel(){ clearTimeout(lt); lt=null; }
-      function mv(e2){
-        const tc=e2.touches[0];
-        if(Math.abs(tc.clientX-sx)>MOVE_THR||Math.abs(tc.clientY-sy)>MOVE_THR) cancel();
-      }
-      item.addEventListener('touchmove', mv, {passive:true, once:true});
-      item.addEventListener('touchend',    cancel, {passive:true, once:true});
-      item.addEventListener('touchcancel', cancel, {passive:true, once:true});
-    }, {passive:true});
-  }
+  /* ═══ 5. 任务菜单 → iPad双击（替代长按）═══ */
+  /* 已迁移到 task-item 的 ondblclick 属性，触摸设备通过 window.matchMedia 检测 */
 
   /* ═══ 6. 习惯右键菜单 → 长按 ═══ */
   document.addEventListener('touchstart', e => {
