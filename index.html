@@ -291,7 +291,13 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .focus-stat{font-size:0.68rem;opacity:0.35;letter-spacing:2px;margin-top:4px}
 
 /* LAYOUT */
-.layout{position:relative;z-index:10;display:flex;gap:20px;align-items:center;margin-top:44px}
+.layout{position:relative;z-index:10;display:flex;gap:20px;align-items:center;margin-top:44px;transition:opacity 0.2s,padding-bottom 0.3s}
+.layout.modal-open{pointer-events:none;opacity:0.4}
+.layout.pad-not-full{padding-bottom:max(40px,env(safe-area-inset-bottom))}
+
+/* 侧边栏底部安全区域 */
+.history-drawer,.journal-drawer{padding-bottom:max(20px,env(safe-area-inset-bottom));transition:padding-bottom 0.3s}
+.history-drawer.pad-not-full,.journal-drawer.pad-not-full{padding-bottom:max(40px,env(safe-area-inset-bottom))}
 
 /* CHAT CARD */
 .chat-card{width:800px;height:74vh;background:var(--glass);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);border-radius:24px;border:1px solid var(--glass-b);transition:background 0.4s,border-color 0.4s;display:flex;overflow:hidden}
@@ -1308,6 +1314,9 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .note-floater-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase;transition:color 0.15s ease,opacity 0.15s ease}
 .note-floater-close{background:transparent;border:none;color:var(--btn-muted);cursor:pointer;font-size:0.75rem;padding:1px 4px;line-height:1}
 .note-floater-close:hover{color:rgba(200,60,40,0.8)}
+.note-floater-btns{display:flex;gap:4px;align-items:center}
+.note-floater-btn{background:transparent;border:none;color:var(--btn-muted);cursor:pointer;font-size:0.75rem;padding:1px 3px;line-height:1;opacity:0.35;transition:opacity 0.15s}
+.note-floater-btn:hover{opacity:1}
 .note-floater-input{background:var(--input-bg);border:1px solid var(--glass-b);border-radius:8px;color:var(--txt);font-size:0.76rem;padding:7px 9px;outline:none;font-family:inherit;resize:none;min-height:60px;max-height:120px;line-height:1.5;width:100%}
 .note-floater-input::placeholder{color:var(--ph)}
 .note-floater-input:focus{border-color:rgba(255,160,80,0.3)}
@@ -1611,6 +1620,8 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 }
 .frame-floater:active{cursor:grabbing}
 .frame-floater.collapsed{min-height:unset;padding:8px}
+.frame-floater-btn[title="固定"]{opacity:0.5;transition:opacity 0.15s}
+.frame-floater-btn[title="固定"]:hover{opacity:1}
 .frame-floater-header{
   display:flex;align-items:center;justify-content:space-between;
   gap:8px;flex-shrink:0;
@@ -1802,6 +1813,11 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   animation:toastIn 0.42s cubic-bezier(0.22,1,0.36,1) both;
 }
 [data-theme="day"] .deadline-toast{box-shadow:0 8px 32px rgba(80,120,160,0.22),0 2px 8px rgba(80,120,160,0.12)}
+[data-theme="day"] .frame-floater-btn[title="固定"]{opacity:0.35}
+.frame-floater.pinned{pointer-events:none}
+.frame-floater.pinned .frame-floater-btn,
+.frame-floater.pinned .frame-floater-header{pointer-events:auto}
+.frame-floater-btn[title="固定"].is-pinned{opacity:1!important;color:#fff!important}
 @keyframes toastIn{
   from{transform:translateY(55%);opacity:0.6}
   to{transform:translateY(-16px);opacity:1}
@@ -2007,7 +2023,10 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 <div class="note-floater" id="js-note-floater">
   <div class="note-floater-header">
     <div class="note-floater-title">小纸条</div>
-    <button class="note-floater-close" onclick="closeNoteFloater()">✕</button>
+    <div class="note-floater-btns">
+      <button class="note-floater-btn" id="js-note-pin" onclick="toggleNotePin()" title="固定">📌</button>
+      <button class="note-floater-close" onclick="closeNoteFloater()">✕</button>
+    </div>
   </div>
   <textarea class="note-floater-input" id="js-floater-input" placeholder="随手记下…"></textarea>
   <button class="note-floater-send" onclick="sendFloaterNote()">记下 ↑</button>
@@ -2474,6 +2493,8 @@ let appData = (() => {
     if (!('bottlePos'      in d)) d.bottlePos      = null;
     if (!('bottleHidden'   in d)) d.bottleHidden   = false;
     if (!d.shopFrames) d.shopFrames = [];
+    // Normalize shopFrames: ensure pinned property exists
+    d.shopFrames.forEach(f => { if (!('pinned' in f)) f.pinned = false; });
     return d;
   } catch(e) { return defaultState(); }
 })();
@@ -3579,6 +3600,26 @@ function startImmersive(totalSec, taskId, customLabel) {
   document.querySelector('.top-center').style.opacity='0';
   document.querySelector('.corner-tl').style.opacity='0';
 
+  // Hide bottle in immersive mode (immersive always on top)
+  const bottle=document.getElementById('js-bottle-wrap');
+  if(bottle){ bottle.style.visibility='hidden'; bottle.style.pointerEvents='none'; }
+
+  // Hide frame-floaters unless pinned
+  (appData.shopFrames || []).forEach(frame => {
+    if (!frame.placed) return;
+    const el = document.getElementById('js-frame-' + frame.id);
+    if (!el) return;
+    el._origVisibility = el.style.visibility;
+    el.style.visibility = frame.pinned ? '' : 'hidden';
+  });
+
+  // Hide note-floater unless pinned
+  const noteEl = document.getElementById('js-note-floater');
+  if (noteEl && noteEl.classList.contains('visible')) {
+    noteEl._origVisibility = noteEl.style.visibility;
+    noteEl.style.visibility = notePinned ? '' : 'hidden';
+  }
+
   // Enhance rain
   const _isDay=document.documentElement.getAttribute('data-theme')=='day';
   buildRainMemo(190, 0.45, 0.65);
@@ -3637,6 +3678,28 @@ function exitImmersive() {
   document.querySelector('.layout').style.pointerEvents='';
   document.querySelector('.top-center').style.opacity='';
   document.querySelector('.corner-tl').style.opacity='';
+  // Restore bottle visibility
+  const bottle=document.getElementById('js-bottle-wrap');
+  if(bottle){ bottle.style.visibility=''; bottle.style.pointerEvents=''; }
+  // Restore frame-floaters visibility
+  (appData.shopFrames || []).forEach(frame => {
+    if (!frame.placed) return;
+    const el = document.getElementById('js-frame-' + frame.id);
+    if (el && el._origVisibility !== undefined) {
+      el.style.visibility = el._origVisibility;
+      delete el._origVisibility;
+    } else if (el) {
+      el.style.visibility = '';
+    }
+  });
+  // Restore note-floater visibility
+  const noteEl = document.getElementById('js-note-floater');
+  if (noteEl && noteEl._origVisibility !== undefined) {
+    noteEl.style.visibility = noteEl._origVisibility;
+    delete noteEl._origVisibility;
+  } else if (noteEl) {
+    noteEl.style.visibility = '';
+  }
   // Restore normal rain
   buildRainMemo(70,0.3,0.5);
 }
@@ -4253,7 +4316,7 @@ const UI={
         }
       }
       return`
-      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" onclick="window.matchMedia('(pointer: coarse)').matches?UI.switchTask('${t.id}'):null" ondblclick="window.matchMedia('(pointer: coarse)').matches?taskDblClick('${t.id}'):UI.switchTask('${t.id}')" oncontextmenu="openTaskCtx(event,'${t.id}')">
+      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" onclick="openTaskCtx(event,'${t.id}')" ondblclick="UI.switchTask('${t.id}')" oncontextmenu="openTaskCtx(event,'${t.id}')">
         <div class="progress-fill" style="width:${t.progress}%"></div>
         <div class="task-inner">
           <span class="task-name">${t.title}</span>
@@ -6403,6 +6466,19 @@ function openNoteFloater() {
 function closeNoteFloater() {
   document.getElementById('js-note-floater').classList.remove('visible');
 }
+let notePinned = false;
+function toggleNotePin() {
+  notePinned = !notePinned;
+  const btn = document.getElementById('js-note-pin');
+  if (btn) btn.style.opacity = notePinned ? '1' : '0.35';
+  // If in immersive, immediately show/hide
+  const imm = document.getElementById('js-immersive');
+  const el = document.getElementById('js-note-floater');
+  if (imm.classList.contains('active') && el.classList.contains('visible')) {
+    el.style.visibility = notePinned ? '' : 'hidden';
+  }
+}
+window.toggleNotePin = toggleNotePin;
 async function sendFloaterNote() {
   const inp = document.getElementById('js-floater-input');
   const text = inp.value.trim();
@@ -7883,6 +7959,25 @@ requestAnimationFrame(() => requestAnimationFrame(updateTaskListBounds));
 })();
 window.addEventListener('resize', updateTaskListBounds);
 
+// ── iPad 全屏检测，非全屏时给对话框底部留空间 ──
+function updateIPadBottomPad() {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isNarrowScreen = window.innerWidth < 1024;
+  const isNotFullScreen = window.innerHeight < screen.height - 50;
+  const isPadNotFull = isTouchDevice && isNarrowScreen && isNotFullScreen;
+  const layout = document.querySelector('.layout');
+  if (layout) layout.classList.toggle('pad-not-full', isPadNotFull);
+  // 侧边栏也添加底部留白
+  document.querySelectorAll('.history-drawer,.journal-drawer').forEach(el => {
+    el.classList.toggle('pad-not-full', isPadNotFull);
+  });
+}
+// 初始检测
+updateIPadBottomPad();
+// 监听屏幕变化
+window.addEventListener('resize', updateIPadBottomPad);
+window.addEventListener('orientationchange', () => setTimeout(updateIPadBottomPad, 100));
+
 // ══════════════════════════════════════════════
 // 积雨瓶
 // ══════════════════════════════════════════════
@@ -8661,6 +8756,7 @@ function doBuyFrame() {
       text: '',
       pos: { x: 100 + Math.random() * 200, y: 80 + Math.random() * 150 },
       collapsed: false,
+      pinned: false,
       width: 240,
       height: 200,
       placed: false
@@ -8672,6 +8768,7 @@ function doBuyFrame() {
       img: null,
       pos: { x: 120 + Math.random() * 180, y: 80 + Math.random() * 120 },
       collapsed: false,
+      pinned: false,
       type: 'frame',
       title: '图片展示',
       width: 200,
@@ -8842,7 +8939,7 @@ function openFrameById(frameId) {
 function createFrameElement(frame) {
   const container = document.getElementById('js-frames-container');
   const el = document.createElement('div');
-  el.className = 'frame-floater' + (frame.collapsed ? ' collapsed' : '') + (frame.type === 'frame' ? ' frameless' : '') + (frame.type === 'memo' ? ' memo-floater' : '');
+  el.className = 'frame-floater' + (frame.collapsed ? ' collapsed' : '') + (frame.type === 'frame' ? ' frameless' : '') + (frame.type === 'memo' ? ' memo-floater' : '') + (frame.pinned ? ' pinned' : '');
   el.id = 'js-frame-' + frame.id;
   el.style.left = frame.pos.x + 'px';
   el.style.top  = frame.pos.y + 'px';
@@ -8855,7 +8952,8 @@ function createFrameElement(frame) {
       <div class="frame-floater-header">
         <div class="frame-floater-title">${frame.title || '备忘录'}</div>
         <div class="frame-floater-btns">
-          <button class="frame-floater-btn" onclick="toggleFrameCollapse('${frame.id}')" title="收缩">▼</button>
+          <button class="frame-floater-btn" onclick="toggleFramePin('${frame.id}')" title="固定">📌</button>
+          <button class="frame-floater-btn" onclick="toggleFrameCollapse('${frame.id}')" title="收缩" style="font-size:0.55rem">▼</button>
           <button class="frame-floater-btn" onclick="closeFrame('${frame.id}')" title="关闭">✕</button>
         </div>
       </div>
@@ -8867,7 +8965,8 @@ function createFrameElement(frame) {
       <div class="frame-floater-header">
         <input class="frame-title-input" id="js-title-${frame.id}" value="${frame.title || '图片展示'}" onchange="updateFrameTitle('${frame.id}', this.value)" onclick="this.select()">
         <div class="frame-floater-btns">
-          <button class="frame-floater-btn" onclick="toggleFrameCollapse('${frame.id}')" title="收缩">▼</button>
+          <button class="frame-floater-btn" onclick="toggleFramePin('${frame.id}')" title="固定">📌</button>
+          <button class="frame-floater-btn" onclick="toggleFrameCollapse('${frame.id}')" title="收缩" style="font-size:0.55rem">▼</button>
           <button class="frame-floater-btn" onclick="closeFrame('${frame.id}')" title="关闭">✕</button>
         </div>
       </div>
@@ -8936,6 +9035,29 @@ function toggleFrameCollapse(frameId) {
   if (el) el.classList.toggle('collapsed', frame.collapsed);
   save();
 }
+window.toggleFrameCollapse = toggleFrameCollapse;
+function toggleFramePin(frameId) {
+  console.log('toggleFramePin called:', frameId);
+  const frame = (appData.shopFrames || []).find(f => f.id === frameId);
+  if (!frame) { console.log('frame not found'); return; }
+  frame.pinned = !frame.pinned;
+  console.log('pinned:', frame.pinned);
+  const el = document.getElementById('js-frame-' + frameId);
+  if (el) {
+    el.classList.toggle('pinned', frame.pinned);
+    const pinBtn = el.querySelector('.frame-floater-btn[title="固定"]');
+    if (pinBtn) {
+      pinBtn.classList.toggle('is-pinned', frame.pinned);
+    }
+  }
+  save();
+  // If in immersive, always show pinned frames, hide unpinned
+  const imm = document.getElementById('js-immersive');
+  if (imm && imm.classList.contains('active')) {
+    if (el) el.style.visibility = frame.pinned ? '' : 'hidden';
+  }
+}
+window.toggleFramePin = toggleFramePin;
 function updateFrameTitle(frameId, newTitle) {
   const frame = (appData.shopFrames || []).find(f => f.id === frameId);
   if (!frame) return;
@@ -8943,12 +9065,14 @@ function updateFrameTitle(frameId, newTitle) {
   save();
   renderWarehouse();
 }
+window.updateFrameTitle = updateFrameTitle;
 function closeFrame(frameId) {
   const frame = (appData.shopFrames || []).find(f => f.id === frameId);
   if (frame) { frame.placed = false; save(); }
   const el = document.getElementById('js-frame-' + frameId);
   if (el) el.remove();
 }
+window.closeFrame = closeFrame;
 function changeFrameImage(frameId) {
   const input = document.createElement('input');
   input.type = 'file';
@@ -8981,6 +9105,7 @@ function changeFrameImage(frameId) {
   };
   input.click();
 }
+window.changeFrameImage = changeFrameImage;
 function handleFramePaste(e, frameId) {
   const items = e.clipboardData.items;
   for (let item of items) {
@@ -9015,6 +9140,9 @@ function initFrameDrag(el, frameData) {
   let dragging = false, ox = 0, oy = 0;
   const startDrag = e => {
     if (e.target.classList.contains('frame-floater-btn')) return;
+    // Block dragging if pinned
+    const frame = (appData.shopFrames || []).find(f => f.id === frameData.id);
+    if (frame && frame.pinned) return;
     dragging = true;
     ox = e.clientX - el.offsetLeft;
     oy = e.clientY - el.offsetTop;
