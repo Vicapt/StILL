@@ -1824,8 +1824,10 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   #js-theme-btn { bottom: unset !important; left: unset !important; top: 14px !important; right: 14px !important; }
   /* 底部栏与对话框保持距离 */
   #js-footer-bar { bottom: 24px !important; }
-  /* 对话框底部留出联系栏空间 */
-  .imm-chat-panel { bottom: 50px !important; }
+  /* 昼夜切换颜色过渡加速 */
+  body,div,span,button,input,textarea,select,a,canvas{transition-duration:0.12s!important}
+  /* 对话框底部留出联系栏空间（高于footer的24px） */
+  .imm-chat-panel { bottom: 40px !important; height: 42vh !important; }
 }
 </style>
 </head>
@@ -2920,6 +2922,11 @@ function toggleAudio(btn) {
   }
 }
 document.getElementById('js-audio-btn').onclick = function(){ toggleAudio(this); };
+document.getElementById('js-audio-btn').addEventListener('touchend', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  toggleAudio(this);
+});
 // 沉浸播放器：镜像主播放器状态
 function syncImmPlayer() {
   const nameEl = document.getElementById('js-imm-track-name');
@@ -2948,9 +2955,19 @@ document.getElementById('js-imm-next').onclick = () => {
 document.getElementById('js-imm-play').onclick = () => {
   toggleMusic(); syncImmPlayer();
 };
+document.getElementById('js-imm-play').addEventListener('touchend', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  toggleMusic(); syncImmPlayer();
+});
 document.getElementById('js-imm-rain').onclick = function(){
   toggleAudio(this); syncImmPlayer();
 };
+document.getElementById('js-imm-rain').addEventListener('touchend', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  toggleAudio(this); syncImmPlayer();
+});
 
 // ══════════════════════════════════════════════
 // RAIN
@@ -4236,7 +4253,7 @@ const UI={
         }
       }
       return`
-      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" onclick="window.matchMedia('(pointer: coarse)').matches?UI.switchTask('${t.id}'):null" oncontextmenu="openTaskCtx(event,'${t.id}')">
+      <div class="task-item ${t.isCompleted?'completed':''} ${t.isActive?'active-task':''} ${t.deadline&&!t.isCompleted?'has-deadline':''}" data-id="${t.id}" onclick="window.matchMedia('(pointer: coarse)').matches?UI.switchTask('${t.id}'):null" ondblclick="window.matchMedia('(pointer: coarse)').matches?taskDblClick('${t.id}'):UI.switchTask('${t.id}')" oncontextmenu="openTaskCtx(event,'${t.id}')">
         <div class="progress-fill" style="width:${t.progress}%"></div>
         <div class="task-inner">
           <span class="task-name">${t.title}</span>
@@ -4750,6 +4767,11 @@ function toggleMusic() {
 musicAudio.loop = true;
 
 document.getElementById('js-play-btn').onclick = toggleMusic;
+document.getElementById('js-play-btn').addEventListener('touchend', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  toggleMusic();
+});
 
 document.getElementById('js-prev-track').onclick = () => {
   const wasPlaying = musicPlaying;
@@ -4757,6 +4779,14 @@ document.getElementById('js-prev-track').onclick = () => {
   loadTrack(currentTrackIdx - 1);
   if (wasPlaying) setTimeout(playMusic, 120);
 };
+document.getElementById('js-prev-track').addEventListener('touchend', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  const wasPlaying = musicPlaying;
+  if (musicPlaying) pauseMusic();
+  loadTrack(currentTrackIdx - 1);
+  if (wasPlaying) setTimeout(playMusic, 120);
+});
 
 document.getElementById('js-next-track').onclick = () => {
   const wasPlaying = musicPlaying;
@@ -4764,6 +4794,14 @@ document.getElementById('js-next-track').onclick = () => {
   loadTrack(currentTrackIdx + 1);
   if (wasPlaying) setTimeout(playMusic, 120);
 };
+document.getElementById('js-next-track').addEventListener('touchend', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  const wasPlaying = musicPlaying;
+  if (musicPlaying) pauseMusic();
+  loadTrack(currentTrackIdx + 1);
+  if (wasPlaying) setTimeout(playMusic, 120);
+});
 
 // Init: preload first track name without playing
 loadTrack(0);
@@ -4771,10 +4809,12 @@ loadTrack(0);
 // ── 音量滑轨控制（自定义拖拽，hover 桥接防抖） ──
 (function(){
   function makeVolCtrl(opts){
-    // opts: { trackEl, fillEl, thumbEl, pctEl, initVal, onChange }
+    // opts: { trackEl, fillEl, thumbEl, pctEl, initVal, onChange, anchorEl, popupEl }
     const track = opts.trackEl, fill = opts.fillEl, thumb = opts.thumbEl, pct = opts.pctEl;
+    const anchor = opts.anchorEl, popupEl = opts.popupEl;
     let val = opts.initVal; // 0–100
     let dragging = false;
+    let dragAnchor = null; // 'track' or 'anchor'
 
     function setVal(v, emit){
       val = Math.max(0, Math.min(100, Math.round(v)));
@@ -4786,27 +4826,71 @@ loadTrack(0);
     }
     setVal(val, false);
 
-    function posToVal(e){
-      const rect = track.getBoundingClientRect();
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    function posToVal(clientY, rect){
       const ratio = 1 - (clientY - rect.top) / rect.height;
       return ratio * 100;
     }
 
+    // 滑块拖拽（需超过阈值才生效，防止误触）
+    const MOVE_THR = 5;
     track.addEventListener('mousedown', function(e){
-      e.preventDefault(); dragging = true;
-      setVal(posToVal(e), true);
+      e.preventDefault(); dragging = true; dragAnchor = 'track';
+      track._startY = e.clientY;
+      track._pendingVal = posToVal(e.clientY, track.getBoundingClientRect());
     });
+    track.addEventListener('touchstart', function(e){
+      if (e.touches.length !== 1) return;
+      dragging = true; dragAnchor = 'track';
+      track._startY = e.touches[0].clientY;
+      track._pendingVal = posToVal(e.touches[0].clientY, track.getBoundingClientRect());
+      track._moved = false;
+    }, {passive:true});
+
     document.addEventListener('mousemove', function(e){
-      if(!dragging) return;
-      setVal(posToVal(e), true);
+      if(!dragging || dragAnchor !== 'track') return;
+      const dy = Math.abs(e.clientY - track._startY);
+      if (dy > MOVE_THR && !track._moved) { track._moved = true; setVal(track._pendingVal, true); }
+      if (track._moved) setVal(posToVal(e.clientY, track.getBoundingClientRect()), true);
     });
-    document.addEventListener('mouseup', function(){ dragging = false; });
+    document.addEventListener('touchmove', function(e){
+      if(!dragging || dragAnchor !== 'track') return;
+      if (e.touches.length !== 1) return;
+      const dy = Math.abs(e.touches[0].clientY - track._startY);
+      if (dy > MOVE_THR && !track._moved) { track._moved = true; setVal(track._pendingVal, true); }
+      if (track._moved) setVal(posToVal(e.touches[0].clientY, track.getBoundingClientRect()), true);
+    }, {passive:false});
+
+    document.addEventListener('mouseup', function(){ dragging = false; dragAnchor = null; track._moved = false; });
+    document.addEventListener('touchend', function(){ dragging = false; dragAnchor = null; track._moved = false; });
+
+    // 按钮区拖拽（直接在按钮上下滑动调节音量，拖动时显示弹窗）
+    if (anchor) {
+      anchor.addEventListener('touchstart', function(e){
+        if (e.touches.length !== 1) return;
+        dragging = true; dragAnchor = 'anchor';
+        anchor._dragStartY = e.touches[0].clientY;
+        anchor._dragStartVal = val;
+        popupEl.classList.add('show'); // 开始拖动即显示弹窗
+      }, {passive:true});
+      anchor.addEventListener('touchmove', function(e){
+        if (!dragging || dragAnchor !== 'anchor' || !anchor._dragStartY) return;
+        if (e.touches.length !== 1) return;
+        const dy = anchor._dragStartY - e.touches[0].clientY; // 上滑增加
+        const delta = Math.round(dy * 0.5); // 1px = 0.5%
+        setVal(anchor._dragStartVal + delta, true);
+      }, {passive:false});
+      anchor.addEventListener('touchend', function(){
+        dragging = false; dragAnchor = null;
+        anchor._dragStartY = null;
+        anchor._dragStartVal = null;
+        popupEl.classList.remove('show'); // 释放后隐藏弹窗
+      });
+    }
 
     return { getVal: () => val / 100 };
   }
 
-  // ── 弹窗 hover 逻辑（含桥接防抖） ──
+  // ── 弹窗 hover 逻辑（仅桌面端，触摸端由按钮拖动控制显示） ──
   function makeHoverPopup(anchorEl, popupEl){
     let hideTimer = null;
     function show(){ clearTimeout(hideTimer); popupEl.classList.add('show'); }
@@ -4824,6 +4908,8 @@ loadTrack(0);
     fillEl:  document.getElementById('js-music-vol-fill'),
     thumbEl: document.getElementById('js-music-vol-thumb'),
     pctEl:   document.getElementById('js-music-vol-pct'),
+    anchorEl: document.getElementById('js-music-vol-anchor'),
+    popupEl:  document.getElementById('js-music-vol-popup'),
     initVal: 55,
     onChange: v => { if(musicPlaying) musicAudio.volume = v * 0.7; }
   });
@@ -4838,6 +4924,8 @@ loadTrack(0);
     fillEl:  document.getElementById('js-rain-vol-fill'),
     thumbEl: document.getElementById('js-rain-vol-thumb'),
     pctEl:   document.getElementById('js-rain-vol-pct'),
+    anchorEl: document.getElementById('js-rain-vol-anchor'),
+    popupEl:  document.getElementById('js-rain-vol-popup'),
     initVal: 50,
     onChange: v => { if(audioPlaying) audio.volume = v; }
   });
@@ -7605,7 +7693,6 @@ function closeTaskCtx() {
 
 // iPad双击打开任务菜单
 function taskDblClick(id) {
-  vib();
   const item = document.querySelector('.task-item[data-id="'+id+'"]');
   if (!item) return;
   const r = item.getBoundingClientRect();
@@ -9250,8 +9337,6 @@ window.changeFrameImage = changeFrameImage;
              preventDefault: ()=>{}, stopPropagation: ()=>{} };
   }
 
-  /* 震动反馈 */
-  function vib() { try { navigator.vibrate && navigator.vibrate(35); } catch(e){} }
 
   /* ── 通用长按检测 ─────────────────────────────────── */
   function longPressOn(el, onLong, onTap) {
@@ -9302,7 +9387,7 @@ window.changeFrameImage = changeFrameImage;
       ox = tc.clientX - el.offsetLeft;
       oy = tc.clientY - el.offsetTop;
       el.style.transition = 'none';
-      highlight(true); vib();
+      highlight(true);
       e.preventDefault();
 
       function onMove(e2) {
@@ -9426,26 +9511,20 @@ window.changeFrameImage = changeFrameImage;
       const tc = e.touches[0];
       bSx=tc.clientX; bSy=tc.clientY; bMoved=false;
 
-      /* 长按定时器：显示菜单 */
-      let longPressTimer = setTimeout(() => {
-        if (!bDrag) { /* 未开始拖动才显示菜单 */
-          bLocked=true;
-          showBottleCtxAt({clientX:tc.clientX, clientY:tc.clientY});
-          vib();
-        }
-      }, 500);
+      /* 拖动时关闭菜单 */
+      const menu = document.getElementById('js-bottle-ctx');
+      if (menu) menu.classList.remove('show');
 
       if (bLocked) {
         /* 已解锁 → 立即进入拖动状态 */
         bDrag=true;
-        clearTimeout(longPressTimer);
         const r=bottleWrap.getBoundingClientRect();
         bOx=tc.clientX-r.left; bOy=tc.clientY-r.top;
         bHighlight(true);
         e.preventDefault(); return;
       }
 
-      /* 未锁定 → 解锁 + 立即进入拖动（长按才显示菜单） */
+      /* 未锁定 → 解锁 + 立即进入拖动 */
       bLocked=true; bDrag=true;
       bHighlight(true);
       const r=bottleWrap.getBoundingClientRect();
@@ -9456,34 +9535,14 @@ window.changeFrameImage = changeFrameImage;
         const tc2=e2.touches[0];
         if(Math.abs(tc2.clientX-bSx)>MOVE_THR||Math.abs(tc2.clientY-bSy)>MOVE_THR){
           bMoved=true;
-          clearTimeout(longPressTimer);
           bottleWrap.removeEventListener('touchmove',mv);
         }
       }
       bottleWrap.addEventListener('touchmove',mv,{passive:true});
       bottleWrap.addEventListener('touchend',()=>{
-        clearTimeout(longPressTimer);
         bottleWrap.removeEventListener('touchmove',mv);
       },{once:true, passive:true});
     }, {passive:false});
-
-    /* 双击收取 */
-    bottleWrap.addEventListener('touchend', e => {
-      if (bDrag) {
-        bDrag=false;
-        try{save();}catch(e){}
-        return;
-      }
-      if (bMoved) return;
-
-      const now = Date.now();
-      const isDoubleTap = (now - bLastTap) < 300;
-      bLastTap = now;
-
-      if (isDoubleTap && (appData.bottleDrops||0) >= BOTTLE_MAX) {
-        bottleCollect(); vib();
-      }
-    }, {passive:true});
 
     window.addEventListener('touchmove', e=>{
       if(!bDrag) return;
@@ -9501,6 +9560,12 @@ window.changeFrameImage = changeFrameImage;
       bDrag=false;
       try{save();}catch(e){}
     },{passive:true});
+
+    /* iPad双击显示商店菜单 */
+    bottleWrap.addEventListener('dblclick', e => {
+      if (!window.matchMedia('(pointer: coarse)').matches) return;
+      showBottleCtxAt({clientX: bottleWrap.getBoundingClientRect().left + bottleWrap.offsetWidth/2, clientY: bottleWrap.getBoundingClientRect().top + bottleWrap.offsetHeight/2});
+    });
 
     /* 点击外部 → 解锁 + 关闭菜单 */
     document.addEventListener('touchstart', e=>{
@@ -9522,7 +9587,7 @@ window.changeFrameImage = changeFrameImage;
     if (!item) return;
     const id = item.id.replace('habit-','');
     let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
-    let lt = setTimeout(()=>{ lt=null; vib(); openHabitCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
+    let lt = setTimeout(()=>{ lt=null; openHabitCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
     function cancel(){ clearTimeout(lt); lt=null; }
     function mv(e2){
       const tc=e2.touches[0];
@@ -9542,7 +9607,7 @@ window.changeFrameImage = changeFrameImage;
     if (!m) return;
     const id = m[1];
     let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
-    let lt = setTimeout(()=>{ lt=null; vib(); openBillCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
+    let lt = setTimeout(()=>{ lt=null; openBillCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
     function cancel(){ clearTimeout(lt); lt=null; }
     function mv(e2){
       const tc=e2.touches[0];
@@ -9564,7 +9629,7 @@ window.changeFrameImage = changeFrameImage;
       if (!fn) return;
       let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
       let lt = setTimeout(()=>{
-        lt=null; vib();
+        lt=null;
         /* 调用原有双击逻辑 */
         fn.call(cell, {stopPropagation:()=>{}});
       }, LONG_MS);
