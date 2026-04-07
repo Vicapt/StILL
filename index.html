@@ -876,7 +876,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   backdrop-filter:blur(20px);
   cursor:grab;
   user-select:none;
-  transition:box-shadow 0.2s, opacity 0.2s;
+  transition:box-shadow 0.2s, opacity 0.2s, background-color 0.15s, border-color 0.15s, color 0.15s;
   box-shadow:0 4px 16px rgba(0,0,0,0.12);
 }
 .cd-float:active{cursor:grabbing;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
@@ -1301,11 +1301,11 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .habit-empty{font-size:0.65rem;opacity:0.25;padding:2px 2px 6px;text-align:center}
 
 /* 悬浮废纸篓 */
-.note-floater{position:fixed;z-index:200;width:220px;background:var(--panel-bg-deep);border:1px solid var(--glass-b);border-radius:16px;padding:12px;backdrop-filter:blur(24px);box-shadow:0 4px 20px rgba(0,0,0,0.12);cursor:grab;display:none}
+.note-floater{position:fixed;z-index:200;width:220px;background:var(--panel-bg-deep);border:1px solid var(--glass-b);border-radius:16px;padding:12px;backdrop-filter:blur(24px);box-shadow:0 4px 20px rgba(0,0,0,0.12);cursor:grab;display:none;transition:background-color 0.15s ease,border-color 0.15s ease}
 .note-floater.visible{display:flex;flex-direction:column;gap:8px}
 .note-floater:active{cursor:grabbing}
-.note-floater-header{display:flex;align-items:center;justify-content:space-between}
-.note-floater-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase}
+.note-floater-header{display:flex;align-items:center;justify-content:space-between;transition:background-color 0.15s ease,border-color 0.15s ease}
+.note-floater-title{font-size:0.6rem;letter-spacing:2px;opacity:0.35;text-transform:uppercase;transition:color 0.15s ease,opacity 0.15s ease}
 .note-floater-close{background:transparent;border:none;color:var(--btn-muted);cursor:pointer;font-size:0.75rem;padding:1px 4px;line-height:1}
 .note-floater-close:hover{color:rgba(200,60,40,0.8)}
 .note-floater-input{background:var(--input-bg);border:1px solid var(--glass-b);border-radius:8px;color:var(--txt);font-size:0.76rem;padding:7px 9px;outline:none;font-family:inherit;resize:none;min-height:60px;max-height:120px;line-height:1.5;width:100%}
@@ -1607,17 +1607,20 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   box-shadow:0 6px 28px rgba(0,0,0,0.15);
   cursor:grab;display:flex;flex-direction:column;gap:8px;
   min-width:160px;min-height:100px;
-  transition:min-height 0.25s ease,padding 0.25s ease;
+  transition:min-height 0.25s ease,padding 0.25s ease,background-color 0.15s ease,border-color 0.15s ease;
 }
 .frame-floater:active{cursor:grabbing}
 .frame-floater.collapsed{min-height:unset;padding:8px}
 .frame-floater-header{
   display:flex;align-items:center;justify-content:space-between;
   gap:8px;flex-shrink:0;
+  background:var(--panel-bg-deep);
+  transition:background-color 0.15s ease,border-color 0.15s ease,color 0.15s ease,opacity 0.15s ease;
 }
 .frame-floater-title{
   font-size:0.6rem;letter-spacing:2px;opacity:0.35;
   text-transform:uppercase;flex:1;
+  transition:color 0.15s ease,opacity 0.15s ease;
 }
 .frame-title-input{
   font-size:0.6rem;letter-spacing:2px;opacity:0.6;
@@ -1626,6 +1629,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
   text-transform:uppercase;
   color:var(--txt);
   width:100%;
+  transition:color 0.15s ease,opacity 0.15s ease;
 }
 .frame-floater-btns{display:flex;gap:4px}
 .frame-floater-btn{
@@ -1666,6 +1670,7 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .frame-floater.frameless .frame-floater-header{
   background:var(--panel-bg-deep);border:1px solid var(--glass-b);
   border-radius:8px;margin:0;padding:4px 6px;
+  transition:background-color 0.15s ease,border-color 0.15s ease,color 0.15s ease,opacity 0.15s ease;
 }
 .frame-floater.frameless .frame-floater-img,
 .frame-floater.frameless .frame-floater-placeholder{
@@ -1812,6 +1817,14 @@ body,html{height:100%;overflow:hidden;color:var(--txt);font-family:'DM Sans',san
 .toast-dismiss:hover{background:var(--glass-h);color:var(--txt)}
 
 @keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+
+/* ── iPad / 触摸设备适配 ── */
+@media (pointer: coarse) {
+  /* 日夜切换按钮移至右上角 */
+  #js-theme-btn { bottom: unset !important; left: unset !important; top: 14px !important; right: 14px !important; }
+  /* 底部栏与对话框保持距离 */
+  #js-footer-bar { bottom: 24px !important; }
+}
 </style>
 </head>
 <body>
@@ -9040,7 +9053,7 @@ window.changeFrameImage = changeFrameImage;
 
 </script>
   <!-- 底部联系栏 -->
-  <div style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:0;pointer-events:none;font-size:0.58rem;color:var(--txt-faint);letter-spacing:0.5px;white-space:nowrap">
+  <div id="js-footer-bar" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:0;pointer-events:none;font-size:0.58rem;color:var(--txt-faint);letter-spacing:0.5px;white-space:nowrap">
     <span>@Vicapt</span>
     <span style="margin:0 5px;opacity:0.5">/</span>
     <a href="/cdn-cgi/l/email-protection#f59d80949b9282909c919c839c969e8cb59d9a8198949c99db969a98" style="pointer-events:auto;color:var(--txt-faint);text-decoration:none;transition:color 0.15s" onmouseover="this.style.color='var(--txt-dim)'" onmouseout="this.style.color='var(--txt-faint)'">联系反馈</a>
@@ -9208,6 +9221,363 @@ window.changeFrameImage = changeFrameImage;
 
   <!-- 选曲下拉：挂在 body 下，脱离 task-panel 的 overflow:hidden 裁剪 -->
   <div class="track-dropdown hidden" id="js-track-dropdown"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   iPad / 触摸设备适配层
+   仅在 pointer:coarse 设备生效（iPad/手机），电脑端完全不受影响
+═══════════════════════════════════════════════════════════════ */
+(function() {
+  if (!window.matchMedia('(pointer: coarse)').matches) return;
+
+  const LONG_MS = 500;
+  const MOVE_THR = 8;
+
+  /* 模拟 contextmenu 事件对象 */
+  function fakeCtx(touch) {
+    return { clientX: touch.clientX, clientY: touch.clientY,
+             preventDefault: ()=>{}, stopPropagation: ()=>{} };
+  }
+
+  /* 震动反馈 */
+  function vib() { try { navigator.vibrate && navigator.vibrate(35); } catch(e){} }
+
+  /* ── 通用长按检测 ─────────────────────────────────── */
+  function longPressOn(el, onLong, onTap) {
+    let t, sx, sy;
+    el.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      const tc = e.touches[0]; sx = tc.clientX; sy = tc.clientY;
+      t = setTimeout(() => { t = null; onLong(tc); }, LONG_MS);
+    }, {passive: true});
+    el.addEventListener('touchmove', e => {
+      if (!t) return;
+      const tc = e.touches[0];
+      if (Math.abs(tc.clientX-sx) > MOVE_THR || Math.abs(tc.clientY-sy) > MOVE_THR)
+        { clearTimeout(t); t = null; }
+    }, {passive: true});
+    el.addEventListener('touchend', e => {
+      if (t) { clearTimeout(t); t = null; if (onTap) onTap(e.changedTouches[0]); }
+    }, {passive: true});
+    el.addEventListener('touchcancel', () => { clearTimeout(t); t = null; }, {passive: true});
+  }
+
+  /* ── 通用悬浮窗触摸拖拽 ───────────────────────────── */
+  /* 点击解锁 → 拖动 → 点击外部锁定（防划词复制）           */
+  function touchDrag(el, onSave) {
+    let locked = false, dragging = false, ox = 0, oy = 0;
+
+    function highlight(on) {
+      el.style.boxShadow = on ? '0 0 0 2px rgba(255,160,80,.7),0 8px 32px rgba(0,0,0,.35)' : '';
+      el.style.opacity   = on ? '0.88' : '';
+    }
+
+    el.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      const tc = e.touches[0];
+      let sx = tc.clientX, sy = tc.clientY, moved = false;
+
+      if (locked) {
+        dragging = true;
+        ox = tc.clientX - el.offsetLeft;
+        oy = tc.clientY - el.offsetTop;
+        el.style.transition = 'none';
+        e.preventDefault();
+        return;
+      }
+
+      /* 点击即解锁并开始拖动（无需长按，避免触发iPad划词复制） */
+      dragging = true;
+      ox = tc.clientX - el.offsetLeft;
+      oy = tc.clientY - el.offsetTop;
+      el.style.transition = 'none';
+      highlight(true); vib();
+      e.preventDefault();
+
+      function onMove(e2) {
+        const tc2 = e2.touches[0];
+        if (Math.abs(tc2.clientX-sx)>MOVE_THR || Math.abs(tc2.clientY-sy)>MOVE_THR) {
+          moved = true;
+        }
+      }
+      el.addEventListener('touchmove', onMove, {passive:true});
+      el.addEventListener('touchend', () => {
+        el.removeEventListener('touchmove', onMove);
+      }, {passive:true, once:true});
+    }, {passive: false});
+
+    window.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const tc = e.touches[0];
+      let nx = tc.clientX - ox, ny = tc.clientY - oy;
+      nx = Math.max(0, Math.min(nx, window.innerWidth  - el.offsetWidth));
+      ny = Math.max(0, Math.min(ny, window.innerHeight - el.offsetHeight));
+      el.style.left = nx+'px'; el.style.top = ny+'px';
+      el.style.right = 'unset'; el.style.bottom = 'unset';
+      e.preventDefault();
+    }, {passive: false});
+
+    window.addEventListener('touchend', () => {
+      if (!dragging) return;
+      dragging = false;
+      el.style.transition = '';
+      if (onSave) onSave(el);
+    }, {passive: true});
+
+    /* 点击外部 → 解锁 */
+    document.addEventListener('touchstart', e => {
+      if (locked && !el.contains(e.target)) {
+        locked = false; highlight(false);
+      }
+    }, {passive: true});
+  }
+
+  /* ═══ 1. 小纸条悬浮窗 ═══ */
+  const noteFloater = document.getElementById('js-note-floater');
+  if (noteFloater) {
+    touchDrag(noteFloater, el => {
+      try { floaterPos = {x: parseInt(el.style.left), y: parseInt(el.style.top)}; } catch(e){}
+    });
+  }
+
+  /* ═══ 2. 倒数日悬浮卡（动态创建，MutationObserver 监听）═══ */
+  function initCdFloat(div) {
+    if (div._td) return; div._td = true;
+    touchDrag(div, el => {
+      try {
+        const cdId = el.id.replace('cd-float-', '');
+        const cards = getPinnedCards();
+        const idx = cards.findIndex(p => p.id === cdId);
+        const pos = {id: cdId, x: parseInt(el.style.left), y: parseInt(el.style.top)};
+        if (idx >= 0) cards[idx] = pos; else cards.push(pos);
+        setPinnedCards(cards);
+      } catch(e){}
+    });
+  }
+  new MutationObserver(ms => ms.forEach(m =>
+    m.addedNodes.forEach(n => {
+      if (n.nodeType===1 && n.classList && n.classList.contains('cd-float')) initCdFloat(n);
+    })
+  )).observe(document.body, {childList: true, subtree: false});
+  document.querySelectorAll('.cd-float').forEach(initCdFloat);
+
+  /* ═══ 3. 图片/备忘录展示框（动态创建）═══ */
+  function initFrameFloat(el) {
+    if (el._td) return; el._td = true;
+    touchDrag(el, el2 => {
+      try {
+        const fid = el2.dataset.frameId;
+        const frame = (appData.frames||[]).find(f=>f.id===fid);
+        if (frame) { frame.pos={x:parseInt(el2.style.left),y:parseInt(el2.style.top)}; save(); }
+      } catch(e){}
+    });
+    /* 图片区域长按 → 更换图片 */
+    const img = el.querySelector('.frame-floater-img, .frame-floater-placeholder');
+    if (img) {
+      longPressOn(img, () => {
+        try { const id=el.dataset.frameId; if(id) changeFrameImage(id); } catch(e){}
+      });
+    }
+  }
+  const framesWrap = document.getElementById('js-frames-container');
+  if (framesWrap) {
+    new MutationObserver(ms => ms.forEach(m =>
+      m.addedNodes.forEach(n => {
+        if (n.nodeType===1 && n.classList && n.classList.contains('frame-floater')) initFrameFloat(n);
+      })
+    )).observe(framesWrap, {childList: true});
+    framesWrap.querySelectorAll('.frame-floater').forEach(initFrameFloat);
+  }
+
+  /* ═══ 4. 积雨瓶：单击解锁+显示菜单+拖动，双击收取 ═══ */
+  const bottleWrap = document.getElementById('js-bottle-wrap');
+  if (bottleWrap) {
+    /* 移除原始 touch 拖拽（与新逻辑冲突） */
+    bottleWrap.removeEventListener('touchstart', bottleDragStart);
+
+    let bLocked=false, bDrag=false, bOx=0, bOy=0;
+    let bLastTap=0, bMoved=false, bSx=0, bSy=0;
+
+    function bHighlight(on) {
+      bottleWrap.style.filter = on ? 'drop-shadow(0 0 8px rgba(255,160,80,.8))' : '';
+    }
+    function showBottleCtxAt(tc) {
+      const menu = document.getElementById('js-bottle-ctx');
+      if (!menu) return;
+      menu.classList.add('show');
+      menu.style.left = Math.min(tc.clientX, window.innerWidth-140)+'px';
+      menu.style.top  = Math.min(tc.clientY, window.innerHeight-100)+'px';
+    }
+
+    bottleWrap.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      const tc = e.touches[0];
+      bSx=tc.clientX; bSy=tc.clientY; bMoved=false;
+
+      if (bLocked) {
+        /* 已解锁 → 立即进入拖动状态 */
+        bDrag=true;
+        const r=bottleWrap.getBoundingClientRect();
+        bOx=tc.clientX-r.left; bOy=tc.clientY-r.top;
+        bHighlight(true);
+        e.preventDefault(); return;
+      }
+
+      /* 未锁定 → 单击一次：解锁 + 显示菜单 + 立即进入拖动 */
+      bLocked=true; bDrag=true;
+      bHighlight(true); vib();
+      const r=bottleWrap.getBoundingClientRect();
+      bOx=tc.clientX-r.left; bOy=tc.clientY-r.top;
+      showBottleCtxAt({clientX:tc.clientX, clientY:tc.clientY});
+      e.preventDefault();
+
+      function mv(e2){
+        const tc2=e2.touches[0];
+        if(Math.abs(tc2.clientX-bSx)>MOVE_THR||Math.abs(tc2.clientY-bSy)>MOVE_THR){
+          bMoved=true;
+          bottleWrap.removeEventListener('touchmove',mv);
+        }
+      }
+      bottleWrap.addEventListener('touchmove',mv,{passive:true});
+      bottleWrap.addEventListener('touchend',()=>{
+        bottleWrap.removeEventListener('touchmove',mv);
+      },{once:true, passive:true});
+    }, {passive:false});
+
+    /* 双击收取 */
+    bottleWrap.addEventListener('touchend', e => {
+      if (bDrag) {
+        bDrag=false;
+        try{save();}catch(e){}
+        return;
+      }
+      if (bMoved) return;
+
+      const now = Date.now();
+      const isDoubleTap = (now - bLastTap) < 300;
+      bLastTap = now;
+
+      if (isDoubleTap && (appData.bottleDrops||0) >= BOTTLE_MAX) {
+        bottleCollect(); vib();
+      }
+    }, {passive:true});
+
+    window.addEventListener('touchmove', e=>{
+      if(!bDrag) return;
+      const tc=e.touches[0];
+      const nx=Math.max(0,Math.min(tc.clientX-bOx,window.innerWidth-bottleWrap.offsetWidth));
+      const ny=Math.max(0,Math.min(tc.clientY-bOy,window.innerHeight-bottleWrap.offsetHeight));
+      bottleWrap.style.left=nx+'px'; bottleWrap.style.top=ny+'px';
+      bottleWrap.style.right='unset'; bottleWrap.style.bottom='unset';
+      try{appData.bottlePos={left:nx,top:ny};}catch(e){}
+      e.preventDefault();
+    },{passive:false});
+
+    window.addEventListener('touchend', ()=>{
+      if(!bDrag) return;
+      bDrag=false;
+      try{save();}catch(e){}
+    },{passive:true});
+
+    /* 点击外部 → 解锁 + 关闭菜单 */
+    document.addEventListener('touchstart', e=>{
+      if(!bLocked) return;
+      const menu=document.getElementById('js-bottle-ctx');
+      if(!bottleWrap.contains(e.target) && !(menu&&menu.contains(e.target))){
+        bLocked=false; bHighlight(false);
+        if(menu) menu.classList.remove('show');
+      }
+    },{passive:true});
+  }
+
+  /* ═══ 5. 任务右键菜单 → 长按 ═══ */
+  const taskList = document.getElementById('js-task-list');
+  if (taskList) {
+    taskList.addEventListener('touchstart', e => {
+      const item = e.target.closest('.task-item[data-id]');
+      if (!item) return;
+      const id = item.dataset.id;
+      let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
+      let lt = setTimeout(()=>{ lt=null; vib(); openTaskCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
+      function cancel(){ clearTimeout(lt); lt=null; }
+      function mv(e2){
+        const tc=e2.touches[0];
+        if(Math.abs(tc.clientX-sx)>MOVE_THR||Math.abs(tc.clientY-sy)>MOVE_THR) cancel();
+      }
+      item.addEventListener('touchmove', mv, {passive:true, once:true});
+      item.addEventListener('touchend',    cancel, {passive:true, once:true});
+      item.addEventListener('touchcancel', cancel, {passive:true, once:true});
+    }, {passive:true});
+  }
+
+  /* ═══ 6. 习惯右键菜单 → 长按 ═══ */
+  document.addEventListener('touchstart', e => {
+    const item = e.target.closest('[id^="habit-"]');
+    if (!item) return;
+    const id = item.id.replace('habit-','');
+    let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
+    let lt = setTimeout(()=>{ lt=null; vib(); openHabitCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
+    function cancel(){ clearTimeout(lt); lt=null; }
+    function mv(e2){
+      const tc=e2.touches[0];
+      if(Math.abs(tc.clientX-sx)>MOVE_THR||Math.abs(tc.clientY-sy)>MOVE_THR) cancel();
+    }
+    item.addEventListener('touchmove', mv, {passive:true, once:true});
+    item.addEventListener('touchend',    cancel, {passive:true, once:true});
+    item.addEventListener('touchcancel', cancel, {passive:true, once:true});
+  }, {passive:true});
+
+  /* ═══ 7. 账单右键菜单 → 长按 ═══ */
+  document.addEventListener('touchstart', e => {
+    const item = e.target.closest('.bill-item');
+    if (!item) return;
+    const attr = item.getAttribute('oncontextmenu')||'';
+    const m = attr.match(/openBillCtx\(event,'([^']+)'\)/);
+    if (!m) return;
+    const id = m[1];
+    let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
+    let lt = setTimeout(()=>{ lt=null; vib(); openBillCtx(fakeCtx(e.touches[0]),id); }, LONG_MS);
+    function cancel(){ clearTimeout(lt); lt=null; }
+    function mv(e2){
+      const tc=e2.touches[0];
+      if(Math.abs(tc.clientX-sx)>MOVE_THR||Math.abs(tc.clientY-sy)>MOVE_THR) cancel();
+    }
+    item.addEventListener('touchmove', mv, {passive:true, once:true});
+    item.addEventListener('touchend',    cancel, {passive:true, once:true});
+    item.addEventListener('touchcancel', cancel, {passive:true, once:true});
+  }, {passive:true});
+
+  /* ═══ 8. 日历格：双击 → 长按（添加倒数日）═══ */
+  const calContainer = document.getElementById('js-calendar');
+  if (calContainer) {
+    calContainer.addEventListener('touchstart', e => {
+      const cell = e.target.closest('.cal-day');
+      if (!cell) return;
+      /* ondblclick 属性里存有 dateStr，提取出来 */
+      const fn = cell.ondblclick;
+      if (!fn) return;
+      let sx=e.touches[0].clientX, sy=e.touches[0].clientY;
+      let lt = setTimeout(()=>{
+        lt=null; vib();
+        /* 调用原有双击逻辑 */
+        fn.call(cell, {stopPropagation:()=>{}});
+      }, LONG_MS);
+      function cancel(){ clearTimeout(lt); lt=null; }
+      function mv(e2){
+        const tc=e2.touches[0];
+        if(Math.abs(tc.clientX-sx)>MOVE_THR||Math.abs(tc.clientY-sy)>MOVE_THR) cancel();
+      }
+      cell.addEventListener('touchmove', mv, {passive:true, once:true});
+      cell.addEventListener('touchend',    cancel, {passive:true, once:true});
+      cell.addEventListener('touchcancel', cancel, {passive:true, once:true});
+    }, {passive:true});
+  }
+
+  /* ═══ 9. 禁止浏览器原生长按菜单 ═══ */
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+})();
+</script>
 
 </body>
 </html>
